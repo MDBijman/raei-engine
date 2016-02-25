@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Vulkan Wrappers">
+      <UniqueIdentifier>{eba853eb-b9c8-4c68-941d-5cff6215526f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Vulkan Wrappers\Extensions">
+      <UniqueIdentifier>{42cc537a-7e66-42d6-a181-1daff9f387bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\triangle.cpp">
@@ -22,6 +28,15 @@
   <ItemGroup>
     <ClInclude Include="include\VkSwapchain.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanApplication.h">
+      <Filter>Header Files\Vulkan Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SurfaceExtensions.h">
+      <Filter>Header Files\Vulkan Wrappers\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SwapchainExtensions.h">
+      <Filter>Header Files\Vulkan Wrappers\Extensions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

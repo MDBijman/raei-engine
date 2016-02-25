@@ -4,11 +4,15 @@
 #include <stdlib.h>
 #include <iostream>
 #include <chrono>
+#include <memory>
 
 #define GLM_FORCE_RADIANS
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 #include <math.h>
+
+
+#include "VulkanApplication.h"
 
 
 #include <VkSwapchain.h>
@@ -19,6 +23,14 @@
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	switch (uMsg)
+	{
+	case WM_CLOSE:
+		exit(0);
+		break;
+	}
+
+
 	return (DefWindowProc(hWnd, uMsg, wParam, lParam));
 }
 
@@ -76,22 +88,10 @@ VkShaderModule loadShader(const char *fileName, VkDevice device, VkShaderStageFl
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
-	// Our main instance
-	VkInstance instance;
-	VkPhysicalDevice physicalDevice;
-	VkDevice device;
-	VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
-	VkQueue queue;
-	VkFormat depthFormat;
-
-	VkCommandPool cmdPool;
-	VkCommandBuffer setupCmdBuffer = VK_NULL_HANDLE;
 
 	uint32_t width = 1280;
 	uint32_t height = 720;
 
-	std::vector<VkCommandBuffer> drawCmdBuffers;
-	VkCommandBuffer postPresentCmdBuffer = VK_NULL_HANDLE;
 	VkFormat colorformat = VK_FORMAT_B8G8R8A8_UNORM;
 	VkRenderPass renderPass;
 	VkPipelineCache pipelineCache;
@@ -157,8 +157,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	HWND window;
 	HINSTANCE windowInstance = hInstance;
 
-	VulkanSwapChain swapchain;
 
+	
 	// "Globals"
 	//////////////////////////////////////////////////////////////////////////////
 	// Instance Creation
@@ -186,71 +186,44 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	instanceCreateInfo.enabledExtensionCount = (uint32_t) extensions.size();
 	instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
-	// Create VkInstance
-	errorStatus = vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
-	assert(!errorStatus);
+	std::shared_ptr<VA::VulkanApplication> application = std::make_shared<VA::VulkanApplication>(instanceCreateInfo);
 
-	// Instance Creation
-	//////////////////////////////////////////////////////////////////////////////
-	// Devices
+	application->initPhysicalDevices();
+	application->initQueueFamilyProperties();
 
-	uint32_t gpuCount;
-	errorStatus = vkEnumeratePhysicalDevices(instance, &gpuCount, &physicalDevice);
-	assert(!errorStatus);
+	uint32_t graphicsQueueIndex = application->getQueueIndexOfType(VK_QUEUE_GRAPHICS_BIT);
 
-	uint32_t queueCount;
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount, NULL);
-	assert(queueCount >= 1);
-
-	std::vector<VkQueueFamilyProperties> queueProperties;
-	queueProperties.resize(queueCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount, queueProperties.data());
-
-	uint32_t graphicsQueueIndex;
-	for (graphicsQueueIndex = 0; graphicsQueueIndex < queueCount; graphicsQueueIndex++)
-	{
-		if (queueProperties[graphicsQueueIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT)
-			break;
-	}
-	assert(graphicsQueueIndex < queueCount);
-
-	float queuePriorities[1] = { 0.0f };
 	VkDeviceQueueCreateInfo queueCreateInfo = {};
 	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 	queueCreateInfo.queueFamilyIndex = graphicsQueueIndex;
 	queueCreateInfo.queueCount = 1;
+	float queuePriorities[1] = { 0.0f };
 	queueCreateInfo.pQueuePriorities = &queuePriorities[0];
 
-	std::vector<const char*> enabledExtensions = {
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
-	};
 
 	VkDeviceCreateInfo deviceCreateInfo = {};
 	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	deviceCreateInfo.queueCreateInfoCount = 1;
 	deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
 	deviceCreateInfo.pEnabledFeatures = NULL;
-
+	std::vector<const char*> enabledExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 	deviceCreateInfo.enabledExtensionCount = (uint32_t)enabledExtensions.size();
 	deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
-	errorStatus = vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device);
-
-	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &deviceMemoryProperties);
-
-	// Get the graphics queue
-	vkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
+	application->initDevice(deviceCreateInfo);
+	application->initPhysicalDeviceMemoryProperties();
+	application->initSwapchain();
+	VkQueue queue = application->getQueueAtIndex(graphicsQueueIndex);
 
 	// Find supported depth format
 	// We prefer 24 bits of depth and 8 bits of stencil, but that may not be supported by all implementations
+	VkFormat depthFormat;
 	std::vector<VkFormat> depthFormats = { VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM };
 	bool depthFormatFound = false;
 	for (auto& format : depthFormats)
 	{
-		VkFormatProperties formatProps;
-		vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &formatProps);
-		// Format must support depth stencil attachment for optimal tiling
-		if (formatProps.optimalTilingFeatures && VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+		VkFormatProperties props = application->queryPhysicalDeviceFormatProperties(format);
+		if (props.optimalTilingFeatures && VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
 		{
 			depthFormat = format;
 			depthFormatFound = true;
@@ -258,14 +231,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 		}
 	}
 
-	// Devices
-	///////////////////////////////////////////////////////////////////////////////	
-	// Swapchain Functions
 
-
-	swapchain.init(instance, physicalDevice, device);
-
-		// Swapchain Functions
 	//////////////////////////////////////////////////////////////////////////////
 	// Window Creation
 	bool fullscreen = false;
@@ -393,75 +359,57 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	/////////////////////////////////////////////////////////////////////////////////////////////////
 	// Initialize Swapchain
 
-	swapchain.initSwapChain(windowInstance, window);
-
-	// Initialize Swapchain
-	///////////////////////////////////////////////////////////////////////////////
-	// Create Command Pool
+	application->swapchain->initSwapChain(windowInstance, window);
 
 	VkCommandPoolCreateInfo cmdPoolInfo = {};
 	cmdPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-	cmdPoolInfo.queueFamilyIndex = swapchain.queueNodeIndex;
+	cmdPoolInfo.queueFamilyIndex = application->swapchain->queueNodeIndex;
 	cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-	errorStatus = vkCreateCommandPool(device, &cmdPoolInfo, nullptr, &cmdPool);
-	assert(!errorStatus);
-
+	VkCommandPool cmdPool = application->createCommandPool(cmdPoolInfo);
+	
 	// Create Command Pool
 	//////////////////////////////////////////////////////////////////////////////////
 	// Create Setup Command Buffor
 	
-	if (setupCmdBuffer != VK_NULL_HANDLE)
-	{
-		vkFreeCommandBuffers(device, cmdPool, 1, &setupCmdBuffer);
-		setupCmdBuffer = VK_NULL_HANDLE; // todo : check if still necessary
-	}
-
 	VkCommandBufferAllocateInfo cmdBufAllocateInfo = {};
 	cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	cmdBufAllocateInfo.commandPool = cmdPool;
 	cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	cmdBufAllocateInfo.commandBufferCount = 1;
 
-	errorStatus = vkAllocateCommandBuffers(device, &cmdBufAllocateInfo, &setupCmdBuffer);
-	assert(!errorStatus);
+	std::vector<VkCommandBuffer> setupCmdBuffer = application->allocateCommandBuffers(cmdBufAllocateInfo);
 
 	// todo : Command buffer is also started here, better put somewhere else
-	// todo : Check if necessaray at all...
 	VkCommandBufferBeginInfo cmdBufInfo = {};
 	cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	// todo : check null handles, flags?
-
-	errorStatus = vkBeginCommandBuffer(setupCmdBuffer, &cmdBufInfo);
+	errorStatus = vkBeginCommandBuffer(setupCmdBuffer.at(0), &cmdBufInfo);
 	assert(!errorStatus);
 
 	// Create Setup Command Buffer
 	//////////////////////////////////////////////////////////////////////////////////
 	// Setup Swapchain
 
-	swapchain.setup(setupCmdBuffer, &width, &height);
+	application->swapchain->setup(setupCmdBuffer.at(0), &width, &height);
 
 
 	// Setup Swapchain
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Create Command Buffers
 
-	drawCmdBuffers.resize(swapchain.imageCount);
 
 	VkCommandBufferAllocateInfo cmdBufAllocateInfo2 = {};
 	cmdBufAllocateInfo2.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	cmdBufAllocateInfo2.commandPool = cmdPool;
 	cmdBufAllocateInfo2.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-	cmdBufAllocateInfo2.commandBufferCount = (uint32_t) drawCmdBuffers.size();
+	cmdBufAllocateInfo2.commandBufferCount = (uint32_t)application->swapchain->imageCount;
 
-	errorStatus = vkAllocateCommandBuffers(device, &cmdBufAllocateInfo2, drawCmdBuffers.data());
-	assert(!errorStatus);
+	std::vector<VkCommandBuffer> drawCmdBuffers = application->allocateCommandBuffers(cmdBufAllocateInfo2);
 
 	// Create one command buffer for submitting the
 	// post present image memory barrier
-	cmdBufAllocateInfo2.commandBufferCount = 1;
 
-	errorStatus = vkAllocateCommandBuffers(device, &cmdBufAllocateInfo2, &postPresentCmdBuffer);
-	assert(!errorStatus);
+	cmdBufAllocateInfo2.commandBufferCount = 1;
+	std::vector<VkCommandBuffer> postPresentCmdBuffer = application->allocateCommandBuffers(cmdBufAllocateInfo2);
 
 	// Create Command Buffers
 	///////////////////////////////////////////////////////////////////////////////////////
@@ -499,11 +447,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	depthStencilView.subresourceRange.baseArrayLayer = 0;
 	depthStencilView.subresourceRange.layerCount = 1;
 
-	VkMemoryRequirements memReqs;
 
-	errorStatus = vkCreateImage(device, &image, nullptr, &depthStencil.image);
-	assert(!errorStatus);
-	vkGetImageMemoryRequirements(device, depthStencil.image, &memReqs);
+	depthStencil.image = application->createImage(image);
+	VkMemoryRequirements memReqs = application->getImageMemoryRequirements(depthStencil.image);
 	mem_alloc.allocationSize = memReqs.size;
 
 	for (uint32_t i = 0; i < 32; i++)
@@ -511,7 +457,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 		if ((memReqs.memoryTypeBits & 1) == 1)
 
 		{
-			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+			if ((application->memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 			{
 				mem_alloc.memoryTypeIndex = i;
 			}
@@ -520,11 +466,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	}
 
 
-	errorStatus = vkAllocateMemory(device, &mem_alloc, nullptr, &depthStencil.mem);
-	assert(!errorStatus);
-
-	errorStatus = vkBindImageMemory(device, depthStencil.image, depthStencil.mem, 0);
-	assert(!errorStatus);
+	depthStencil.mem = application->allocateMemory(mem_alloc);
+	application->bindImageMemory(depthStencil.image, depthStencil.mem);
 
 	// Create an image barrier object
 	VkImageMemoryBarrier imageMemoryBarrier = {};
@@ -547,12 +490,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
 	// Put barrier inside setup command buffer
-	vkCmdPipelineBarrier(setupCmdBuffer, srcStageFlags, destStageFlags,	0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+	vkCmdPipelineBarrier(setupCmdBuffer.at(0), srcStageFlags, destStageFlags,	0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
 	depthStencilView.image = depthStencil.image;
-	errorStatus = vkCreateImageView(device, &depthStencilView, nullptr, &depthStencil.view);
-	assert(!errorStatus);
-
+	depthStencil.view = application->createImageView(depthStencilView);
 
 	// Setup Depth Stencil
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -607,17 +548,14 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	renderPassInfo.dependencyCount = 0;
 	renderPassInfo.pDependencies = NULL;
 
-	errorStatus = vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass);
-	assert(!errorStatus);
-
+	renderPass = application->createRenderPass(renderPassInfo);
 	// Setup Render Pass
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Create Pipeline Cache
 
 	VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
 	pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-	errorStatus = vkCreatePipelineCache(device, &pipelineCacheCreateInfo, nullptr, &pipelineCache);
-	assert(!errorStatus);
+	pipelineCache = application->createPipelineCache(pipelineCacheCreateInfo);
 
 	// Create Pipeline Cache
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -639,28 +577,27 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	frameBufferCreateInfo.layers = 1;
 
 	// Create frame buffers for every swap chain image
-	frameBuffers.resize(swapchain.imageCount);
+	frameBuffers.resize(application->swapchain->imageCount);
 	for (uint32_t i = 0; i < frameBuffers.size(); i++)
 	{
-		fbAttachments[0] = swapchain.buffers[i].view;
-		errorStatus = vkCreateFramebuffer(device, &frameBufferCreateInfo, nullptr, &frameBuffers[i]);
-		assert(!errorStatus);
+		fbAttachments[0] = application->swapchain->buffers[i].view;
+		frameBuffers[i] = application->createFrameBuffer(frameBufferCreateInfo);
 	}
 
 	// Setup Frame Buffer
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Flush Setup Command Buffer
 
-	if (setupCmdBuffer == VK_NULL_HANDLE)
+	if (setupCmdBuffer.at(0) == VK_NULL_HANDLE)
 		return 1;
 
-	errorStatus = vkEndCommandBuffer(setupCmdBuffer);
+	errorStatus = vkEndCommandBuffer(setupCmdBuffer.at(0));
 	assert(!errorStatus);
 
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &setupCmdBuffer;
+	submitInfo.pCommandBuffers = &setupCmdBuffer.at(0);
 
 	errorStatus = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
 	assert(!errorStatus);
@@ -668,18 +605,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	errorStatus = vkQueueWaitIdle(queue);
 	assert(!errorStatus);
 
-	vkFreeCommandBuffers(device, cmdPool, 1, &setupCmdBuffer);
-	setupCmdBuffer = VK_NULL_HANDLE; // todo : check if still necessary
+	application->freeCommandBuffer(cmdPool, setupCmdBuffer);
+	setupCmdBuffer.at(0) = VK_NULL_HANDLE;
 
 	// Flush Setup Command Buffer
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Create Setup Command Buffer
-
-	if (setupCmdBuffer != VK_NULL_HANDLE)
-	{
-		vkFreeCommandBuffers(device, cmdPool, 1, &setupCmdBuffer);
-		setupCmdBuffer = VK_NULL_HANDLE; // todo : check if still necessary
-	}
 
 	VkCommandBufferAllocateInfo cmdBufAllocateInfo3 = {};
 	cmdBufAllocateInfo3.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -687,8 +618,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	cmdBufAllocateInfo3.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	cmdBufAllocateInfo3.commandBufferCount = 1;
 
-	errorStatus = vkAllocateCommandBuffers(device, &cmdBufAllocateInfo3, &setupCmdBuffer);
-	assert(!errorStatus);
+	setupCmdBuffer = application->allocateCommandBuffers(cmdBufAllocateInfo3);
 
 	// todo : Command buffer is also started here, better put somewhere else
 	// todo : Check if necessaray at all...
@@ -696,7 +626,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	cmdBufInfo2.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	// todo : check null handles, flags?
 
-	errorStatus = vkBeginCommandBuffer(setupCmdBuffer, &cmdBufInfo2);
+	errorStatus = vkBeginCommandBuffer(setupCmdBuffer.at(0), &cmdBufInfo2);
 	assert(!errorStatus);
 
 	// Create Setup Command Buffer
@@ -712,15 +642,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	std::vector<Vertex> vertexBuffer = {
 		{ { 1.0f,  1.0f, 0.0f },{ 1.0f, 0.0f, 0.0f } },
 		{ { -1.0f,  1.0f, 0.0f },{ 0.0f, 1.0f, 0.0f } },
-		{ { 0.0f, -1.0f, 0.0f },{ 0.0f, 1.0f, 0.0f } },
-		{ { 1.0f, -1.0f, 1.0f },{ 0.0f, 1.0f, 0.0f } },
-
-
+		{ { 0.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
 	};
 	int vertexBufferSize = vertexBuffer.size() * sizeof(Vertex);
 
 	// Setup indices
-	std::vector<uint32_t> indexBuffer = { 0, 1, 2, 0, 3, 2};
+	std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
 
 	int indexBufferSize = indexBuffer.size() * sizeof(uint32_t);
 
@@ -744,16 +671,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	bufInfo.flags = 0;
 	//	Copy vertex data to VRAM
 	memset(&vertices, 0, sizeof(vertices));
-	err = vkCreateBuffer(device, &bufInfo, nullptr, &vertices.buf);
-	assert(!err);
-	vkGetBufferMemoryRequirements(device, vertices.buf, &memReqs2);
+	vertices.buf = application->createBuffer(bufInfo);
+	memReqs2 = application->getBufferMemoryRequirements(vertices.buf);
 	memAlloc.allocationSize = memReqs2.size;
 
 	for (uint32_t i = 0; i < 32; i++)
 	{
 		if ((memReqs2.memoryTypeBits & 1) == 1)
 		{
-			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+			if ((application->memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 			{
 				memAlloc.memoryTypeIndex = i;
 			}
@@ -761,15 +687,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 		memReqs2.memoryTypeBits >>= 1;
 	}
 
-	vkAllocateMemory(device, &memAlloc, nullptr, &vertices.mem);
-	assert(!err);
-	err = vkMapMemory(device, vertices.mem, 0, memAlloc.allocationSize, 0, &data);
-	assert(!err);
+	memReqs2.memoryTypeBits = 1;
+	vertices.mem = application->allocateMemory(memAlloc);
+	data = application->mapMemory(vertices.mem, memAlloc.allocationSize);
 	memcpy(data, vertexBuffer.data(), vertexBufferSize);
-	vkUnmapMemory(device, vertices.mem);
-	assert(!err);
-	err = vkBindBufferMemory(device, vertices.buf, vertices.mem, 0);
-	assert(!err);
+	application->unmapMemory(vertices.mem);
+	application->bindBufferMemory(vertices.buf, vertices.mem);
 
 	// Generate index buffer
 	//	Setup
@@ -781,16 +704,16 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	indexbufferInfo.flags = 0;
 	// Copy index data to VRAM
 	memset(&indices, 0, sizeof(indices));
-	err = vkCreateBuffer(device, &bufInfo, nullptr, &indices.buf);
-	assert(!err);
-	vkGetBufferMemoryRequirements(device, indices.buf, &memReqs2);
+	indices.buf = application->createBuffer(bufInfo);
+	memReqs2 = application->getBufferMemoryRequirements(indices.buf);
+
 	memAlloc.allocationSize = memReqs2.size;
 
 	for (uint32_t i = 0; i < 32; i++)
 	{
 		if ((memReqs2.memoryTypeBits & 1) == 1)
 		{
-			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+			if ((application->memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 			{
 				memAlloc.memoryTypeIndex = i;
 			}
@@ -798,14 +721,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 		memReqs2.memoryTypeBits >>= 1;
 	}
 
-	err = vkAllocateMemory(device, &memAlloc, nullptr, &indices.mem);
-	assert(!err);
-	err = vkMapMemory(device, indices.mem, 0, indexBufferSize, 0, &data);
-	assert(!err);
+	indices.mem = application->allocateMemory(memAlloc);
+	VkDeviceSize size = indexBufferSize;
+	data = application->mapMemory(indices.mem, size);
 	memcpy(data, indexBuffer.data(), indexBufferSize);
-	vkUnmapMemory(device, indices.mem);
-	err = vkBindBufferMemory(device, indices.buf, indices.mem, 0);
-	assert(!err);
+	application->unmapMemory(indices.mem);
+	application->bindBufferMemory(indices.buf, indices.mem);
 	indices.count = indexBuffer.size();
 
 	// Binding description
@@ -858,10 +779,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
 	// Create a new buffer
-	err = vkCreateBuffer(device, &bufferInfo, nullptr, &uniformDataVS.buffer);
-	assert(!err);
+	uniformDataVS.buffer = application->createBuffer(bufferInfo);
 	// Get memory requirements including size, alignment and memory type 
-	vkGetBufferMemoryRequirements(device, uniformDataVS.buffer, &memReqs3);
+	memReqs3 = application->getBufferMemoryRequirements(uniformDataVS.buffer);
 	allocInfo.allocationSize = memReqs3.size;
 	// Gets the appropriate memory type for this type of buffer allocation
 	// Only memory types that are visible to the host
@@ -870,7 +790,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	{
 		if ((memReqs3.memoryTypeBits & 1) == 1)
 		{
-			if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+			if ((application->memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 			{
 				allocInfo.memoryTypeIndex = i;
 			}
@@ -879,11 +799,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	}
 
 	// Allocate memory for the uniform buffer
-	err = vkAllocateMemory(device, &allocInfo, nullptr, &(uniformDataVS.memory));
-	assert(!err);
+	uniformDataVS.memory = application->allocateMemory(allocInfo);
 	// Bind memory to buffer
-	err = vkBindBufferMemory(device, uniformDataVS.buffer, uniformDataVS.memory, 0);
-	assert(!err);
+	application->bindBufferMemory(uniformDataVS.buffer, uniformDataVS.memory);
 
 	// Store information in the uniform's descriptor
 	uniformDataVS.descriptor.buffer = uniformDataVS.buffer;
@@ -902,11 +820,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 
 	// Map uniform buffer and update it
 	uint8_t *pData;
-	err = vkMapMemory(device, uniformDataVS.memory, 0, sizeof(uboVS), 0, (void **)&pData);
-	assert(!err);
+	VkDeviceSize size2 = sizeof(uboVS);
+	pData = (uint8_t*) application->mapMemory(uniformDataVS.memory, size2);
 	memcpy(pData, &uboVS, sizeof(uboVS));
-	vkUnmapMemory(device, uniformDataVS.memory);
-	assert(!err);
+	application->unmapMemory(uniformDataVS.memory);
 
 	// Prepare Uniform Buffers
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -930,9 +847,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	descriptorLayout.pNext = NULL;
 	descriptorLayout.bindingCount = 1;
 	descriptorLayout.pBindings = &layoutBinding;
-
-	err = vkCreateDescriptorSetLayout(device, &descriptorLayout, NULL, &descriptorSetLayout);
-	assert(!err);
+	
+	descriptorSetLayout = application->createDescriptorSetLayout(descriptorLayout);
 
 	// Create the pipeline layout that is used to generate the rendering pipelines that
 	// are based on this descriptor set layout
@@ -944,8 +860,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	pPipelineLayoutCreateInfo.setLayoutCount = 1;
 	pPipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
 
-	err = vkCreatePipelineLayout(device, &pPipelineLayoutCreateInfo, nullptr, &pipelineLayout);
-	assert(!err);
+	pipelineLayout = application->createPipelineLayout(pPipelineLayoutCreateInfo);
 
 	// Setup Descriptor Set Layout
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1054,7 +969,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 
 	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-	shaderStages[0].module = loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.vert.spv", device, VK_SHADER_STAGE_VERTEX_BIT);
+	shaderStages[0].module = loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.vert.spv", application->device, VK_SHADER_STAGE_VERTEX_BIT);
 	shaderStages[0].pName = "main"; // todo : make param
 	assert(shaderStages[0].module != NULL);
 	shaderModules.push_back(shaderStages[0].module);
@@ -1062,7 +977,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 
 	shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shaderStages[1].module = loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.frag.spv", device, VK_SHADER_STAGE_FRAGMENT_BIT);
+	shaderStages[1].module = loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.frag.spv", application->device, VK_SHADER_STAGE_FRAGMENT_BIT);
 	shaderStages[1].pName = "main"; // todo : make param
 	assert(shaderStages[1].module != NULL);
 	shaderModules.push_back(shaderStages[1].module);
@@ -1084,9 +999,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	pipelineCreateInfo.pDynamicState = &dynamicState;
 
 	// Create rendering pipeline
-	err = vkCreateGraphicsPipelines(device, pipelineCache, 1, &pipelineCreateInfo, nullptr, &pipelines.solid);
-	assert(!err);
-
+	pipelines.solid = application->createGraphicsPipelines(pipelineCache, pipelineCreateInfo, 1).at(0);
 
 	// Prepare Pipelines
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1114,9 +1027,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	// Requesting descriptors beyond maxSets will result in an error
 	descriptorPoolInfo.maxSets = 1;
 
-	VkResult vkRes = vkCreateDescriptorPool(device, &descriptorPoolInfo, nullptr, &descriptorPool);
-	assert(!vkRes);
-
+	descriptorPool = application->createDescriptorPool(descriptorPoolInfo);
 
 	// Setup Descriptor Pool
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1133,8 +1044,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	allocInfo2.descriptorSetCount = 1;
 	allocInfo2.pSetLayouts = &descriptorSetLayout;
 
-	vkRes = vkAllocateDescriptorSets(device, &allocInfo2, &descriptorSet);
-	assert(!vkRes);
+	application->allocateDescriptorSet(allocInfo2, descriptorSet);
 
 	// Binding 0 : Uniform buffer
 	writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1145,7 +1055,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	// Binds this uniform buffer to binding point 0
 	writeDescriptorSet.dstBinding = 0;
 
-	vkUpdateDescriptorSets(device, 1, &writeDescriptorSet, 0, NULL);
+	application->updateDescriptorSet(writeDescriptorSet);
 
 	// Setup Descriptor Set
 	/////////////////////////////////////////////////////////////////////////////////////////
@@ -1227,7 +1137,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 		prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		prePresentBarrier.image = swapchain.buffers[i].image;
+		prePresentBarrier.image = application->swapchain->buffers[i].image;
 
 		VkImageMemoryBarrier *pMemoryBarrier = &prePresentBarrier;
 		vkCmdPipelineBarrier(
@@ -1261,7 +1171,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 			DispatchMessage(&msg);
 		}
 		//////
-		vkDeviceWaitIdle(device);
+		vkDeviceWaitIdle(application->device);
 		VkResult err;
 		VkSemaphore presentCompleteSemaphore;
 		VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {
@@ -1270,11 +1180,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 			0 // flags
 		};
 
-		err = vkCreateSemaphore(device, &presentCompleteSemaphoreCreateInfo, nullptr, &presentCompleteSemaphore);
+		err = vkCreateSemaphore(application->device, &presentCompleteSemaphoreCreateInfo, nullptr, &presentCompleteSemaphore);
 		assert(!err);
 
 		// Get next image in the swap chain (back/front buffer)
-		err = swapchain.acquireNextImage(presentCompleteSemaphore, &currentBuffer);
+		err = application->swapchain->acquireNextImage(presentCompleteSemaphore, &currentBuffer);
 		assert(!err);
 
 		// The submit info structure contains a list of
@@ -1293,11 +1203,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 
 		// Present the current buffer to the swap chain
 		// This will display the image
-		err = swapchain.queuePresent(queue, currentBuffer);
+		err = application->swapchain->queuePresent(queue, currentBuffer);
 
 		assert(!err);
 
-		vkDestroySemaphore(device, presentCompleteSemaphore, nullptr);
+		vkDestroySemaphore(application->device, presentCompleteSemaphore, nullptr);
 
 		// Add a post present image memory barrier
 		// This will transform the frame buffer color attachment back
@@ -1315,18 +1225,18 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 		postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 		postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		postPresentBarrier.image = swapchain.buffers[currentBuffer].image;
+		postPresentBarrier.image = application->swapchain->buffers[currentBuffer].image;
 
 		// Use dedicated command buffer from example base class for submitting the post present barrier
 		VkCommandBufferBeginInfo cmdBufInfo = {};
 		cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-		err = vkBeginCommandBuffer(postPresentCmdBuffer, &cmdBufInfo);
+		err = vkBeginCommandBuffer(postPresentCmdBuffer.at(0), &cmdBufInfo);
 		assert(!err);
 
 		// Put post present barrier into command buffer
 		vkCmdPipelineBarrier(
-			postPresentCmdBuffer,
+			postPresentCmdBuffer.at(0),
 			VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
 			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
 			0,
@@ -1334,21 +1244,21 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 			0, nullptr,
 			1, &postPresentBarrier);
 
-		err = vkEndCommandBuffer(postPresentCmdBuffer);
+		err = vkEndCommandBuffer(postPresentCmdBuffer.at(0));
 		assert(!err);
 
 		// Submit to the queue
 		submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &postPresentCmdBuffer;
+		submitInfo.pCommandBuffers = &postPresentCmdBuffer.at(0);
 
 		err = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
 		assert(!err);
 
 		err = vkQueueWaitIdle(queue);
 		assert(!err);
-		vkDeviceWaitIdle(device);
+		vkDeviceWaitIdle(application->device);
 		////////
 		auto tEnd = std::chrono::high_resolution_clock::now();
 		auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();

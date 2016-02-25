@@ -21,26 +21,9 @@
 #endif
 
 #include <vulkan/vulkan.h>
+#include "SurfaceExtensions.h"
+#include "SwapchainExtensions.h"
 
-// Macro to get a procedure address based on a vulkan instance
-#define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                        \
-{                                                                       \
-    fp##entrypoint = (PFN_vk##entrypoint) vkGetInstanceProcAddr(inst, "vk"#entrypoint); \
-    if (fp##entrypoint == NULL)                                         \
-	{																    \
-        exit(1);                                                        \
-    }                                                                   \
-}
-
-// Macro to get a procedure address based on a vulkan device
-#define GET_DEVICE_PROC_ADDR(dev, entrypoint)                           \
-{                                                                       \
-    fp##entrypoint = (PFN_vk##entrypoint) vkGetDeviceProcAddr(dev, "vk"#entrypoint);   \
-    if (fp##entrypoint == NULL)                                         \
-	{																    \
-        exit(1);                                                        \
-    }                                                                   \
-}
 
 typedef struct _SwapChainBuffers {
 	VkImage image;
@@ -55,15 +38,9 @@ private:
 	VkPhysicalDevice physicalDevice;
 	VkSurfaceKHR surface;
 	// Function pointers
-	PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;
-	PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fpGetPhysicalDeviceSurfaceCapabilitiesKHR;
-	PFN_vkGetPhysicalDeviceSurfaceFormatsKHR fpGetPhysicalDeviceSurfaceFormatsKHR;
-	PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fpGetPhysicalDeviceSurfacePresentModesKHR;
-	PFN_vkCreateSwapchainKHR fpCreateSwapchainKHR;
-	PFN_vkDestroySwapchainKHR fpDestroySwapchainKHR;
-	PFN_vkGetSwapchainImagesKHR fpGetSwapchainImagesKHR;
-	PFN_vkAcquireNextImageKHR fpAcquireNextImageKHR;
-	PFN_vkQueuePresentKHR fpQueuePresentKHR;
+	SurfaceExtensions surfaceExt;
+	SwapchainExtensions swapchainExt;
+
 public:
 	VkFormat colorFormat;
 	VkColorSpaceKHR colorSpace;
@@ -76,6 +53,13 @@ public:
 
 	// Index of the deteced graphics and presenting device queue
 	uint32_t queueNodeIndex = UINT32_MAX;
+
+	VulkanSwapChain(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device) : surfaceExt(instance), swapchainExt(device)
+	{
+		this->instance = instance;
+		this->physicalDevice = physicalDevice;
+		this->device = device;
+	}
 
 	// wip naming
 	void initSwapChain(void* platformHandle, void* platformWindow)
@@ -105,7 +89,7 @@ public:
 		VkBool32* supportsPresent = (VkBool32 *)malloc(queueCount * sizeof(VkBool32));
 		for (i = 0; i < queueCount; i++)
 		{
-			fpGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i,
+			surfaceExt.fpGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i,
 				surface,
 				&supportsPresent[i]);
 		}
@@ -161,11 +145,11 @@ public:
 
 		// Get list of supported formats
 		uint32_t formatCount;
-		err = fpGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, NULL);
+		err = surfaceExt.fpGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, NULL);
 		assert(!err);
 
 		VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
-		err = fpGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, surfFormats);
+		err = surfaceExt.fpGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, surfFormats);
 		assert(!err);
 
 		// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
@@ -183,21 +167,7 @@ public:
 		colorSpace = surfFormats[0].colorSpace;
 	}
 
-	void init(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device)
-	{
-		this->instance = instance;
-		this->physicalDevice = physicalDevice;
-		this->device = device;
-		GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceSupportKHR);
-		GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceCapabilitiesKHR);
-		GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceFormatsKHR);
-		GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfacePresentModesKHR);
-		GET_DEVICE_PROC_ADDR(device, CreateSwapchainKHR);
-		GET_DEVICE_PROC_ADDR(device, DestroySwapchainKHR);
-		GET_DEVICE_PROC_ADDR(device, GetSwapchainImagesKHR);
-		GET_DEVICE_PROC_ADDR(device, AcquireNextImageKHR);
-		GET_DEVICE_PROC_ADDR(device, QueuePresentKHR);
-	}
+	
 
 	void setup(VkCommandBuffer cmdBuffer, uint32_t *width, uint32_t *height)
 	{
@@ -205,23 +175,23 @@ public:
 		VkSwapchainKHR oldSwapchain = swapChain;
 
 		// Get physical device surface properties and formats
-		VkSurfaceCapabilitiesKHR surfCaps;
-		err = fpGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfCaps);
+		VkSurfaceCapabilitiesKHR surfaceCapabilities;
+		err = surfaceExt.fpGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities);
 		assert(!err);
 
 		uint32_t presentModeCount;
-		err = fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, NULL);
+		err = surfaceExt.fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, NULL);
 		assert(!err);
 
-		// todo : replace with vector?
-		VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(presentModeCount * sizeof(VkPresentModeKHR));
+		std::vector<VkPresentModeKHR> presentModes;
+		presentModes.resize(presentModeCount);
 
-		err = fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes);
+		err = surfaceExt.fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.data());
 		assert(!err);
 
 		VkExtent2D swapchainExtent = {};
 		// width and height are either both -1, or both not -1.
-		if (surfCaps.currentExtent.width == -1)
+		if (surfaceCapabilities.currentExtent.width == -1)
 		{
 			// If the surface size is undefined, the size is set to
 			// the size of the images requested.
@@ -231,9 +201,9 @@ public:
 		else
 		{
 			// If the surface size is defined, the swap chain size must match
-			swapchainExtent = surfCaps.currentExtent;
-			*width = surfCaps.currentExtent.width;
-			*height = surfCaps.currentExtent.height;
+			swapchainExtent = surfaceCapabilities.currentExtent;
+			*width = surfaceCapabilities.currentExtent.width;
+			*height = surfaceCapabilities.currentExtent.height;
 		}
 
 		// Try to use mailbox mode
@@ -253,19 +223,19 @@ public:
 		}
 
 		// Determine the number of images
-		uint32_t desiredNumberOfSwapchainImages = surfCaps.minImageCount + 1;
-		if ((surfCaps.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfCaps.maxImageCount))
+		uint32_t desiredNumberOfSwapchainImages = surfaceCapabilities.minImageCount + 1;
+		if ((surfaceCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfaceCapabilities.maxImageCount))
 		{
-			desiredNumberOfSwapchainImages = surfCaps.maxImageCount;
+			desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;
 		}
 
 		VkSurfaceTransformFlagsKHR preTransform;
-		if (surfCaps.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
+		if (surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
 		{
 			preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 		}
 		else {
-			preTransform = surfCaps.currentTransform;
+			preTransform = surfaceCapabilities.currentTransform;
 		}
 
 		VkSwapchainCreateInfoKHR swapchainCI = {};
@@ -287,7 +257,7 @@ public:
 		swapchainCI.clipped = true;
 		swapchainCI.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
-		err = fpCreateSwapchainKHR(device, &swapchainCI, nullptr, &swapChain);
+		err = swapchainExt.fpCreateSwapchainKHR(device, &swapchainCI, nullptr, &swapChain);
 		assert(!err);
 
 		// If we just re-created an existing swapchain, we should destroy the old
@@ -296,15 +266,15 @@ public:
 		// presentable images once the platform is done with them.
 		if (oldSwapchain != VK_NULL_HANDLE)
 		{
-			fpDestroySwapchainKHR(device, oldSwapchain, nullptr);
+			swapchainExt.fpDestroySwapchainKHR(device, oldSwapchain, nullptr);
 		}
 
-		err = fpGetSwapchainImagesKHR(device, swapChain, &imageCount, NULL);
+		err = swapchainExt.fpGetSwapchainImagesKHR(device, swapChain, &imageCount, NULL);
 		assert(!err);
 
 		swapchainImages = (VkImage*)malloc(imageCount * sizeof(VkImage));
 		assert(swapchainImages);
-		err = fpGetSwapchainImagesKHR(device, swapChain, &imageCount, swapchainImages);
+		err = swapchainExt.fpGetSwapchainImagesKHR(device, swapChain, &imageCount, swapchainImages);
 		assert(!err);
 
 		buffers = (SwapChainBuffer*)malloc(sizeof(SwapChainBuffer)*imageCount);
@@ -365,7 +335,7 @@ public:
 	// Acquires the next image in the swap chain
 	VkResult acquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t *currentBuffer)
 	{
-		return fpAcquireNextImageKHR(device, swapChain, UINT64_MAX, presentCompleteSemaphore, (VkFence)nullptr, currentBuffer);
+		return swapchainExt.fpAcquireNextImageKHR(device, swapChain, UINT64_MAX, presentCompleteSemaphore, (VkFence)nullptr, currentBuffer);
 	}
 
 	// Present the current image to the queue
@@ -377,7 +347,7 @@ public:
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &swapChain;
 		presentInfo.pImageIndices = &currentBuffer;
-		return fpQueuePresentKHR(queue, &presentInfo);
+		return swapchainExt.fpQueuePresentKHR(queue, &presentInfo);
 	}
 
 	void cleanup()
@@ -386,7 +356,7 @@ public:
 		{
 			vkDestroyImageView(device, buffers[i].view, nullptr);
 		}
-		fpDestroySwapchainKHR(device, swapChain, nullptr);
+		swapchainExt.fpDestroySwapchainKHR(device, swapChain, nullptr);
 		vkDestroySurfaceKHR(instance, surface, nullptr);
 	}
 

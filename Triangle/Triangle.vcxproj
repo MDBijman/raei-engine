@@ -118,7 +118,10 @@
     <ClCompile Include="src\triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\SurfaceExtensions.h" />
+    <ClInclude Include="include\SwapchainExtensions.h" />
     <ClInclude Include="include\VkSwapchain.h" />
+    <ClInclude Include="include\VulkanApplication.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\buffer.txt" />
