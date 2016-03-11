@@ -118,13 +118,22 @@
     <ClCompile Include="src\triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\SurfaceExtensions.h" />
     <ClInclude Include="include\SwapchainExtensions.h" />
-    <ClInclude Include="include\VkSwapchain.h" />
-    <ClInclude Include="include\VulkanApplication.h" />
+    <ClInclude Include="include\VulkanDevice.h" />
+    <ClInclude Include="include\VulkanInstance.h" />
+    <ClInclude Include="include\VulkanPhysicalDevice.h" />
+    <ClInclude Include="include\VulkanTriangle.h" />
+    <ClInclude Include="include\VulkanSwapchain.h" />
+    <ClInclude Include="include\BaseApplication.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\buffer.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data\shaders\pipelines\base.vert" />
+    <None Include="..\data\shaders\pipelines\wireframe.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

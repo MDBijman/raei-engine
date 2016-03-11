@@ -13,11 +13,17 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Vulkan Wrappers">
+    <Filter Include="Header Files\VkGraphics">
       <UniqueIdentifier>{eba853eb-b9c8-4c68-941d-5cff6215526f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Vulkan Wrappers\Extensions">
+    <Filter Include="Header Files\VkGraphics\Extensions">
       <UniqueIdentifier>{42cc537a-7e66-42d6-a181-1daff9f387bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VkGraphics\Resources">
+      <UniqueIdentifier>{b7955886-5a3e-4482-8d74-89afb6b4898b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VkGraphics\Wrappers">
+      <UniqueIdentifier>{38d4e8d1-8741-4706-a975-13779ba1b9be}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -26,22 +32,45 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\VkSwapchain.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\VulkanApplication.h">
-      <Filter>Header Files\Vulkan Wrappers</Filter>
-    </ClInclude>
     <ClInclude Include="include\SurfaceExtensions.h">
-      <Filter>Header Files\Vulkan Wrappers\Extensions</Filter>
+      <Filter>Header Files\VkGraphics\Extensions</Filter>
     </ClInclude>
     <ClInclude Include="include\SwapchainExtensions.h">
-      <Filter>Header Files\Vulkan Wrappers\Extensions</Filter>
+      <Filter>Header Files\VkGraphics\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shaders.h">
+      <Filter>Header Files\VkGraphics\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BaseApplication.h">
+      <Filter>Header Files\VkGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanInstance.h">
+      <Filter>Header Files\VkGraphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanSwapchain.h">
+      <Filter>Header Files\VkGraphics\Extensions</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanTriangle.h">
+      <Filter>Header Files\VkGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanPhysicalDevice.h">
+      <Filter>Header Files\VkGraphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanDevice.h">
+      <Filter>Header Files\VkGraphics\Wrappers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="include\buffer.txt">
       <Filter>Source Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\data\shaders\pipelines\wireframe.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\data\shaders\pipelines\base.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

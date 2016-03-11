@@ -62,7 +62,7 @@ public:
 	}
 
 	// wip naming
-	void initSwapChain(void* platformHandle, void* platformWindow)
+	void initSwapChain(HINSTANCE platformHandle, HWND platformWindow, std::string name)
 	{
 		uint32_t queueCount;
 		VkQueueFamilyProperties *queueProps;
@@ -106,7 +106,28 @@ public:
 				{
 					graphicsQueueNodeIndex = i;
 				}
+		// Set some info about our application
+		VkApplicationInfo appInfo = {};
+		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+		appInfo.pApplicationName = name.c_str();
+		appInfo.pEngineName = name.c_str();
 
+		// Extensions we want
+		std::vector<const char*> extensions = {
+			VK_KHR_SURFACE_EXTENSION_NAME,
+			VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+		};
+
+		// Set some info about the instance to be created
+		VkInstanceCreateInfo instanceCreateInfo = {};
+		instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		instanceCreateInfo.pNext = NULL;
+		instanceCreateInfo.pApplicationInfo = &appInfo;
+		instanceCreateInfo.enabledExtensionCount = (uint32_t)extensions.size();
+		instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
+
+		VkResult err = vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
+		assert(!err);
 				if (supportsPresent[i] == VK_TRUE)
 				{
 					graphicsQueueNodeIndex = i;
@@ -129,17 +150,6 @@ public:
 			}
 		}
 		free(supportsPresent);
-
-		// Generate error if could not find both a graphics and a present queue
-		if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX)
-		{
-			// todo : error message
-		}
-
-		if (graphicsQueueNodeIndex != presentQueueNodeIndex)
-		{
-			// todo : error message
-		}
 
 		queueNodeIndex = graphicsQueueNodeIndex;
 
@@ -333,13 +343,14 @@ public:
 	}
 
 	// Acquires the next image in the swap chain
-	VkResult acquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t *currentBuffer)
+	void acquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t *currentBuffer)
 	{
-		return swapchainExt.fpAcquireNextImageKHR(device, swapChain, UINT64_MAX, presentCompleteSemaphore, (VkFence)nullptr, currentBuffer);
+		VkResult error = swapchainExt.fpAcquireNextImageKHR(device, swapChain, UINT64_MAX, presentCompleteSemaphore, (VkFence)nullptr, currentBuffer);
+		assert(!error);
 	}
 
 	// Present the current image to the queue
-	VkResult queuePresent(VkQueue queue, uint32_t currentBuffer)
+	void queuePresent(VkQueue queue, uint32_t currentBuffer)
 	{
 		VkPresentInfoKHR presentInfo = {};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -347,7 +358,8 @@ public:
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &swapChain;
 		presentInfo.pImageIndices = &currentBuffer;
-		return swapchainExt.fpQueuePresentKHR(queue, &presentInfo);
+		VkResult error = swapchainExt.fpQueuePresentKHR(queue, &presentInfo);
+		assert(!error);
 	}
 
 	void cleanup()
