@@ -121,15 +121,13 @@
     <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\SurfaceExtensions.h" />
     <ClInclude Include="include\SwapchainExtensions.h" />
+    <ClInclude Include="include\VulkanCommandBuffer.h" />
     <ClInclude Include="include\VulkanDevice.h" />
     <ClInclude Include="include\VulkanInstance.h" />
     <ClInclude Include="include\VulkanPhysicalDevice.h" />
+    <ClInclude Include="include\VulkanQueue.h" />
     <ClInclude Include="include\VulkanTriangle.h" />
     <ClInclude Include="include\VulkanSwapchain.h" />
-    <ClInclude Include="include\BaseApplication.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="include\buffer.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shaders\pipelines\base.vert" />

@@ -3,42 +3,55 @@
 #include <vector>
 #include <vulkan\vulkan.h>
 
-class VulkanPhysicalDevice
+// TODO initialize memory, queues etc. on create? 
+class VulkanPhysicalDevice 
 {
 public:
 	VulkanPhysicalDevice(VkPhysicalDevice d) : device(d) {}
 
-
-	std::vector<VkQueueFamilyProperties> queueFamilyProperties()
+	
+	std::vector<VkQueueFamilyProperties>& queueFamilyProperties()
 	{
+		if (queueProperties)
+			return *queueProperties;
+
 		uint32_t queueCount;
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueCount, NULL);
 		assert(queueCount >= 1);
 
-		std::vector<VkQueueFamilyProperties> queueProperties;
-		queueProperties.resize(queueCount);
-
-		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueCount, queueProperties.data());
-		return queueProperties;
+		queueProperties = new std::vector<VkQueueFamilyProperties>();
+		queueProperties->resize(queueCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueCount, queueProperties->data());
+		return *queueProperties;
 	}
 
-	VkPhysicalDeviceMemoryProperties memoryProperties()
+	VkPhysicalDeviceMemoryProperties& memoryProperties()
 	{
-		VkPhysicalDeviceMemoryProperties props;
-		vkGetPhysicalDeviceMemoryProperties(device, &props);
-		return props;
+		if (memProperties)
+			return *memProperties;
+
+		vkGetPhysicalDeviceMemoryProperties(device, memProperties);
+		return *memProperties;
 	}
 
-	VkFormatProperties formatProperties(VkFormat format)
+	VkFormatProperties& formatProperties(VkFormat format)
 	{
-		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(device, format, &props);
-		return props;
+		if (formProperties)
+			return *formProperties;
+
+		vkGetPhysicalDeviceFormatProperties(device, format, formProperties);
+		return *formProperties;
 	}
 
 	operator VkPhysicalDevice() const { return device; }
-
+	VkPhysicalDevice& getVkPhysicalDevice()
+	{
+		return device;
+	}
 private:
 	VkPhysicalDevice device;
 
+	VkPhysicalDeviceMemoryProperties* memProperties;
+	VkFormatProperties* formProperties;
+	std::vector<VkQueueFamilyProperties>* queueProperties;
 };

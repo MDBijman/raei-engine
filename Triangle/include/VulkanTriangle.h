@@ -2,35 +2,47 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
+#include <memory>
 
 #define VERTEX_BUFFER_BIND_ID 0
 
-#include "BaseApplication.h"
 #include "Shaders.h"
+#include "VulkanInstance.h"
+#include "VulkanPhysicalDevice.h"
+#include "VulkanDevice.h"
+#include "VulkanQueue.h"
+#include "VulkanCommandBuffer.h"
+#include "VulkanSwapchain.h"
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 #include <math.h>
-#define deg_to_rad(deg) deg * float(M_PI / 180)
 
-class VkTriangle : public VA::BaseApplication
+class VkTriangle
 {
 public:
 	uint32_t width, height;
 	std::string name;
-	VulkanInstance							instance;
-	VulkanPhysicalDevice					physicalDevice;
-	std::vector<VkQueueFamilyProperties>	queueProperties;
-	VulkanDevice							device; // TODO allow more
-	std::unique_ptr<VulkanSwapChain>		swapchain;
+	std::unique_ptr<VulkanInstance> instance;
+	std::unique_ptr<VulkanPhysicalDevice> physicalDevice;
+	std::vector<VkQueueFamilyProperties> queueProperties;
+	std::unique_ptr<VulkanDevice> device; // TODO allow more
+	std::unique_ptr<VulkanSwapChain> swapchain;
 
 	VkFormat depthFormat;
-	VkQueue queue;
+	std::unique_ptr<VulkanQueue> queue;
+
 	VkCommandPool cmdPool;
-	std::vector<VkCommandBuffer> setupCmdBuffer;
-	std::vector<VkCommandBuffer> drawCmdBuffers;
-	std::vector<VkCommandBuffer> postPresentCmdBuffer;
+	std::vector<VulkanCommandBuffer> drawCmdBuffers;
+	// Command buffer used for setup
+	VulkanCommandBuffer setupCmdBuffer = VK_NULL_HANDLE;
+	// Command buffer for submitting a post present image barrier
+	VulkanCommandBuffer postPresentCmdBuffer = VK_NULL_HANDLE;
+	// Command buffer for submitting a pre present image barrier
+	VulkanCommandBuffer prePresentCmdBuffer = VK_NULL_HANDLE;
+
 	VkMemoryRequirements memReqs;
 	VkFormat colorformat = VK_FORMAT_B8G8R8A8_UNORM;
 	VkRenderPass renderPass;
@@ -44,6 +56,12 @@ public:
 	VkDescriptorPool descriptorPool;
 	VkDescriptorSet descriptorSet;
 	VkClearColorValue defaultClearColor = { { 0.025f, 0.025f, 0.025f, 1.0f } };
+	struct {
+		// Swap chain image presentation
+		VkSemaphore presentComplete;
+		// Command buffer submission and execution
+		VkSemaphore renderComplete;
+	} semaphores;
 
 	struct {
 		VkBuffer buf;
@@ -82,38 +100,30 @@ public:
 		VkImageView view;
 	} depthStencil;
 
-	HWND window;
-	HINSTANCE windowInstance;
-	float frameTimer = 1.0f;
-	float timerSpeed = 0.25f;
-	float timer = 0.0f;
-	bool paused = false;
-
 	uint32_t currentBuffer = 0;
 	
-	VkTriangle(HINSTANCE hInstance, WNDPROC WndProc, std::string name, uint32_t width, uint32_t height) : name(name), width(width), height(height)
+	VkTriangle(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height) : name(name), width(width), height(height)
 	{
 		initVulkanContext(name);
-		initWin32Context(hInstance, WndProc, name, width, height);
-		swapchain->initSwapChain(windowInstance, window, name);
-
-		initCommandPool();
-		initSetupCmdBuffer();
+		swapchain->initSurface(hInstance, window, name);
+		createCommandPool();
 
 		// Command buffer begin
 		VkCommandBufferBeginInfo cmdBufInfo = {};
 		cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginCommandBuffer(setupCmdBuffer.at(0), cmdBufInfo);
 
-		swapchain->setup(setupCmdBuffer.at(0), &width, &height);
-
-		initPostPresentCmdBuffer();
+		createSetupCommandBuffer();
+		setupCmdBuffer.beginCommandBuffer(cmdBufInfo);
+		swapchain->setup(setupCmdBuffer, &width, &height);
+		createCommandBuffers();
 		initDepthStencil();
 		initRenderPass();
 		initPipelineCache();
 		initFramebuffer();
-		flushSetupCmdBuffer();
-		beginSetupCmdBuffer();
+		flushSetupCommandBuffer();
+
+		createSetupCommandBuffer();
+		setupCmdBuffer.beginCommandBuffer(cmdBufInfo);
 		initVertices();
 		initUniformBuffers();
 		initDescriptorSetLayout();
@@ -123,121 +133,76 @@ public:
 		initCommandBuffers();
 	}
 
-	void loop()
+	void render()
 	{
-		MSG msg;
-		while (TRUE)
-		{
-			auto tStart = std::chrono::high_resolution_clock::now();
-			PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
-			if (msg.message == WM_QUIT)
-			{
-				break;
-			}
-			else
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-			//////
-			vkDeviceWaitIdle(device);
-			VkResult err;
-			VkSemaphore presentCompleteSemaphore;
-			VkSemaphoreCreateInfo presentCompleteSemaphoreCreateInfo = {
-				VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, // sType
-				NULL, // pNext&postPresentBarrier
-				0 // flags
-			};
+		device->waitIdle();
 
-			err = vkCreateSemaphore(device, &presentCompleteSemaphoreCreateInfo, nullptr, &presentCompleteSemaphore);
-			assert(!err);
+		// Get next image in the swap chain (back/front buffer)
+		swapchain->acquireNextImage(semaphores.presentComplete, &currentBuffer);
 
-			// Get next image in the swap chain (back/front buffer)
-			swapchain->acquireNextImage(presentCompleteSemaphore, &currentBuffer);
+		// The submit info structure contains a list of
+		// command buffers and semaphores to be submitted to a queue
+		// If you want to submit multiple command buffers, pass an array
+		VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.pWaitDstStageMask = &pipelineStages;
+		// The wait semaphore ensures that the image is presented 
+		// before we start submitting command buffers agein
+		submitInfo.waitSemaphoreCount = 1;
+		submitInfo.pWaitSemaphores = &semaphores.presentComplete;
+		// Submit the currently active command buffer
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &drawCmdBuffers[currentBuffer].getBuffer();
+		// The signal semaphore is used during queue presentation
+		// to ensure that the image is not rendered before all
+		// commands have been submitted
+		submitInfo.signalSemaphoreCount = 1;
+		submitInfo.pSignalSemaphores = &semaphores.renderComplete;
 
-			// The submit info structure contains a list of
-			// command buffers and semaphores to be submitted to a queue
-			// If you want to submit multiple command buffers, pass an array
-			VkSubmitInfo submitInfo = {};
-			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			submitInfo.waitSemaphoreCount = 1;
-			submitInfo.pWaitSemaphores = &presentCompleteSemaphore;
-			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &drawCmdBuffers[currentBuffer];
+		// Submit to the graphics queue
+		queue->submit(1, submitInfo);
+		// Present the current buffer to the swap chain
+		// This will display the image
+		swapchain->queuePresent(*queue, currentBuffer);
 
-			// Submit to the graphics queue
-			submitToQueue(queue, 1, submitInfo);
+		// Add a post present image memory barrier
+		// This will transform the frame buffer color attachment back
+		// to it's initial layout after it has been presented to the
+		// windowing system
+		// See buildCommandBuffers for the pre present barrier that 
+		// does the opposite transformation 
+		VkImageMemoryBarrier postPresentBarrier = {};
+		postPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		postPresentBarrier.pNext = NULL;
+		postPresentBarrier.srcAccessMask = 0;
+		postPresentBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		postPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		postPresentBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		postPresentBarrier.image = swapchain->buffers[currentBuffer].image;
 
-			// Present the current buffer to the swap chain
-			// This will display the image
-			swapchain->queuePresent(queue, currentBuffer);
+		// Use dedicated command buffer from example base class for submitting the post present barrier
+		VkCommandBufferBeginInfo cmdBufInfo = {};
+		cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-			vkDestroySemaphore(device, presentCompleteSemaphore, nullptr);
+		postPresentCmdBuffer.beginCommandBuffer(cmdBufInfo);
 
-			// Add a post present image memory barrier
-			// This will transform the frame buffer color attachment back
-			// to it's initial layout after it has been presented to the
-			// windowing system
-			// See buildCommandBuffers for the pre present barrier that 
-			// does the opposite transformation 
-			VkImageMemoryBarrier postPresentBarrier = {};
-			postPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			postPresentBarrier.pNext = NULL;
-			postPresentBarrier.srcAccessMask = 0;
-			postPresentBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-			postPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-			postPresentBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-			postPresentBarrier.image = swapchain->buffers[currentBuffer].image;
+		// Put post present barrier into command buffer
+		postPresentCmdBuffer.putPipelineBarrier(postPresentBarrier);
+		postPresentCmdBuffer.end();
 
-			// Use dedicated command buffer from example base class for submitting the post present barrier
-			VkCommandBufferBeginInfo cmdBufInfo = {};
-			cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		// Submit to the queue
+		submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &postPresentCmdBuffer.getBuffer();
+		queue->submit(1, submitInfo);
+		queue->waitIdle();
 
-			err = vkBeginCommandBuffer(postPresentCmdBuffer.at(0), &cmdBufInfo);
-			assert(!err);
-
-			// Put post present barrier into command buffer
-			vkCmdPipelineBarrier(
-				postPresentCmdBuffer.at(0),
-				VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-				0,
-				0, nullptr,
-				0, nullptr,
-				1, &postPresentBarrier);
-
-			err = vkEndCommandBuffer(postPresentCmdBuffer.at(0));
-			assert(!err);
-
-			// Submit to the queue
-			submitInfo = {};
-			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			submitInfo.commandBufferCount = 1;
-			submitInfo.pCommandBuffers = &postPresentCmdBuffer.at(0);
-
-			err = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-			assert(!err);
-
-			err = vkQueueWaitIdle(queue);
-			assert(!err);
-			vkDeviceWaitIdle(device);
-			////////
-			auto tEnd = std::chrono::high_resolution_clock::now();
-			auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
-			frameTimer = (float)tDiff / 1000.0f;
-			// Convert to clamped timer value
-			if (!paused)
-			{
-				timer += timerSpeed * frameTimer;
-				if (timer > 1.0)
-				{
-					timer -= 1.0f;
-				}
-			}
-		}
+		device->waitIdle();
 	}
 
 private:
@@ -247,25 +212,22 @@ private:
 	* Also initializes physical devices, queue family properties, physical device memory properties, the swapchain, and the queue.
 	*/
 	void initVulkanContext(std::string name)
-		initSwapchain();
 	{
-		instance = VulkanInstance();
-		physicalDevice = instance.physicalDevices().at(0);
-		queueProperties = physicalDevice.queueFamilyProperties();
-		memoryProperties = physicalDevice.memoryProperties();
+		instance = std::make_unique<VulkanInstance>("triangle");
+		physicalDevice = std::make_unique<VulkanPhysicalDevice>(instance->getPhysicalDevices().at(0));
+		queueProperties = physicalDevice->queueFamilyProperties();
 
-		uint32_t graphicsQueueIndex = getQueueIndexOfType(VK_QUEUE_GRAPHICS_BIT);
-		device = VulkanDevice(physicalDevice, graphicsQueueIndex);
+		uint32_t graphicsQueueIndex = getQueueIndexOfType(VK_QUEUE_GRAPHICS_BIT); // TODO factor to seperate class
+		device = std::make_unique<VulkanDevice>(physicalDevice->getVkPhysicalDevice(), graphicsQueueIndex);
+		swapchain = std::make_unique<VulkanSwapChain>(instance->getVkInstance(), physicalDevice->getVkPhysicalDevice(), device->getVkDevice());
+		queue = std::make_unique<VulkanQueue>(device->queueAt(graphicsQueueIndex));
 
-		swapchain = std::make_unique<VulkanSwapChain>(instance, physicalDevice, device);
-
-		queue = device.queueAt(graphicsQueueIndex);
 		// Find supported depth format
 		// We prefer 24 bits of depth and 8 bits of stencil, but that may not be supported by all implementations
 		std::vector<VkFormat> depthFormats = { VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM };
 		for (auto& format : depthFormats)
 		{
-			if (physicalDevice.formatProperties(format).optimalTilingFeatures && VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+			if (physicalDevice->formatProperties(format).optimalTilingFeatures && VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
 			{
 				depthFormat = format;
 				break;
@@ -274,166 +236,46 @@ private:
 	}
 
 	/*
-	* Creates and initializes a Win32 Context.
-	*/
-	void initWin32Context(HINSTANCE hInstance, WNDPROC WndProc, std::string name, int width, int height)
-	{
-		bool fullscreen = false;
-
-		// Check command line arguments
-		for (int32_t i = 0; i < __argc; i++)
-		{
-			if (__argv[i] == std::string("-fullscreen"))
-			{
-				fullscreen = true;
-			}
-		}
-
-		WNDCLASSEX wndClass;
-
-		wndClass.cbSize = sizeof(WNDCLASSEX);
-		wndClass.style = CS_HREDRAW | CS_VREDRAW;
-		wndClass.lpfnWndProc = WndProc;
-		wndClass.cbClsExtra = 0;
-		wndClass.cbWndExtra = 0;
-		wndClass.hInstance = hInstance;
-		wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-		wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-		wndClass.lpszMenuName = NULL;
-		wndClass.lpszClassName = name.c_str();
-		wndClass.hIconSm = LoadIcon(NULL, IDI_WINLOGO);
-
-		if (!RegisterClassEx(&wndClass))
-		{
-			std::cout << "Could not register window class!\n";
-			fflush(stdout);
-			exit(1);
-		}
-
-		int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-		int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-
-		if (fullscreen)
-		{
-			DEVMODE dmScreenSettings;
-			memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-			dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-			dmScreenSettings.dmPelsWidth = screenWidth;
-			dmScreenSettings.dmPelsHeight = screenHeight;
-			dmScreenSettings.dmBitsPerPel = 32;
-			dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-
-			if ((width != screenWidth) && (height != screenHeight))
-			{
-				if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-				{
-					if (MessageBox(NULL, "Fullscreen Mode not supported!\n Switch to window mode?", "Error", MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
-						fullscreen = FALSE;
-					else
-						exit(1);
-				}
-			}
-
-		}
-
-		DWORD dwExStyle;
-		DWORD dwStyle;
-
-		if (fullscreen)
-		{
-			dwExStyle = WS_EX_APPWINDOW;
-			dwStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-		}
-		else
-		{
-			dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-			dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-		}
-
-		RECT windowRect;
-		if (fullscreen)
-		{
-			windowRect.left = (long)0;
-			windowRect.right = (long)screenWidth;
-			windowRect.top = (long)0;
-			windowRect.bottom = (long)screenHeight;
-		}
-		else
-		{
-			windowRect.left = (long)screenWidth / 2 - width / 2;
-			windowRect.right = (long)width;
-			windowRect.top = (long)screenHeight / 2 - height / 2;
-			windowRect.bottom = (long)height;
-		}
-
-		AdjustWindowRectEx(&windowRect, dwStyle, FALSE, dwExStyle);
-
-		window = CreateWindowEx(0,
-			name.c_str(),
-			name.c_str(),
-			//		WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_SYSMENU,
-			dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-			windowRect.left,
-			windowRect.top,
-			windowRect.right,
-			windowRect.bottom,
-			NULL,
-			NULL,
-			hInstance,
-			NULL);
-
-		if (!window)
-		{
-			printf("Could not create window!\n");
-			fflush(stdout);
-			exit(1);
-		}
-
-		ShowWindow(window, SW_SHOW);
-		SetForegroundWindow(window);
-		SetFocus(window);
-	}
-
-	/*
 	* Initializes the command pool.
 	*/
-	void initCommandPool()
+	void createCommandPool()
 	{
 		VkCommandPoolCreateInfo cmdPoolInfo = {};
 		cmdPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		cmdPoolInfo.queueFamilyIndex = swapchain->queueNodeIndex;
 		cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		cmdPool = createCommandPool(cmdPoolInfo);
+		cmdPool = device->createCommandPool(cmdPoolInfo);
 	}
 
 	/*
 	* Initializes the Setup Command Buffer.
 	*/
-	void initSetupCmdBuffer()
+	void createSetupCommandBuffer()
 	{
 		VkCommandBufferAllocateInfo cmdBufAllocateInfo = {};
 		cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		cmdBufAllocateInfo.commandPool = cmdPool;
 		cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		cmdBufAllocateInfo.commandBufferCount = 1;
-		setupCmdBuffer = allocateCommandBuffers(cmdBufAllocateInfo);
+		setupCmdBuffer = device->allocateCommandBuffers(cmdBufAllocateInfo).at(0);
 	}
 
 	/*
 	* Initializes the Post Present Command Buffer.
 	*/
-	void initPostPresentCmdBuffer()
+	void createCommandBuffers()
 	{
 		VkCommandBufferAllocateInfo cmdBufAllocateInfo = {};
 		cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		cmdBufAllocateInfo.commandPool = cmdPool;
 		cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		cmdBufAllocateInfo.commandBufferCount = (uint32_t)swapchain->imageCount;
-		drawCmdBuffers = allocateCommandBuffers(cmdBufAllocateInfo);
+		cmdBufAllocateInfo.commandBufferCount = swapchain->imageCount;
+		drawCmdBuffers = device->allocateCommandBuffers(cmdBufAllocateInfo);
 
+		// TODO one call instead of two needed?
 		cmdBufAllocateInfo.commandBufferCount = 1;
-		postPresentCmdBuffer = allocateCommandBuffers(cmdBufAllocateInfo);
+		postPresentCmdBuffer = device->allocateCommandBuffers(cmdBufAllocateInfo).at(0);
+		prePresentCmdBuffer  = device->allocateCommandBuffers(cmdBufAllocateInfo).at(0);
 	}
 
 
@@ -474,8 +316,8 @@ private:
 		depthStencilView.subresourceRange.baseArrayLayer = 0;
 		depthStencilView.subresourceRange.layerCount = 1;
 
-		depthStencil.image = createImage(image);
-		memReqs = getImageMemoryRequirements(depthStencil.image);
+		depthStencil.image = device->createImage(image);
+		memReqs = device->getImageMemoryRequirements(depthStencil.image);
 
 
 		mem_alloc.allocationSize = memReqs.size;
@@ -483,45 +325,19 @@ private:
 		for (uint32_t i = 0; i < 32; i++)
 		{
 			if ((memReqs.memoryTypeBits & 1) == 1)
-
 			{
-				if ((memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-				{
+				if ((physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
 					mem_alloc.memoryTypeIndex = i;
-				}
 			}
 			memReqs.memoryTypeBits >>= 1;
 		}
 
+		depthStencil.mem = device->allocateMemory(mem_alloc);
 
-		depthStencil.mem = allocateMemory(mem_alloc);
-		bindImageMemory(depthStencil.image, depthStencil.mem);
-
-		// Create an image barrier object
-		VkImageMemoryBarrier imageMemoryBarrier = {};
-		imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		imageMemoryBarrier.pNext = NULL;
-		imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;	
-		imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		imageMemoryBarrier.image = depthStencil.image;
-		imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-		imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-		imageMemoryBarrier.subresourceRange.levelCount = 1;
-		imageMemoryBarrier.subresourceRange.layerCount = 1;
-		imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-		imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-		// Put barrier on top
-		VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-
-		// Put barrier inside setup command buffer
-		vkCmdPipelineBarrier(setupCmdBuffer.at(0), srcStageFlags, destStageFlags,	0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+		device->bindImageMemory(depthStencil.image, depthStencil.mem);
 
 		depthStencilView.image = depthStencil.image;
-		depthStencil.view = createImageView(depthStencilView);
+		depthStencil.view = device->createImageView(depthStencilView);
 	}
 
 
@@ -579,7 +395,7 @@ private:
 		renderPassInfo.dependencyCount = 0;
 		renderPassInfo.pDependencies = NULL;
 
-		renderPass = createRenderPass(renderPassInfo);
+		renderPass = device->createRenderPass(renderPassInfo);
 	}
 
 
@@ -590,7 +406,7 @@ private:
 	{
 		VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
 		pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-		pipelineCache = createPipelineCache(pipelineCacheCreateInfo);
+		pipelineCache = device->createPipelineCache(pipelineCacheCreateInfo);
 	}
 
 
@@ -619,56 +435,46 @@ private:
 		for (uint32_t i = 0; i < frameBuffers.size(); i++)
 		{
 			fbAttachments[0] = swapchain->buffers[i].view;
-			frameBuffers[i] = createFrameBuffer(frameBufferCreateInfo);
+			frameBuffers[i] = device->createFrameBuffer(frameBufferCreateInfo);
 		}
 	}
 
+	/*
+	* Prepares the semaphores for use.
+	*/
+	void prepareSemaphores()
+	{
+		VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		semaphoreCreateInfo.pNext = NULL;
+
+		// This semaphore ensures that the image is complete
+		// before starting to submit again
+		semaphores.presentComplete = device->createSemaphore(semaphoreCreateInfo);
+
+		// This semaphore ensures that all commands submitted
+		// have been finished before submitting the image to the queue
+		semaphores.renderComplete = device->createSemaphore(semaphoreCreateInfo);
+	}
 
 	/*
 	* Flushes the Setup Command Buffer.
 	*/
-	void flushSetupCmdBuffer()
+	void flushSetupCommandBuffer()
 	{
-		VkResult errorStatus = vkEndCommandBuffer(setupCmdBuffer.at(0));
-		assert(!errorStatus);
+		setupCmdBuffer.end();
 
 		VkSubmitInfo submitInfo = {};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &setupCmdBuffer.at(0);
+		submitInfo.pCommandBuffers = &setupCmdBuffer.getBuffer();
+		queue->submit(1, submitInfo);
 
-		errorStatus = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-		assert(!errorStatus);
+		queue->waitIdle();
 
-		errorStatus = vkQueueWaitIdle(queue);
-		assert(!errorStatus);
-
-		freeCommandBuffer(cmdPool, setupCmdBuffer);
-		setupCmdBuffer.at(0) = VK_NULL_HANDLE;
+		device->freeCommandBuffer(cmdPool, setupCmdBuffer);
+		setupCmdBuffer = VK_NULL_HANDLE;
 	}
-
-
-	/*
-	* Begins the Setup Command Buffer.
-	*/
-	void beginSetupCmdBuffer()
-	{
-		VkCommandBufferAllocateInfo cmdBufAllocateInfo = {};
-		cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		cmdBufAllocateInfo.commandPool = cmdPool;
-		cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		cmdBufAllocateInfo.commandBufferCount = 1;
-		setupCmdBuffer = allocateCommandBuffers(cmdBufAllocateInfo);
-
-		// todo : Command buffer is also started here, better put somewhere else
-		// todo : Check if necessaray at all...
-		VkCommandBufferBeginInfo cmdBufInfo = {};
-		cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		// todo : check null handles, flags?
-
-		beginCommandBuffer(setupCmdBuffer.at(0), cmdBufInfo);
-	}
-
 
 	/*
 	* Initializes the vertices and uploads them to the GPU. 
@@ -698,9 +504,8 @@ private:
 		memAlloc.pNext = NULL;
 		memAlloc.allocationSize = 0;
 		memAlloc.memoryTypeIndex = 0;
-		VkMemoryRequirements memReqs2;
+		VkMemoryRequirements memReqs;
 
-		VkResult err;
 		void *data;
 
 		// Generate vertex buffer
@@ -713,28 +518,28 @@ private:
 		bufInfo.flags = 0;
 		//	Copy vertex data to VRAM
 		memset(&vertices, 0, sizeof(vertices));
-		vertices.buf = createBuffer(bufInfo);
-		memReqs2 = getBufferMemoryRequirements(vertices.buf);
-		memAlloc.allocationSize = memReqs2.size;
+		vertices.buf = device->createBuffer(bufInfo);
+		memReqs = device->getBufferMemoryRequirements(vertices.buf);
+		memAlloc.allocationSize = memReqs.size;
 
 		for (uint32_t i = 0; i < 32; i++)
 		{
-			if ((memReqs2.memoryTypeBits & 1) == 1)
+			if ((memReqs.memoryTypeBits & 1) == 1)
 			{
-				if ((memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+				if ((physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 				{
 					memAlloc.memoryTypeIndex = i;
 				}
 			}
-			memReqs2.memoryTypeBits >>= 1;
+			memReqs.memoryTypeBits >>= 1;
 		}
 
-		memReqs2.memoryTypeBits = 1;
-		vertices.mem = allocateMemory(memAlloc);
-		data = mapMemory(vertices.mem, memAlloc.allocationSize);
+		memReqs.memoryTypeBits = 1;
+		vertices.mem = device->allocateMemory(memAlloc);
+		data = device->mapMemory(vertices.mem, memAlloc.allocationSize);
 		memcpy(data, vertexBuffer.data(), vertexBufferSize);
-		unmapMemory(vertices.mem);
-		bindBufferMemory(vertices.buf, vertices.mem);
+		device->unmapMemory(vertices.mem);
+		device->bindBufferMemory(vertices.buf, vertices.mem);
 
 		// Generate index buffer
 		//	Setup
@@ -746,29 +551,28 @@ private:
 		indexbufferInfo.flags = 0;
 		// Copy index data to VRAM
 		memset(&indices, 0, sizeof(indices));
-		indices.buf = createBuffer(bufInfo);
-		memReqs2 = getBufferMemoryRequirements(indices.buf);
+		indices.buf = device->createBuffer(bufInfo);
+		memReqs = device->getBufferMemoryRequirements(indices.buf);
 
-		memAlloc.allocationSize = memReqs2.size;
+		memAlloc.allocationSize = memReqs.size;
 
 		for (uint32_t i = 0; i < 32; i++)
 		{
-			if ((memReqs2.memoryTypeBits & 1) == 1)
+			if ((memReqs.memoryTypeBits & 1) == 1)
 			{
-				if ((memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+				if ((physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 				{
 					memAlloc.memoryTypeIndex = i;
 				}
 			}
-			memReqs2.memoryTypeBits >>= 1;
+			memReqs.memoryTypeBits >>= 1;
 		}
 
-		indices.mem = allocateMemory(memAlloc);
-		VkDeviceSize size = indexBufferSize;
-		data = mapMemory(indices.mem, size);
+		indices.mem = device->allocateMemory(memAlloc);
+		data = device->mapMemory(indices.mem, indexBufferSize);
 		memcpy(data, indexBuffer.data(), indexBufferSize);
-		unmapMemory(indices.mem);
-		bindBufferMemory(indices.buf, indices.mem);
+		device->unmapMemory(indices.mem);
+		device->bindBufferMemory(indices.buf, indices.mem);
 		indices.count = indexBuffer.size();
 
 		// Binding description
@@ -808,7 +612,7 @@ private:
 	*/
 	void initUniformBuffers()
 	{
-		VkMemoryRequirements memReqs3;
+		VkMemoryRequirements memReqs;
 
 		// Vertex shader uniform buffer block
 		VkBufferCreateInfo bufferInfo = {};
@@ -823,29 +627,27 @@ private:
 		bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 
 		// Create a new buffer
-		uniformDataVS.buffer = createBuffer(bufferInfo);
+		uniformDataVS.buffer = device->createBuffer(bufferInfo);
 		// Get memory requirements including size, alignment and memory type 
-		memReqs3 = getBufferMemoryRequirements(uniformDataVS.buffer);
-		allocInfo.allocationSize = memReqs3.size;
+		memReqs = device->getBufferMemoryRequirements(uniformDataVS.buffer);
+		allocInfo.allocationSize = memReqs.size;
 		// Gets the appropriate memory type for this type of buffer allocation
 		// Only memory types that are visible to the host
 
 		for (uint32_t i = 0; i < 32; i++)
 		{
-			if ((memReqs3.memoryTypeBits & 1) == 1)
+			if ((memReqs.memoryTypeBits & 1) == 1)
 			{
-				if ((memoryProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-				{
+				if ((physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 					allocInfo.memoryTypeIndex = i;
-				}
 			}
-			memReqs3.memoryTypeBits >>= 1;
+			memReqs.memoryTypeBits >>= 1;
 		}
 
 		// Allocate memory for the uniform buffer
-		uniformDataVS.memory = allocateMemory(allocInfo);
+		uniformDataVS.memory = device->allocateMemory(allocInfo);
 		// Bind memory to buffer
-		bindBufferMemory(uniformDataVS.buffer, uniformDataVS.memory);
+		device->bindBufferMemory(uniformDataVS.buffer, uniformDataVS.memory);
 
 		// Store information in the uniform's descriptor
 		uniformDataVS.descriptor.buffer = uniformDataVS.buffer;
@@ -853,21 +655,20 @@ private:
 		uniformDataVS.descriptor.range = sizeof(uboVS);
 
 		// Update matrices
-		uboVS.projectionMatrix = glm::perspective(deg_to_rad(60.0f), (float)width / (float)height, 0.1f, 256.0f);
-
+		uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 256.0f);
 		uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, zoom));
 
 		uboVS.modelMatrix = glm::mat4();
-		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, deg_to_rad(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, deg_to_rad(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, deg_to_rad(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
 		// Map uniform buffer and update it
 		uint8_t *pData;
 		VkDeviceSize size2 = sizeof(uboVS);
-		pData = (uint8_t*) mapMemory(uniformDataVS.memory, size2);
+		pData = (uint8_t*) device->mapMemory(uniformDataVS.memory, size2);
 		memcpy(pData, &uboVS, sizeof(uboVS));
-		unmapMemory(uniformDataVS.memory);
+		device->unmapMemory(uniformDataVS.memory);
 	}
 
 
@@ -889,7 +690,7 @@ private:
 		descriptorLayout.bindingCount = 1;
 		descriptorLayout.pBindings = &layoutBinding;
 		
-		descriptorSetLayout = createDescriptorSetLayout(descriptorLayout);
+		descriptorSetLayout = device->createDescriptorSetLayout(descriptorLayout);
 
 		// Create the pipeline layout that is used to generate the rendering pipelines that
 		// are based on this descriptor set layout
@@ -901,7 +702,7 @@ private:
 		pPipelineLayoutCreateInfo.setLayoutCount = 1;
 		pPipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
 
-		pipelineLayout = createPipelineLayout(pPipelineLayoutCreateInfo);
+		pipelineLayout = device->createPipelineLayout(pPipelineLayoutCreateInfo);
 	}
 
 
@@ -1014,7 +815,7 @@ private:
 
 		shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-		shaderStages[0].module = loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.vert.spv", device, VK_SHADER_STAGE_VERTEX_BIT);
+		shaderStages[0].module = loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.vert.spv", *device, VK_SHADER_STAGE_VERTEX_BIT);
 		shaderStages[0].pName = "main"; // todo : make param
 		assert(shaderStages[0].module != NULL);
 		shaderModules.push_back(shaderStages[0].module);
@@ -1022,7 +823,7 @@ private:
 
 		shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-		shaderStages[1].module = loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.frag.spv", device, VK_SHADER_STAGE_FRAGMENT_BIT);
+		shaderStages[1].module = loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.frag.spv", *device, VK_SHADER_STAGE_FRAGMENT_BIT);
 		shaderStages[1].pName = "main"; // todo : make param
 		assert(shaderStages[1].module != NULL);
 		shaderModules.push_back(shaderStages[1].module);
@@ -1043,7 +844,7 @@ private:
 		pipelineCreateInfo.pDynamicState = &dynamicState;
 
 		// Create rendering pipeline
-		pipelines.solid = createGraphicsPipelines(pipelineCache, pipelineCreateInfo, 1).at(0);
+		pipelines.solid = device->createGraphicsPipelines(pipelineCache, pipelineCreateInfo, 1).at(0);
 	}
 
 	/*
@@ -1073,7 +874,7 @@ private:
 		// Requesting descriptors beyond maxSets will result in an error
 		descriptorPoolInfo.maxSets = 1;
 
-		descriptorPool = createDescriptorPool(descriptorPoolInfo);
+		descriptorPool = device->createDescriptorPool(descriptorPoolInfo);
 	}
 
 	void updateDescriptorSet()
@@ -1081,7 +882,6 @@ private:
 		// Update descriptor sets determining the shader binding points
 		// For every binding point used in a shader there needs to be one
 		// descriptor set matching that binding point
-		VkWriteDescriptorSet writeDescriptorSet = {};
 
 		VkDescriptorSetAllocateInfo allocInfo2 = {};
 		allocInfo2.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -1089,9 +889,10 @@ private:
 		allocInfo2.descriptorSetCount = 1;
 		allocInfo2.pSetLayouts = &descriptorSetLayout;
 
-		allocateDescriptorSet(allocInfo2, descriptorSet);
+		device->allocateDescriptorSet(allocInfo2, descriptorSet);
 
 		// Binding 0 : Uniform buffer
+		VkWriteDescriptorSet writeDescriptorSet = {};
 		writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		writeDescriptorSet.dstSet = descriptorSet;
 		writeDescriptorSet.descriptorCount = 1;
@@ -1099,14 +900,14 @@ private:
 		writeDescriptorSet.pBufferInfo = &uniformDataVS.descriptor;
 		// Binds this uniform buffer to binding point 0
 		writeDescriptorSet.dstBinding = 0;
-
-		BaseApplication::updateDescriptorSet(writeDescriptorSet);
+		device->updateDescriptorSet(writeDescriptorSet);
 	}
+
 	void initCommandBuffers()
 	{
-		VkCommandBufferBeginInfo cmdBufInfo3 = {};
-		cmdBufInfo3.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		cmdBufInfo3.pNext = NULL;
+		VkCommandBufferBeginInfo cmdBufInfo = {};
+		cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		cmdBufInfo.pNext = NULL;
 
 		VkClearValue clearValues[2];
 		clearValues[0].color = defaultClearColor;
@@ -1126,12 +927,10 @@ private:
 		for (int32_t i = 0; i < drawCmdBuffers.size(); ++i)
 		{
 			// Set target frame buffer
-			renderPassBeginInfo.framebuffer = frameBuffers[i];
+			renderPassBeginInfo.framebuffer = frameBuffers.at(i);
 
-			VkResult err = vkBeginCommandBuffer(drawCmdBuffers[i], &cmdBufInfo3);
-			assert(!err);
-
-			vkCmdBeginRenderPass(drawCmdBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+			drawCmdBuffers.at(i).beginCommandBuffer(cmdBufInfo);
+			drawCmdBuffers.at(i).beginRenderPass(renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			// Update dynamic viewport state
 			VkViewport viewport = {};
@@ -1139,7 +938,7 @@ private:
 			viewport.width = (float)width;
 			viewport.minDepth = (float) 0.0f;
 			viewport.maxDepth = (float) 1.0f;
-			vkCmdSetViewport(drawCmdBuffers[i], 0, 1, &viewport);
+			drawCmdBuffers.at(i).setViewport(viewport);
 
 			// Update dynamic scissor state
 			VkRect2D scissor = {};
@@ -1147,25 +946,18 @@ private:
 			scissor.extent.height = height;
 			scissor.offset.x = 0;
 			scissor.offset.y = 0;
-			vkCmdSetScissor(drawCmdBuffers[i], 0, 1, &scissor);
+			drawCmdBuffers.at(i).setScissors(scissor);
 
 			// Bind descriptor sets describing shader binding points
-			vkCmdBindDescriptorSets(drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, NULL);
+			drawCmdBuffers.at(i).bindDescriptorSet(pipelineLayout, descriptorSet);
 
-			// Bind the rendering pipeline (including the shaders)
-			vkCmdBindPipeline(drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines.solid);
+			// Bind the pipeline with shaders, vertex and index buffers, and draw indexed triangles
+			drawCmdBuffers.at(i).bindPipeline(pipelines.solid);
+			drawCmdBuffers.at(i).bindVertexBuffers(vertices.buf);
+			drawCmdBuffers.at(i).bindIndexBuffers(indices.buf);
+			drawCmdBuffers.at(i).drawIndexed(indices.count);
 
-			// Bind triangle vertices
-			VkDeviceSize offsets[1] = { 0 };
-			vkCmdBindVertexBuffers(drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, &vertices.buf, offsets);
-
-			// Bind triangle indices
-			vkCmdBindIndexBuffer(drawCmdBuffers[i], indices.buf, 0, VK_INDEX_TYPE_UINT32);
-
-			// Draw indexed triangle
-			vkCmdDrawIndexed(drawCmdBuffers[i], indices.count, 1, 0, 0, 1);
-
-			vkCmdEndRenderPass(drawCmdBuffers[i]);
+			drawCmdBuffers.at(i).endRenderPass();
 
 			// Add a present memory barrier to the end of the command buffer
 			// This will transform the frame buffer color attachment to a
@@ -1182,19 +974,32 @@ private:
 			prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 			prePresentBarrier.image = swapchain->buffers[i].image;
 
-			VkImageMemoryBarrier *pMemoryBarrier = &prePresentBarrier;
-			vkCmdPipelineBarrier(
-				drawCmdBuffers[i],
-				VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-				0,
-				0, nullptr,
-				0, nullptr,
-				1, &prePresentBarrier);
-
-			err = vkEndCommandBuffer(drawCmdBuffers[i]);
-			assert(!err);
+			drawCmdBuffers.at(i).putPipelineBarrier(prePresentBarrier);
+			drawCmdBuffers.at(i).end();
 		}
+	}
 
+	uint32_t getQueueIndexOfType(VkQueueFlagBits bits)
+	{
+		uint32_t queueIndex;
+		for (queueIndex = 0; queueIndex < queueProperties.size(); queueIndex++)
+		{
+			if (queueProperties.at(queueIndex).queueFlags & bits)
+				break;
+		}
+		assert(queueIndex < queueProperties.size());
+		return queueIndex;
+	}
+
+	void submitToQueue(VkQueue& queue, uint32_t count, VkSubmitInfo& info, VkFence& fence)
+	{
+		VkResult error = vkQueueSubmit(queue, count, &info, fence);
+		assert(!error);
+	}
+
+	void submitToQueue(VkQueue& queue, uint32_t count, VkSubmitInfo& info)
+	{
+		VkResult error = vkQueueSubmit(queue, count, &info, VK_NULL_HANDLE);
+		assert(!error);
 	}
 };

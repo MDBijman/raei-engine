@@ -11,7 +11,7 @@
 class VulkanInstance
 {
 public:
-	void create(std::string name)
+	VulkanInstance(std::string name)
 	{
 		// Set some info about our application
 		VkApplicationInfo appInfo = {};
@@ -37,24 +37,32 @@ public:
 		assert(!err);
 	}
 
-	std::vector<VulkanPhysicalDevice> physicalDevices()
+	std::vector<VulkanPhysicalDevice>& getPhysicalDevices()
 	{
+		if (physicalDevices)
+			return *physicalDevices;
+
 		uint32_t deviceCount;
 		vkEnumeratePhysicalDevices(instance, &deviceCount, NULL);
 
-		std::vector<VkPhysicalDevice> physicalDevices;
-		physicalDevices.resize(deviceCount);
-		vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
+		std::vector<VkPhysicalDevice> vkPhysicalDevices;
+		vkPhysicalDevices.resize(deviceCount);
+		vkEnumeratePhysicalDevices(instance, &deviceCount, vkPhysicalDevices.data());
 
-		std::vector<VulkanPhysicalDevice> devices;
-		std::transform(physicalDevices.begin(), physicalDevices.end(), std::back_inserter(devices), [](VkPhysicalDevice d) -> VulkanPhysicalDevice { return VulkanPhysicalDevice(d); });
-
-		return devices;
+		physicalDevices = new std::vector<VulkanPhysicalDevice>();
+		physicalDevices->resize(deviceCount);
+		std::transform(vkPhysicalDevices.begin(), vkPhysicalDevices.end(), std::back_inserter(physicalDevices), [](VkPhysicalDevice d) -> VulkanPhysicalDevice { return VulkanPhysicalDevice(d); });
+		return *physicalDevices;
 	}
 
 	operator VkInstance() const { return instance; }
-
+	VkInstance& getVkInstance()
+	{
+		return instance;
+	}
 private:
 	VkInstance instance;
+
+	std::vector<VulkanPhysicalDevice>* physicalDevices;
 
 };

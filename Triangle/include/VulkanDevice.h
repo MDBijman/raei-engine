@@ -1,31 +1,38 @@
 #pragma once
 
+#include <assert.h>
+#include <array>
 #include <vulkan\vulkan.h>
-#include <VulkanPhysicalDevice.h>
+#include "VulkanCommandBuffer.h"
 
 class VulkanDevice
 {
 public:
 	VulkanDevice(VulkanPhysicalDevice pd, uint32_t queueIndex)
 	{
+		std::array<float, 1> queuePriorities = { 0.0f };
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = queueIndex;
 		queueCreateInfo.queueCount = 1;
-		float queuePriorities[1] = { 0.0f };
-		queueCreateInfo.pQueuePriorities = &queuePriorities[0];
+		queueCreateInfo.pQueuePriorities = queuePriorities.data();
 
+		std::vector<const char*> enabledExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		VkDeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		deviceCreateInfo.queueCreateInfoCount = 1;
 		deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
 		deviceCreateInfo.pEnabledFeatures = NULL;
-		std::vector<const char*> enabledExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 		deviceCreateInfo.enabledExtensionCount = (uint32_t)enabledExtensions.size();
 		deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
 		VkResult err = vkCreateDevice(pd, &deviceCreateInfo, nullptr, &device);
 		assert(!err);
+	}
+
+	void waitIdle()
+	{
+		vkDeviceWaitIdle(device);
 	}
 
 	VkQueue queueAt(uint32_t index)
@@ -58,21 +65,35 @@ public:
 		return cmdPool;
 	}
 
-	std::vector<VkCommandBuffer> allocateCommandBuffers(VkCommandBufferAllocateInfo& info)
+	std::vector<VulkanCommandBuffer> allocateCommandBuffers(VkCommandBufferAllocateInfo& info)
 	{
 		std::vector<VkCommandBuffer> buffers;
 		buffers.resize(info.commandBufferCount);
 		VkResult errorStatus = vkAllocateCommandBuffers(device, &info, buffers.data());
 		assert(!errorStatus);
 
-		return buffers;
+		std::vector<VulkanCommandBuffer> wrappers;
+
+		for (VkCommandBuffer b : buffers) 
+			wrappers.push_back(VulkanCommandBuffer(b));
+
+		return wrappers;
 	}
 
-	void freeCommandBuffer(VkCommandPool& pool, std::vector<VkCommandBuffer> buffer)
+	void freeCommandBuffers(VkCommandPool& pool, std::vector<VulkanCommandBuffer> buffer)
 	{
-		vkFreeCommandBuffers(device, pool, buffer.size(), buffer.data());
+		std::vector<VkCommandBuffer> raw_buffer;
+		raw_buffer.resize(buffer.size());
+		for(VulkanCommandBuffer b : buffer) 
+			raw_buffer.push_back(b.getBuffer());
+
+		vkFreeCommandBuffers(device, pool, buffer.size(), raw_buffer.data());
 	}
 
+	void freeCommandBuffer(VkCommandPool& pool, VulkanCommandBuffer& buffer)
+	{
+		vkFreeCommandBuffers(device, pool, 1, &buffer.getBuffer());
+	}
 
 	VkMemoryRequirements getBufferMemoryRequirements(VkBuffer& buffer)
 	{
@@ -86,11 +107,10 @@ public:
 		VkDeviceMemory mem;
 		VkResult error = vkAllocateMemory(device, &info, nullptr, &mem);
 		assert(!error);
-
 		return mem;
 	}
 
-	void* mapMemory(VkDeviceMemory& memory, VkDeviceSize& size)
+	void* mapMemory(VkDeviceMemory& memory, int size)
 	{
 		void* data;
 		VkResult error = vkMapMemory(device, memory, 0, size, 0, &data);
@@ -193,8 +213,6 @@ public:
 		return pipelines;
 	}
 
-
-
 	VkDescriptorPool createDescriptorPool (VkDescriptorPoolCreateInfo& info)
 	{
 		VkDescriptorPool pool;
@@ -214,7 +232,19 @@ public:
 		vkUpdateDescriptorSets(device, 1, &set, 0, NULL);
 	}
 
+	VkSemaphore createSemaphore(VkSemaphoreCreateInfo& semaphoreCreateInfo)
+	{
+		VkSemaphore semaphore;
+		VkResult error = vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &semaphore);
+		assert(!error);
+		return semaphore;
+	}
+
 	operator VkDevice() const { return device; };
+	VkDevice& getVkDevice()
+	{
+		return device;
+	}
 private:
 	VkDevice device;
 };

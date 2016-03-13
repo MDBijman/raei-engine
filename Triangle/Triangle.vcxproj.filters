@@ -41,9 +41,6 @@
     <ClInclude Include="include\Shaders.h">
       <Filter>Header Files\VkGraphics\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="include\BaseApplication.h">
-      <Filter>Header Files\VkGraphics</Filter>
-    </ClInclude>
     <ClInclude Include="include\VulkanInstance.h">
       <Filter>Header Files\VkGraphics\Wrappers</Filter>
     </ClInclude>
@@ -59,11 +56,12 @@
     <ClInclude Include="include\VulkanDevice.h">
       <Filter>Header Files\VkGraphics\Wrappers</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="include\buffer.txt">
-      <Filter>Source Files</Filter>
-    </Text>
+    <ClInclude Include="include\VulkanCommandBuffer.h">
+      <Filter>Header Files\VkGraphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanQueue.h">
+      <Filter>Header Files\VkGraphics\Wrappers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shaders\pipelines\wireframe.frag">
