@@ -121,11 +121,21 @@
     <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\SurfaceExtensions.h" />
     <ClInclude Include="include\SwapchainExtensions.h" />
+    <ClInclude Include="include\VulkanApplicationInfo.h" />
     <ClInclude Include="include\VulkanCommandBuffer.h" />
+    <ClInclude Include="include\VulkanCommandBufferAllocateInfo.h" />
+    <ClInclude Include="include\VulkanCommandPoolCreateInfo.h" />
     <ClInclude Include="include\VulkanDevice.h" />
+    <ClInclude Include="include\VulkanImageCreateInfo.h" />
+    <ClInclude Include="include\VulkanImageMemoryBarrier.h" />
+    <ClInclude Include="include\VulkanImageSubresourceRange.h" />
+    <ClInclude Include="include\VulkanImageViewCreateInfo.h" />
     <ClInclude Include="include\VulkanInstance.h" />
+    <ClInclude Include="include\VulkanInstanceCreateInfo.h" />
+    <ClInclude Include="include\VulkanMemoryAllocateInfo.h" />
     <ClInclude Include="include\VulkanPhysicalDevice.h" />
     <ClInclude Include="include\VulkanQueue.h" />
+    <ClInclude Include="include\VulkanSubmitInfo.h" />
     <ClInclude Include="include\VulkanTriangle.h" />
     <ClInclude Include="include\VulkanSwapchain.h" />
   </ItemGroup>

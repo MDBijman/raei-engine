@@ -25,6 +25,9 @@
     <Filter Include="Header Files\VkGraphics\Wrappers">
       <UniqueIdentifier>{38d4e8d1-8741-4706-a975-13779ba1b9be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\VkGraphics\Wrappers\Information">
+      <UniqueIdentifier>{b0ecb29b-774a-471d-8164-5d92acb4a634}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\triangle.cpp">
@@ -61,6 +64,36 @@
     </ClInclude>
     <ClInclude Include="include\VulkanQueue.h">
       <Filter>Header Files\VkGraphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanInstanceCreateInfo.h">
+      <Filter>Header Files\VkGraphics\Wrappers\Information</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanApplicationInfo.h">
+      <Filter>Header Files\VkGraphics\Wrappers\Information</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanImageCreateInfo.h">
+      <Filter>Header Files\VkGraphics\Wrappers\Information</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanImageMemoryBarrier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanCommandBufferAllocateInfo.h">
+      <Filter>Header Files\VkGraphics\Wrappers\Information</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanMemoryAllocateInfo.h">
+      <Filter>Header Files\VkGraphics\Wrappers\Information</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanImageViewCreateInfo.h">
+      <Filter>Header Files\VkGraphics\Wrappers\Information</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanImageSubresourceRange.h">
+      <Filter>Header Files\VkGraphics\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanCommandPoolCreateInfo.h">
+      <Filter>Header Files\VkGraphics\Wrappers\Information</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanSubmitInfo.h">
+      <Filter>Header Files\VkGraphics\Wrappers\Information</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

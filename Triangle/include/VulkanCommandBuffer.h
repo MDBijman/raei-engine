@@ -5,70 +5,72 @@
 class VulkanCommandBuffer
 {
 public:
-	VulkanCommandBuffer(VkCommandBuffer b) : buffer(b) {}
+	// Initializes the vk buffer as VK_NULL_HANDLE
+	VulkanCommandBuffer() : vkBuffer(VK_NULL_HANDLE) {}
+	VulkanCommandBuffer(VkCommandBuffer b) : vkBuffer(b) {}
 
-	void beginCommandBuffer(VkCommandBufferBeginInfo& info)
+	void beginCommandBuffer(VkCommandBufferBeginInfo& vkInfo)
 	{
-		VkResult error = vkBeginCommandBuffer(buffer, &info);
+		VkResult error = vkBeginCommandBuffer(vkBuffer, &vkInfo);
 		assert(!error);
 	}
 
 	void end()
 	{
-		VkResult error = vkEndCommandBuffer(buffer);
+		VkResult error = vkEndCommandBuffer(vkBuffer);
 		assert(!error);
 	}
 
-	void beginRenderPass(VkRenderPassBeginInfo& info, VkSubpassContents contents)
+	void beginRenderPass(VkRenderPassBeginInfo& vkInfo, VkSubpassContents contents)
 	{
-		vkCmdBeginRenderPass(buffer, &info, contents);
+		vkCmdBeginRenderPass(vkBuffer, &vkInfo, contents);
 	}
 
 	void endRenderPass()
 	{
-		vkCmdEndRenderPass(buffer);
+		vkCmdEndRenderPass(vkBuffer);
 	}
 	
 	void setViewport(VkViewport& port)
 	{
-		vkCmdSetViewport(buffer, 0, 1, &port);
+		vkCmdSetViewport(vkBuffer, 0, 1, &port);
 	}
 
 	void setScissors(VkRect2D& scissor)
 	{
-		vkCmdSetScissor(buffer, 0, 1, &scissor);
+		vkCmdSetScissor(vkBuffer, 0, 1, &scissor);
 	}
 
 	void bindDescriptorSet(VkPipelineLayout& pipelineLayout, VkDescriptorSet& descriptorSet)
 	{
-		vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, NULL);
+		vkCmdBindDescriptorSets(vkBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, NULL);
 	}
 
 	void bindPipeline(VkPipeline& pipeline)
 	{
-		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		vkCmdBindPipeline(vkBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	}
 
 	void bindVertexBuffers(VkBuffer& vertexBuffer)
 	{
 		VkDeviceSize offsets[1] = { 0 };
-		vkCmdBindVertexBuffers(buffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer, offsets);
+		vkCmdBindVertexBuffers(vkBuffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer, offsets);
 	}
 
 	void bindIndexBuffers(VkBuffer& indexBuffer)
 	{
-		vkCmdBindIndexBuffer(buffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(vkBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 	}
 
 	void drawIndexed(int count)
 	{
-		vkCmdDrawIndexed(buffer, count, 1, 0, 0, 1);
+		vkCmdDrawIndexed(vkBuffer, count, 1, 0, 0, 1);
 	}
 
 	void putPipelineBarrier(VkImageMemoryBarrier& barrier)
 	{
 		vkCmdPipelineBarrier(
-			buffer,
+			vkBuffer,
 			VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
 			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
 			0,
@@ -77,11 +79,5 @@ public:
 			1, &barrier);
 	}
 
-	operator VkCommandBuffer() const { return buffer; }
-	VkCommandBuffer& getBuffer()
-	{
-		return buffer;
-	}
-private:
-	VkCommandBuffer buffer;
+	VkCommandBuffer vkBuffer;
 };

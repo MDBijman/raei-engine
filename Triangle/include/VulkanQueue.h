@@ -8,15 +8,15 @@ class VulkanQueue
 public:
 	VulkanQueue(VkQueue q) : queue(q) {}
 
-	void submit(uint32_t count, VkSubmitInfo& info)
+	void submit(uint32_t count, VkSubmitInfo& vkInfo)
 	{
-		VkResult error = vkQueueSubmit(queue, count, &info, VK_NULL_HANDLE);
+		VkResult error = vkQueueSubmit(queue, count, &vkInfo, VK_NULL_HANDLE);
 		assert(!error);
 	}
 
-	void submit(uint32_t count, VkSubmitInfo& info, VkFence& fence)
+	void submit(uint32_t count, VkSubmitInfo& vkInfo, VkFence& fence)
 	{
-		VkResult error = vkQueueSubmit(queue, count, &info, fence);
+		VkResult error = vkQueueSubmit(queue, count, &vkInfo, fence);
 		assert(!error);
 	}
 

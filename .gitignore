@@ -1,5 +1,6 @@
 .vs
 x64
+Debug
 Triangle/x64
 Triangle/Triangle.vcxproj
 Triangle/Triangle.vcxproj.filters

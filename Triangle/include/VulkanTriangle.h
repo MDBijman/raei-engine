@@ -13,6 +13,14 @@
 #include "VulkanQueue.h"
 #include "VulkanCommandBuffer.h"
 #include "VulkanSwapchain.h"
+#include "VulkanImageCreateInfo.h"
+#include "VulkanImageMemoryBarrier.h"
+#include "VulkanCommandBufferAllocateInfo.h"
+#include "VulkanMemoryAllocateInfo.h"
+#include "VulkanImageSubresourceRange.h"
+#include "VulkanImageViewCreateInfo.h"
+#include "VulkanSubmitInfo.h"
+#include "VulkanCommandPoolCreateInfo.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -27,7 +35,7 @@ public:
 	std::string name;
 	std::unique_ptr<VulkanInstance> instance;
 	std::unique_ptr<VulkanPhysicalDevice> physicalDevice;
-	std::vector<VkQueueFamilyProperties> queueProperties;
+	std::unique_ptr<std::vector<VkQueueFamilyProperties>> queueProperties;
 	std::unique_ptr<VulkanDevice> device; // TODO allow more
 	std::unique_ptr<VulkanSwapChain> swapchain;
 
@@ -43,7 +51,6 @@ public:
 	// Command buffer for submitting a pre present image barrier
 	VulkanCommandBuffer prePresentCmdBuffer = VK_NULL_HANDLE;
 
-	VkMemoryRequirements memReqs;
 	VkFormat colorformat = VK_FORMAT_B8G8R8A8_UNORM;
 	VkRenderPass renderPass;
 	VkPipelineCache pipelineCache;
@@ -114,7 +121,7 @@ public:
 
 		createSetupCommandBuffer();
 		setupCmdBuffer.beginCommandBuffer(cmdBufInfo);
-		swapchain->setup(setupCmdBuffer, &width, &height);
+		swapchain->setup(setupCmdBuffer.vkBuffer, &width, &height);
 		createCommandBuffers();
 		initDepthStencil();
 		initRenderPass();
@@ -124,6 +131,7 @@ public:
 
 		createSetupCommandBuffer();
 		setupCmdBuffer.beginCommandBuffer(cmdBufInfo);
+		prepareSemaphores();
 		initVertices();
 		initUniformBuffers();
 		initDescriptorSetLayout();
@@ -144,24 +152,18 @@ public:
 		// command buffers and semaphores to be submitted to a queue
 		// If you want to submit multiple command buffers, pass an array
 		VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.pWaitDstStageMask = &pipelineStages;
-		// The wait semaphore ensures that the image is presented 
-		// before we start submitting command buffers agein
-		submitInfo.waitSemaphoreCount = 1;
-		submitInfo.pWaitSemaphores = &semaphores.presentComplete;
-		// Submit the currently active command buffer
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &drawCmdBuffers[currentBuffer].getBuffer();
-		// The signal semaphore is used during queue presentation
-		// to ensure that the image is not rendered before all
-		// commands have been submitted
-		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &semaphores.renderComplete;
+		VulkanSubmitInfo submitInfo;
+		submitInfo
+			.setDstStageMaskPointer(&pipelineStages)
+			.setWaitSemaphoreCount(1)
+			.setWaitSemaphoresPointer(&semaphores.presentComplete)
+			.setCommandBufferCount(1)
+			.setCommandBuffersPointer(&drawCmdBuffers[currentBuffer].vkBuffer)
+			.setSignalSemaphoreCount(1)
+			.setSignalSemaphoresPointer(&semaphores.renderComplete);
 
 		// Submit to the graphics queue
-		queue->submit(1, submitInfo);
+		queue->submit(1, submitInfo.vkInfo);
 		// Present the current buffer to the swap chain
 		// This will display the image
 		swapchain->queuePresent(*queue, currentBuffer);
@@ -172,17 +174,16 @@ public:
 		// windowing system
 		// See buildCommandBuffers for the pre present barrier that 
 		// does the opposite transformation 
-		VkImageMemoryBarrier postPresentBarrier = {};
-		postPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		postPresentBarrier.pNext = NULL;
-		postPresentBarrier.srcAccessMask = 0;
-		postPresentBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		postPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		postPresentBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-		postPresentBarrier.image = swapchain->buffers[currentBuffer].image;
+		VulkanImageMemoryBarrier postPresentBarrier;
+		postPresentBarrier
+			.setSrcAccessMask(0)
+			.setDstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
+			.setOldLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
+			.setNewLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+			.setSubresourceRange({ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 })
+			.setImage(swapchain->buffers[currentBuffer].image);
 
 		// Use dedicated command buffer from example base class for submitting the post present barrier
 		VkCommandBufferBeginInfo cmdBufInfo = {};
@@ -191,15 +192,14 @@ public:
 		postPresentCmdBuffer.beginCommandBuffer(cmdBufInfo);
 
 		// Put post present barrier into command buffer
-		postPresentCmdBuffer.putPipelineBarrier(postPresentBarrier);
+		postPresentCmdBuffer.putPipelineBarrier(postPresentBarrier.vkBarrier);
 		postPresentCmdBuffer.end();
 
 		// Submit to the queue
-		submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &postPresentCmdBuffer.getBuffer();
-		queue->submit(1, submitInfo);
+		submitInfo
+			.setCommandBufferCount(1)
+			.setCommandBuffersPointer(&postPresentCmdBuffer.vkBuffer);
+		queue->submit(1, submitInfo.vkInfo);
 		queue->waitIdle();
 
 		device->waitIdle();
@@ -214,12 +214,12 @@ private:
 	void initVulkanContext(std::string name)
 	{
 		instance = std::make_unique<VulkanInstance>("triangle");
-		physicalDevice = std::make_unique<VulkanPhysicalDevice>(instance->getPhysicalDevices().at(0));
+		physicalDevice = std::make_unique<VulkanPhysicalDevice>(instance->getPhysicalDevices()->at(0));
 		queueProperties = physicalDevice->queueFamilyProperties();
 
 		uint32_t graphicsQueueIndex = getQueueIndexOfType(VK_QUEUE_GRAPHICS_BIT); // TODO factor to seperate class
 		device = std::make_unique<VulkanDevice>(physicalDevice->getVkPhysicalDevice(), graphicsQueueIndex);
-		swapchain = std::make_unique<VulkanSwapChain>(instance->getVkInstance(), physicalDevice->getVkPhysicalDevice(), device->getVkDevice());
+		swapchain = std::make_unique<VulkanSwapChain>(instance->vkInstance, physicalDevice->getVkPhysicalDevice(), device->getVkDevice());
 		queue = std::make_unique<VulkanQueue>(device->queueAt(graphicsQueueIndex));
 
 		// Find supported depth format
@@ -240,11 +240,11 @@ private:
 	*/
 	void createCommandPool()
 	{
-		VkCommandPoolCreateInfo cmdPoolInfo = {};
-		cmdPoolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		cmdPoolInfo.queueFamilyIndex = swapchain->queueNodeIndex;
-		cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-		cmdPool = device->createCommandPool(cmdPoolInfo);
+		VulkanCommandPoolCreateInfo cmdPoolInfo;
+		cmdPoolInfo
+			.setQueueFamilyIndex(swapchain->queueNodeIndex)
+			.setFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+		cmdPool = device->createCommandPool(cmdPoolInfo.vkInfo);
 	}
 
 	/*
@@ -252,12 +252,12 @@ private:
 	*/
 	void createSetupCommandBuffer()
 	{
-		VkCommandBufferAllocateInfo cmdBufAllocateInfo = {};
-		cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		cmdBufAllocateInfo.commandPool = cmdPool;
-		cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		cmdBufAllocateInfo.commandBufferCount = 1;
-		setupCmdBuffer = device->allocateCommandBuffers(cmdBufAllocateInfo).at(0);
+		VulkanCommandBufferAllocateInfo info;
+		info.setCommandPool(cmdPool)
+			.setCommandBufferLevel(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+			.setCommandBufferCount(1);
+
+		setupCmdBuffer = device->allocateCommandBuffers(info.vkInfo).at(0);
 	}
 
 	/*
@@ -265,17 +265,17 @@ private:
 	*/
 	void createCommandBuffers()
 	{
-		VkCommandBufferAllocateInfo cmdBufAllocateInfo = {};
-		cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		cmdBufAllocateInfo.commandPool = cmdPool;
-		cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		cmdBufAllocateInfo.commandBufferCount = swapchain->imageCount;
-		drawCmdBuffers = device->allocateCommandBuffers(cmdBufAllocateInfo);
+		VulkanCommandBufferAllocateInfo info;
+		info.setCommandPool(cmdPool)
+			.setCommandBufferLevel(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
+			.setCommandBufferCount(swapchain->imageCount);
+
+		drawCmdBuffers = device->allocateCommandBuffers(info.vkInfo);
 
 		// TODO one call instead of two needed?
-		cmdBufAllocateInfo.commandBufferCount = 1;
-		postPresentCmdBuffer = device->allocateCommandBuffers(cmdBufAllocateInfo).at(0);
-		prePresentCmdBuffer  = device->allocateCommandBuffers(cmdBufAllocateInfo).at(0);
+		info.setCommandBufferCount(1);
+		postPresentCmdBuffer = device->allocateCommandBuffers(info.vkInfo).at(0);
+		prePresentCmdBuffer  = device->allocateCommandBuffers(info.vkInfo).at(0);
 	}
 
 
@@ -284,60 +284,53 @@ private:
 	*/
 	void initDepthStencil()
 	{
-		VkImageCreateInfo image = {};
-		image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-		image.pNext = NULL;
-		image.imageType = VK_IMAGE_TYPE_2D;
-		image.format = depthFormat;
-		image.extent = { width, height, 1 };
-		image.mipLevels = 1;
-		image.arrayLayers = 1;
-		image.samples = VK_SAMPLE_COUNT_1_BIT;
-		image.tiling = VK_IMAGE_TILING_OPTIMAL;
-		image.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-		image.flags = 0;
+		VulkanImageCreateInfo imageCreateInfo;
+		imageCreateInfo
+			.setImageType(VK_IMAGE_TYPE_2D)
+			.setFormat(depthFormat)
+			.setExtent({ width, height, 1 })
+			.setMipLevels(1).setArrayLayers(1)
+			.setSamples(VK_SAMPLE_COUNT_1_BIT)
+			.setTiling(VK_IMAGE_TILING_OPTIMAL)
+			.setUsage(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT)
+			.setFlags(0);
+		depthStencil.image = device->createImage(imageCreateInfo.vkInfo);
 
-		VkMemoryAllocateInfo mem_alloc = {};
-		mem_alloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		mem_alloc.pNext = NULL;
-		mem_alloc.allocationSize = 0;
-		mem_alloc.memoryTypeIndex = 0;
+		VulkanImageViewCreateInfo imageViewCreateInfo;
+		imageViewCreateInfo
+			.setViewType(VK_IMAGE_VIEW_TYPE_2D)
+			.setFormat(depthFormat)
+			.setFlags(0);
+			VulkanImageSubresourceRange subresourceRange;
+			subresourceRange
+				.setAspectMask(VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)
+				.setBaseMipLevel(0)
+				.setLevelCount(1)
+				.setBaseArrayLayer(0)
+				.setLayerCount(1);
+		imageViewCreateInfo.setSubresourceRange(subresourceRange.vkRange);
 
-		VkImageViewCreateInfo depthStencilView = {};
-		depthStencilView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		depthStencilView.pNext = NULL;
-		depthStencilView.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		depthStencilView.format = depthFormat;
-		depthStencilView.flags = 0;
-		depthStencilView.subresourceRange = {};
-		depthStencilView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-		depthStencilView.subresourceRange.baseMipLevel = 0;
-		depthStencilView.subresourceRange.levelCount = 1;
-		depthStencilView.subresourceRange.baseArrayLayer = 0;
-		depthStencilView.subresourceRange.layerCount = 1;
+		VkMemoryRequirements memReqs = device->getImageMemoryRequirements(depthStencil.image);
 
-		depthStencil.image = device->createImage(image);
-		memReqs = device->getImageMemoryRequirements(depthStencil.image);
-
-
-		mem_alloc.allocationSize = memReqs.size;
+		VulkanMemoryAllocateInfo memoryInfo;
+		memoryInfo.setAllocationSize(memReqs.size);
 
 		for (uint32_t i = 0; i < 32; i++)
 		{
 			if ((memReqs.memoryTypeBits & 1) == 1)
 			{
 				if ((physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-					mem_alloc.memoryTypeIndex = i;
+					memoryInfo.setMemoryTypeIndex(i);
 			}
 			memReqs.memoryTypeBits >>= 1;
 		}
 
-		depthStencil.mem = device->allocateMemory(mem_alloc);
+		depthStencil.mem = device->allocateMemory(memoryInfo.vkInfo);
 
 		device->bindImageMemory(depthStencil.image, depthStencil.mem);
 
-		depthStencilView.image = depthStencil.image;
-		depthStencil.view = device->createImageView(depthStencilView);
+		imageViewCreateInfo.setImage(depthStencil.image);
+		depthStencil.view = device->createImageView(imageViewCreateInfo.vkInfo);
 	}
 
 
@@ -463,12 +456,12 @@ private:
 	void flushSetupCommandBuffer()
 	{
 		setupCmdBuffer.end();
-
-		VkSubmitInfo submitInfo = {};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &setupCmdBuffer.getBuffer();
-		queue->submit(1, submitInfo);
+		
+		VulkanSubmitInfo submitInfo;
+		submitInfo
+			.setCommandBufferCount(1)
+			.setCommandBuffersPointer(&setupCmdBuffer.vkBuffer);
+		queue->submit(1, submitInfo.vkInfo);
 
 		queue->waitIdle();
 
@@ -883,13 +876,13 @@ private:
 		// For every binding point used in a shader there needs to be one
 		// descriptor set matching that binding point
 
-		VkDescriptorSetAllocateInfo allocInfo2 = {};
-		allocInfo2.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo2.descriptorPool = descriptorPool;
-		allocInfo2.descriptorSetCount = 1;
-		allocInfo2.pSetLayouts = &descriptorSetLayout;
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorPool = descriptorPool;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &descriptorSetLayout;
 
-		device->allocateDescriptorSet(allocInfo2, descriptorSet);
+		device->allocateDescriptorSet(allocInfo, descriptorSet);
 
 		// Binding 0 : Uniform buffer
 		VkWriteDescriptorSet writeDescriptorSet = {};
@@ -982,24 +975,24 @@ private:
 	uint32_t getQueueIndexOfType(VkQueueFlagBits bits)
 	{
 		uint32_t queueIndex;
-		for (queueIndex = 0; queueIndex < queueProperties.size(); queueIndex++)
+		for (queueIndex = 0; queueIndex < queueProperties->size(); queueIndex++)
 		{
-			if (queueProperties.at(queueIndex).queueFlags & bits)
+			if (queueProperties->at(queueIndex).queueFlags & bits)
 				break;
 		}
-		assert(queueIndex < queueProperties.size());
+		assert(queueIndex < queueProperties->size());
 		return queueIndex;
 	}
 
-	void submitToQueue(VkQueue& queue, uint32_t count, VkSubmitInfo& info, VkFence& fence)
+	void submitToQueue(VkQueue& queue, uint32_t count, VkSubmitInfo& vkInfo, VkFence& fence)
 	{
-		VkResult error = vkQueueSubmit(queue, count, &info, fence);
+		VkResult error = vkQueueSubmit(queue, count, &vkInfo, fence);
 		assert(!error);
 	}
 
-	void submitToQueue(VkQueue& queue, uint32_t count, VkSubmitInfo& info)
+	void submitToQueue(VkQueue& queue, uint32_t count, VkSubmitInfo& vkInfo)
 	{
-		VkResult error = vkQueueSubmit(queue, count, &info, VK_NULL_HANDLE);
+		VkResult error = vkQueueSubmit(queue, count, &vkInfo, VK_NULL_HANDLE);
 		assert(!error);
 	}
 };

@@ -65,11 +65,11 @@ public:
 		return cmdPool;
 	}
 
-	std::vector<VulkanCommandBuffer> allocateCommandBuffers(VkCommandBufferAllocateInfo& info)
+	std::vector<VulkanCommandBuffer> allocateCommandBuffers(VkCommandBufferAllocateInfo& vkInfo)
 	{
 		std::vector<VkCommandBuffer> buffers;
-		buffers.resize(info.commandBufferCount);
-		VkResult errorStatus = vkAllocateCommandBuffers(device, &info, buffers.data());
+		buffers.resize(vkInfo.commandBufferCount);
+		VkResult errorStatus = vkAllocateCommandBuffers(device, &vkInfo, buffers.data());
 		assert(!errorStatus);
 
 		std::vector<VulkanCommandBuffer> wrappers;
@@ -85,14 +85,14 @@ public:
 		std::vector<VkCommandBuffer> raw_buffer;
 		raw_buffer.resize(buffer.size());
 		for(VulkanCommandBuffer b : buffer) 
-			raw_buffer.push_back(b.getBuffer());
+			raw_buffer.push_back(b.vkBuffer);
 
 		vkFreeCommandBuffers(device, pool, buffer.size(), raw_buffer.data());
 	}
 
 	void freeCommandBuffer(VkCommandPool& pool, VulkanCommandBuffer& buffer)
 	{
-		vkFreeCommandBuffers(device, pool, 1, &buffer.getBuffer());
+		vkFreeCommandBuffers(device, pool, 1, &buffer.vkBuffer);
 	}
 
 	VkMemoryRequirements getBufferMemoryRequirements(VkBuffer& buffer)
@@ -102,10 +102,10 @@ public:
 		return reqs;
 	}
 
-	VkDeviceMemory allocateMemory(VkMemoryAllocateInfo& info)
+	VkDeviceMemory allocateMemory(VkMemoryAllocateInfo& vkInfo)
 	{
 		VkDeviceMemory mem;
-		VkResult error = vkAllocateMemory(device, &info, nullptr, &mem);
+		VkResult error = vkAllocateMemory(device, &vkInfo, nullptr, &mem);
 		assert(!error);
 		return mem;
 	}
@@ -129,27 +129,27 @@ public:
 		assert(!error);
 	}
 
-	VkRenderPass createRenderPass(VkRenderPassCreateInfo& info)
+	VkRenderPass createRenderPass(VkRenderPassCreateInfo& vkInfo)
 	{
 		VkRenderPass pass;
-		VkResult error = vkCreateRenderPass(device, &info, nullptr, &pass);
+		VkResult error = vkCreateRenderPass(device, &vkInfo, nullptr, &pass);
 		assert(!error);
 
 		return pass;
 	}
 	
-	VkImage createImage(VkImageCreateInfo& info)
+	VkImage createImage(VkImageCreateInfo& vkInfo)
 	{
 		VkImage image;
-		VkResult error = vkCreateImage(device, &info, nullptr, &image);
+		VkResult error = vkCreateImage(device, &vkInfo, nullptr, &image);
 		assert(!error);
 		return image;
 	}
 
-	VkImageView createImageView(VkImageViewCreateInfo& info)
+	VkImageView createImageView(VkImageViewCreateInfo& vkInfo)
 	{
 		VkImageView view;
-		VkResult error = vkCreateImageView(device, &info, nullptr, &view);
+		VkResult error = vkCreateImageView(device, &vkInfo, nullptr, &view);
 		return view;
 	}
 
@@ -160,70 +160,70 @@ public:
 		return reqs;
 	}
 
-	VkPipelineCache createPipelineCache(VkPipelineCacheCreateInfo& info)
+	VkPipelineCache createPipelineCache(VkPipelineCacheCreateInfo& vkInfo)
 	{
 		VkPipelineCache cache;
-		VkResult error = vkCreatePipelineCache(device, &info, nullptr, &cache);
+		VkResult error = vkCreatePipelineCache(device, &vkInfo, nullptr, &cache);
 		assert(!error);
 		return cache;
 	}
 
-	VkFramebuffer createFrameBuffer(VkFramebufferCreateInfo& info)
+	VkFramebuffer createFrameBuffer(VkFramebufferCreateInfo& vkInfo)
 	{
 		VkFramebuffer buffer;
-		VkResult error = vkCreateFramebuffer(device, &info, nullptr, &buffer);
+		VkResult error = vkCreateFramebuffer(device, &vkInfo, nullptr, &buffer);
 		assert(!error);
 		return buffer;
 	}
 
-	VkBuffer createBuffer(VkBufferCreateInfo& info)
+	VkBuffer createBuffer(VkBufferCreateInfo& vkInfo)
 	{
 		VkBuffer buffer;
-		VkResult error = vkCreateBuffer(device, &info, nullptr, &buffer);
+		VkResult error = vkCreateBuffer(device, &vkInfo, nullptr, &buffer);
 		assert(!error);
 
 		return buffer;
 	}
 
-	VkDescriptorSetLayout createDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& info)
+	VkDescriptorSetLayout createDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& vkInfo)
 	{
 		VkDescriptorSetLayout layout;
-		VkResult error = vkCreateDescriptorSetLayout(device, &info, nullptr, &layout);
+		VkResult error = vkCreateDescriptorSetLayout(device, &vkInfo, nullptr, &layout);
 		assert(!error);
 		return layout;
 	}
 
-	VkPipelineLayout createPipelineLayout(VkPipelineLayoutCreateInfo& info)
+	VkPipelineLayout createPipelineLayout(VkPipelineLayoutCreateInfo& vkInfo)
 	{
 		VkPipelineLayout layout;
-		VkResult error = vkCreatePipelineLayout(device, &info, nullptr, &layout);
+		VkResult error = vkCreatePipelineLayout(device, &vkInfo, nullptr, &layout);
 		assert(!error);
 
 		return layout;
 	}
 
-	std::vector<VkPipeline> createGraphicsPipelines(VkPipelineCache& cache, VkGraphicsPipelineCreateInfo& info, uint32_t count)
+	std::vector<VkPipeline> createGraphicsPipelines(VkPipelineCache& cache, VkGraphicsPipelineCreateInfo& vkInfo, uint32_t count)
 	{
 		std::vector<VkPipeline> pipelines;
 		pipelines.resize(count);
 
-		VkResult error = vkCreateGraphicsPipelines(device, cache, count, &info, nullptr, pipelines.data());
+		VkResult error = vkCreateGraphicsPipelines(device, cache, count, &vkInfo, nullptr, pipelines.data());
 		assert(!error);
 		
 		return pipelines;
 	}
 
-	VkDescriptorPool createDescriptorPool (VkDescriptorPoolCreateInfo& info)
+	VkDescriptorPool createDescriptorPool (VkDescriptorPoolCreateInfo& vkInfo)
 	{
 		VkDescriptorPool pool;
-		VkResult error = vkCreateDescriptorPool(device, &info, nullptr, &pool);
+		VkResult error = vkCreateDescriptorPool(device, &vkInfo, nullptr, &pool);
 		assert(!error);
 		return pool;
 	}
 
-	void allocateDescriptorSet(VkDescriptorSetAllocateInfo& info, VkDescriptorSet& set)
+	void allocateDescriptorSet(VkDescriptorSetAllocateInfo& vkInfo, VkDescriptorSet& set)
 	{
-		VkResult error = vkAllocateDescriptorSets(device, &info, &set);
+		VkResult error = vkAllocateDescriptorSets(device, &vkInfo, &set);
 		assert(!error);
 	}
 

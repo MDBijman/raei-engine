@@ -7,17 +7,19 @@
 #include <vulkan\vulkan.h>
 
 #include "VulkanPhysicalDevice.h"
+#include "VulkanInstanceCreateInfo.h"
+#include "VulkanApplicationInfo.h"
 
 class VulkanInstance
 {
 public:
-	VulkanInstance(std::string name)
+	VulkanInstance(std::string name) 
 	{
 		// Set some info about our application
-		VkApplicationInfo appInfo = {};
-		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-		appInfo.pApplicationName = name.c_str();
-		appInfo.pEngineName = name.c_str();
+		VulkanApplicationInfo applicationInfo;
+		applicationInfo
+			.setApplicationName(name)
+			.setEngineName(name);
 
 		// Extensions we want
 		std::vector<const char*> extensions = {
@@ -25,44 +27,41 @@ public:
 			VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 		};
 
-		// Set some info about the instance to be created
-		VkInstanceCreateInfo instanceCreateInfo = {};
-		instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-		instanceCreateInfo.pNext = NULL;
-		instanceCreateInfo.pApplicationInfo = &appInfo;
-		instanceCreateInfo.enabledExtensionCount = (uint32_t)extensions.size();
-		instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
+		// Layers we want
+		std::vector<const char*> layers = {
+		};
 
-		VkResult err = vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
+		// Set some info about the instance to be created
+		VulkanInstanceCreateInfo instanceCreateInfo;
+		instanceCreateInfo
+			.setApplicationInfo(applicationInfo.vkInfo)
+			.setExtensionCount(extensions.size())
+			.setExtensions(extensions.data())
+			.setLayerCount(layers.size())
+			.setLayers(layers.data());
+
+		VkResult err = vkCreateInstance(&instanceCreateInfo.vkInfo, nullptr, &vkInstance);
 		assert(!err);
 	}
 
-	std::vector<VulkanPhysicalDevice>& getPhysicalDevices()
+	std::unique_ptr<std::vector<VulkanPhysicalDevice>> getPhysicalDevices()
 	{
-		if (physicalDevices)
-			return *physicalDevices;
-
 		uint32_t deviceCount;
-		vkEnumeratePhysicalDevices(instance, &deviceCount, NULL);
+		vkEnumeratePhysicalDevices(vkInstance, &deviceCount, NULL);
 
 		std::vector<VkPhysicalDevice> vkPhysicalDevices;
 		vkPhysicalDevices.resize(deviceCount);
-		vkEnumeratePhysicalDevices(instance, &deviceCount, vkPhysicalDevices.data());
+		vkEnumeratePhysicalDevices(vkInstance, &deviceCount, vkPhysicalDevices.data());
 
-		physicalDevices = new std::vector<VulkanPhysicalDevice>();
-		physicalDevices->resize(deviceCount);
-		std::transform(vkPhysicalDevices.begin(), vkPhysicalDevices.end(), std::back_inserter(physicalDevices), [](VkPhysicalDevice d) -> VulkanPhysicalDevice { return VulkanPhysicalDevice(d); });
-		return *physicalDevices;
+		// Create wrapped objects
+		std::unique_ptr<std::vector<VulkanPhysicalDevice>> physicalDevices = std::make_unique<std::vector<VulkanPhysicalDevice>>();
+		for (VkPhysicalDevice pd : vkPhysicalDevices) 
+			physicalDevices->push_back(VulkanPhysicalDevice(pd));
+
+		return physicalDevices;
 	}
 
-	operator VkInstance() const { return instance; }
-	VkInstance& getVkInstance()
-	{
-		return instance;
-	}
-private:
-	VkInstance instance;
+	VkInstance vkInstance;
 
-	std::vector<VulkanPhysicalDevice>* physicalDevices;
 
 };
