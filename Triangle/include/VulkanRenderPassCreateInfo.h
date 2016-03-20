@@ -12,21 +12,21 @@ public:
 		vkInfo.pNext = NULL;
 	}
 
-	VulkanRenderPassCreateInfo& setAttachments(std::vector<VkAttachmentDescription> attachments)
+	VulkanRenderPassCreateInfo& setAttachments(std::vector<VkAttachmentDescription>& attachments)
 	{
 		vkInfo.attachmentCount = attachments.size();
 		vkInfo.pAttachments = attachments.data();
 		return *this;
 	}
 
-	VulkanRenderPassCreateInfo& setSubpasses(std::vector<VkSubpassDescription> subpasses)
+	VulkanRenderPassCreateInfo& setSubpasses(std::vector<VkSubpassDescription>& subpasses)
 	{
 		vkInfo.subpassCount = subpasses.size();
 		vkInfo.pSubpasses = subpasses.data();
 		return *this;
 	}
 
-	VulkanRenderPassCreateInfo& setDependencies(std::vector<VkSubpassDependency> dependencies)
+	VulkanRenderPassCreateInfo& setDependencies(std::vector<VkSubpassDependency>& dependencies)
 	{
 		vkInfo.dependencyCount = dependencies.size();
 		vkInfo.pDependencies = dependencies.data();

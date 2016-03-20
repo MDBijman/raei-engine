@@ -11,8 +11,6 @@ VulkanTriangle::VulkanTriangle(HINSTANCE hInstance, HWND window, std::string nam
 
 	VulkanCommandBuffer setupCmdBuffer = context.device->allocateCommandBuffers(info.vkInfo).at(0);
 
-	VulkanCommandBufferBeginInfo cmdBufferBeginInfo;
-	setupCmdBuffer.beginCommandBuffer(cmdBufferBeginInfo.vkInfo);
 	prepareVertices();
 	prepareUniformBuffers();
 	prepareDescriptorSetLayout();
@@ -34,11 +32,14 @@ void VulkanTriangle::render()
 	// If you want to submit multiple command buffers, pass an array
 	VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 	VulkanSubmitInfo submitInfo;
+	std::vector<VkSemaphore> waitSemaphores{ context.semaphores.presentComplete };
+	std::vector<VkSemaphore> signalSemaphores{ context.semaphores.renderComplete };
+	std::vector<VkCommandBuffer> commandBuffers{ context.drawCmdBuffers[currentBuffer].vkBuffer };
 	submitInfo
 		.setDstStageMask(&pipelineStages)
-		.setWaitSemaphores({ context.semaphores.presentComplete })
-		.setCommandBuffers({ context.drawCmdBuffers[currentBuffer].vkBuffer })
-		.setSignalSemaphores({ context.semaphores.renderComplete });
+		.setWaitSemaphores(waitSemaphores)
+		.setCommandBuffers(commandBuffers)
+		.setSignalSemaphores(signalSemaphores);
 
 	// Submit to the graphics queue
 	context.queue->submit(1, submitInfo.vkInfo);
@@ -72,7 +73,8 @@ void VulkanTriangle::render()
 		.end();
 
 	// Submit to the queue
-	submitInfo.setCommandBuffers({ context.postPresentCmdBuffer.vkBuffer });
+	std::vector<VkCommandBuffer> buffers{ context.postPresentCmdBuffer.vkBuffer };
+	submitInfo.setCommandBuffers(buffers);
 
 	context.queue->submit(1, submitInfo.vkInfo);
 	context.queue->waitIdle();
@@ -387,18 +389,20 @@ void VulkanTriangle::preparePipeline()
 		.setRasterizationSamples(VK_SAMPLE_COUNT_1_BIT);
 
 	// Load shaders
-	VulkanPipelineShaderStageCreateInfo shaderStages[2];
-	shaderStages[0]
+	std::vector<VkPipelineShaderStageCreateInfo> shaderStages(2);
+	shaderStages[0] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_VERTEX_BIT)
 		.setModule(loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.vert.spv", context.device->vkDevice, VK_SHADER_STAGE_VERTEX_BIT))
-		.setName("main");
-	assert(shaderStages[0].vkInfo.module != NULL);
+		.setName("main")
+		.vkInfo;
+	assert(shaderStages[0].module != NULL);
 
-	shaderStages[1]
+	shaderStages[1] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_FRAGMENT_BIT)
 		.setModule(loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.frag.spv", context.device->vkDevice, VK_SHADER_STAGE_FRAGMENT_BIT))
-		.setName("name");
-	assert(shaderStages[1].vkInfo.module != NULL);
+		.setName("name")
+		.vkInfo;
+	assert(shaderStages[1].module != NULL);
 
 	// Assign states
 	// Two shader stages
@@ -411,10 +415,7 @@ void VulkanTriangle::preparePipeline()
 		.setDynamicState(&dynamicState.vkInfo)
 		.setDepthStencilState(&depthStencilState.vkInfo)
 		.setMultisampleState(&multisampleState.vkInfo)
-		.setStages({ 
-			shaderStages[0].vkInfo, 
-			shaderStages[1].vkInfo 
-		})
+		.setStages(shaderStages)
 		.setRenderPass(context.renderPass);
 
 	// Create rendering pipeline

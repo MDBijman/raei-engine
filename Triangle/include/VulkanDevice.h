@@ -58,10 +58,8 @@ public:
 	VkCommandPool createCommandPool(VkCommandPoolCreateInfo cmdPoolInfo)
 	{
 		VkCommandPool cmdPool;
-
 		VkResult errorStatus = vkCreateCommandPool(vkDevice, &cmdPoolInfo, nullptr, &cmdPool);
 		assert(!errorStatus);
-
 		return cmdPool;
 	}
 
@@ -134,7 +132,6 @@ public:
 		VkRenderPass pass;
 		VkResult error = vkCreateRenderPass(vkDevice, &vkInfo, nullptr, &pass);
 		assert(!error);
-
 		return pass;
 	}
 	
@@ -150,6 +147,7 @@ public:
 	{
 		VkImageView view;
 		VkResult error = vkCreateImageView(vkDevice, &vkInfo, nullptr, &view);
+		assert(!error);
 		return view;
 	}
 

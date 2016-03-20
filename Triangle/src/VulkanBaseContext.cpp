@@ -64,7 +64,8 @@ void VulkanBaseContext::initialize(HINSTANCE hInstance, HWND window, std::string
 	setupCmdBuffer.end();
 	
 	VulkanSubmitInfo submitInfo;
-	submitInfo.setCommandBuffers({ setupCmdBuffer.vkBuffer });
+	std::vector<VkCommandBuffer> buffers{ setupCmdBuffer.vkBuffer };
+	submitInfo.setCommandBuffers(buffers);
 	queue->submit(1, submitInfo.vkInfo);
 	queue->waitIdle();
 	device->freeCommandBuffer(cmdPool, setupCmdBuffer);
@@ -158,8 +159,9 @@ void VulkanBaseContext::prepareDepthStencil(uint32_t width, uint32_t height)
 
 void VulkanBaseContext::prepareRenderPass()
 {
-	VulkanAttachmentDescription attachments[2];
-	attachments[0]
+	// <Attachments>
+	std::vector<VkAttachmentDescription> attachments(2);
+	attachments[0] = VulkanAttachmentDescription()
 		.setFormat(colorformat)
 		.setSamples(VK_SAMPLE_COUNT_1_BIT)
 		.setLoadOp(VK_ATTACHMENT_LOAD_OP_CLEAR)
@@ -167,9 +169,10 @@ void VulkanBaseContext::prepareRenderPass()
 		.setStencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE)
 		.setStencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE)
 		.setInitialLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-		.setFinalLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		.setFinalLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+		.vkDescription;
 
-	attachments[1]
+	attachments[1] = VulkanAttachmentDescription()
 		.setFormat(depthFormat)
 		.setSamples(VK_SAMPLE_COUNT_1_BIT)
 		.setLoadOp(VK_ATTACHMENT_LOAD_OP_CLEAR)
@@ -177,30 +180,43 @@ void VulkanBaseContext::prepareRenderPass()
 		.setStencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE)
 		.setStencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE)
 		.setInitialLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
-		.setFinalLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+		.setFinalLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+		.vkDescription;
+	// </Attachments>
 
-	
-	VulkanAttachmentReference colorReference;
-	colorReference.setAttachment(0).setImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+	// <Subpasses>
+	std::vector<VkAttachmentReference> colorReference(1);
+	colorReference[0] = VulkanAttachmentReference()
+		.setAttachment(0)
+		.setImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+		.vkReference;
 
 	VulkanAttachmentReference depthReference;
-	depthReference.setAttachment(1).setImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	depthReference
+		.setAttachment(1)
+		.setImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-	VulkanSubpassDescription subpass;
-	subpass
+	std::vector<VkSubpassDescription> subpass(1);
+	subpass[0] = VulkanSubpassDescription()
 		.setPipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS)
 		.setFlags(0)
-		.setInputAttachmentCount(0).setInputAttachmentsPointer(NULL)
-		.setColorAttachmentCount(1).setColorAttachmentsPointer(&colorReference.vkReference)
-		.setResolveAttachmentsPointer(NULL)
-		.setDepthStencilAttachmentPointer(&depthReference.vkReference)
-		.setPreserveAttachmentCount(0).setPreserveAttachmentsPointer(NULL);
+		.setInputAttachments(std::vector<VkAttachmentReference>(0))
+		.setColorAttachments(colorReference)
+		.setResolveAttachments(std::vector<VkAttachmentReference>(0))
+		.setDepthStencilAttachment(depthReference.vkReference)
+		.setPreserveAttachments(std::vector<uint32_t>(0))
+		.vkDescription;
+	// </Subpasses>
+
+	// <Dependencies>
+	std::vector<VkSubpassDependency> dependencies(0);
+	// </Dependencies>
 
 	VulkanRenderPassCreateInfo renderPassInfo;
 	renderPassInfo
-		.setAttachments({ attachments[0].vkDescription, attachments[1].vkDescription })
-		.setSubpasses({ subpass.vkDescription })
-		.setDependencies({ });
+		.setAttachments(attachments)
+		.setSubpasses(subpass)
+		.setDependencies(dependencies);
 
 	renderPass = device->createRenderPass(renderPassInfo.vkInfo);
 }
@@ -213,7 +229,7 @@ void VulkanBaseContext::preparePipelineCache()
 
 void VulkanBaseContext::prepareFramebuffers(uint32_t width, uint32_t height)
 {
-	VkImageView fbAttachments[2];
+	std::vector<VkImageView> fbAttachments(2);
 
 	// Depth/Stencil attachment is the same for all frame buffers
 	fbAttachments[1] = depthStencil.view;
@@ -221,7 +237,7 @@ void VulkanBaseContext::prepareFramebuffers(uint32_t width, uint32_t height)
 	VulkanFramebufferCreateInfo frameBufferCreateInfo;
 	frameBufferCreateInfo
 		.setRenderPass(renderPass)
-		.setAttachments({ fbAttachments[0], fbAttachments[1] })
+		.setAttachments(fbAttachments)
 		.setWidth(width)
 		.setHeight(height)
 		.setLayers(1);

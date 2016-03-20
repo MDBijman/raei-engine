@@ -18,7 +18,7 @@ public:
 		return *this;
 	}
 	
-	VulkanFramebufferCreateInfo& setAttachments(std::vector<VkImageView> attachments)
+	VulkanFramebufferCreateInfo& setAttachments(std::vector<VkImageView>& attachments)
 	{
 		vkInfo.attachmentCount = attachments.size();
 		vkInfo.pAttachments = attachments.data();

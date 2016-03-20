@@ -21,51 +21,36 @@ public:
 		return *this;
 	}
 
-	VulkanSubpassDescription& setInputAttachmentCount(uint32_t count)
+	VulkanSubpassDescription& setInputAttachments(std::vector<VkAttachmentReference>& inputAttachments)
 	{
-		vkDescription.inputAttachmentCount = count;
+		vkDescription.inputAttachmentCount = inputAttachments.size();
+		vkDescription.pInputAttachments = inputAttachments.data();
 		return *this;
 	}
 
-	VulkanSubpassDescription& setInputAttachmentsPointer(VkAttachmentReference* reference)
+	VulkanSubpassDescription& setColorAttachments(std::vector<VkAttachmentReference>& colorAttachments)
 	{
-		vkDescription.pInputAttachments = reference;
+		vkDescription.colorAttachmentCount = colorAttachments.size();
+		vkDescription.pColorAttachments = colorAttachments.data();
 		return *this;
 	}
 
-	VulkanSubpassDescription& setColorAttachmentCount(uint32_t count)
+	VulkanSubpassDescription& setResolveAttachments(std::vector<VkAttachmentReference>& resolveAttachments)
 	{
-		vkDescription.colorAttachmentCount = count;
+		vkDescription.pResolveAttachments = resolveAttachments.data();
 		return *this;
 	}
 
-	VulkanSubpassDescription& setColorAttachmentsPointer(VkAttachmentReference* reference)
+	VulkanSubpassDescription& setDepthStencilAttachment(VkAttachmentReference& depthStencilAttachment)
 	{
-		vkDescription.pColorAttachments = reference;
+		vkDescription.pDepthStencilAttachment = &depthStencilAttachment;
 		return *this;
 	}
 
-	VulkanSubpassDescription& setResolveAttachmentsPointer(VkAttachmentReference* reference)
+	VulkanSubpassDescription& setPreserveAttachments(std::vector<uint32_t>& preserveAttachments)
 	{
-		vkDescription.pResolveAttachments = reference;
-		return *this;
-	}
-
-	VulkanSubpassDescription& setDepthStencilAttachmentPointer(VkAttachmentReference* reference)
-	{
-		vkDescription.pDepthStencilAttachment = reference;
-		return *this;
-	}
-
-	VulkanSubpassDescription& setPreserveAttachmentCount(uint32_t count)
-	{
-		vkDescription.preserveAttachmentCount = count;
-		return *this;
-	}
-
-	VulkanSubpassDescription& setPreserveAttachmentsPointer(const uint32_t* preserveAttachments)
-	{
-		vkDescription.pPreserveAttachments = preserveAttachments;
+		vkDescription.preserveAttachmentCount = preserveAttachments.size();
+		vkDescription.pPreserveAttachments = preserveAttachments.data();
 		return *this;
 	}
 

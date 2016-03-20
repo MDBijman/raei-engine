@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <vulkan\vulkan.h>
 
+#define VERTEX_BUFFER_BIND_ID 0
+
 class VulkanCommandBuffer
 {
 public:
