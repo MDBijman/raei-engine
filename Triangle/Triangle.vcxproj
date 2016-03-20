@@ -115,17 +115,32 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Shaders.cpp" />
     <ClCompile Include="src\triangle.cpp" />
+    <ClCompile Include="src\VulkanBaseContext.cpp" />
+    <ClCompile Include="src\VulkanTriangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\SurfaceExtensions.h" />
     <ClInclude Include="include\SwapchainExtensions.h" />
     <ClInclude Include="include\VulkanApplicationInfo.h" />
+    <ClInclude Include="include\VulkanAttachmentDescription.h" />
+    <ClInclude Include="include\VulkanAttachmentReference.h" />
+    <ClInclude Include="include\VulkanBaseContext.h" />
+    <ClInclude Include="include\VulkanBufferCreateInfo.h" />
+    <ClInclude Include="include\VulkanClearValue.h" />
     <ClInclude Include="include\VulkanCommandBuffer.h" />
     <ClInclude Include="include\VulkanCommandBufferAllocateInfo.h" />
+    <ClInclude Include="include\VulkanCommandBufferBeginInfo.h" />
     <ClInclude Include="include\VulkanCommandPoolCreateInfo.h" />
+    <ClInclude Include="include\VulkanDescriptorPoolCreateInfo.h" />
+    <ClInclude Include="include\VulkanDescriptorPoolSize.h" />
+    <ClInclude Include="include\VulkanDescriptorSetAllocInfo.h" />
+    <ClInclude Include="include\VulkanDescriptorSetLayoutBinding.h" />
+    <ClInclude Include="include\VulkanDescriptorSetLayoutCreateInfo.h" />
     <ClInclude Include="include\VulkanDevice.h" />
+    <ClInclude Include="include\VulkanFramebufferCreateInfo.h" />
     <ClInclude Include="include\VulkanImageCreateInfo.h" />
     <ClInclude Include="include\VulkanImageMemoryBarrier.h" />
     <ClInclude Include="include\VulkanImageSubresourceRange.h" />
@@ -134,10 +149,29 @@
     <ClInclude Include="include\VulkanInstanceCreateInfo.h" />
     <ClInclude Include="include\VulkanMemoryAllocateInfo.h" />
     <ClInclude Include="include\VulkanPhysicalDevice.h" />
+    <ClInclude Include="include\VulkanGraphicsPipelineCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineCacheCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineColorBlendAttachmentState.h" />
+    <ClInclude Include="include\VulkanPipelineColorBlendStateCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineDepthStencilStateCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineDynamicStateCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineInputAssemblyStateCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineLayoutCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineMultisampleStateCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineRasterizationStateCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineShaderStageCreateInfo.h" />
+    <ClInclude Include="include\VulkanPipelineViewportStateCreateInfo.h" />
     <ClInclude Include="include\VulkanQueue.h" />
+    <ClInclude Include="include\VulkanRectangle2D.h" />
+    <ClInclude Include="include\VulkanRenderPassBeginInfo.h" />
+    <ClInclude Include="include\VulkanRenderPassCreateInfo.h" />
+    <ClInclude Include="include\VulkanSemaphoreCreateInfo.h" />
     <ClInclude Include="include\VulkanSubmitInfo.h" />
+    <ClInclude Include="include\VulkanSubpassDescription.h" />
     <ClInclude Include="include\VulkanTriangle.h" />
     <ClInclude Include="include\VulkanSwapchain.h" />
+    <ClInclude Include="include\VulkanViewport.h" />
+    <ClInclude Include="include\VulkanWriteDescriptorSet.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\data\shaders\pipelines\base.vert" />

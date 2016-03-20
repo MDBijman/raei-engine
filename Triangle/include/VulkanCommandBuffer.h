@@ -9,10 +9,11 @@ public:
 	VulkanCommandBuffer() : vkBuffer(VK_NULL_HANDLE) {}
 	VulkanCommandBuffer(VkCommandBuffer b) : vkBuffer(b) {}
 
-	void beginCommandBuffer(VkCommandBufferBeginInfo& vkInfo)
+	VulkanCommandBuffer& beginCommandBuffer(VkCommandBufferBeginInfo& vkInfo)
 	{
 		VkResult error = vkBeginCommandBuffer(vkBuffer, &vkInfo);
 		assert(!error);
+		return *this;
 	}
 
 	void end()
@@ -21,62 +22,72 @@ public:
 		assert(!error);
 	}
 
-	void beginRenderPass(VkRenderPassBeginInfo& vkInfo, VkSubpassContents contents)
+	VulkanCommandBuffer& beginRenderPass(VkRenderPassBeginInfo& vkInfo, VkSubpassContents contents)
 	{
 		vkCmdBeginRenderPass(vkBuffer, &vkInfo, contents);
+		return *this;
 	}
 
-	void endRenderPass()
+	VulkanCommandBuffer& endRenderPass()
 	{
 		vkCmdEndRenderPass(vkBuffer);
+		return *this;
 	}
 	
-	void setViewport(VkViewport& port)
+	VulkanCommandBuffer& setViewport(VkViewport& port)
 	{
 		vkCmdSetViewport(vkBuffer, 0, 1, &port);
+		return *this;
 	}
 
-	void setScissors(VkRect2D& scissor)
+	VulkanCommandBuffer& setScissors(VkRect2D& scissor)
 	{
 		vkCmdSetScissor(vkBuffer, 0, 1, &scissor);
+		return *this;
 	}
 
-	void bindDescriptorSet(VkPipelineLayout& pipelineLayout, VkDescriptorSet& descriptorSet)
+	VulkanCommandBuffer& bindDescriptorSet(VkPipelineLayout& pipelineLayout, VkDescriptorSet& descriptorSet)
 	{
 		vkCmdBindDescriptorSets(vkBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, NULL);
+		return *this;
 	}
 
-	void bindPipeline(VkPipeline& pipeline)
+	VulkanCommandBuffer& bindPipeline(VkPipeline& pipeline)
 	{
 		vkCmdBindPipeline(vkBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		return *this;
 	}
 
-	void bindVertexBuffers(VkBuffer& vertexBuffer)
+	VulkanCommandBuffer& bindVertexBuffers(VkBuffer& vertexBuffer)
 	{
 		VkDeviceSize offsets[1] = { 0 };
 		vkCmdBindVertexBuffers(vkBuffer, VERTEX_BUFFER_BIND_ID, 1, &vertexBuffer, offsets);
+		return *this;
 	}
 
-	void bindIndexBuffers(VkBuffer& indexBuffer)
+	VulkanCommandBuffer& bindIndexBuffers(VkBuffer& indexBuffer)
 	{
 		vkCmdBindIndexBuffer(vkBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+		return *this;
 	}
 
-	void drawIndexed(int count)
+	VulkanCommandBuffer& drawIndexed(int count)
 	{
 		vkCmdDrawIndexed(vkBuffer, count, 1, 0, 0, 1);
+		return *this;
 	}
 
-	void putPipelineBarrier(VkImageMemoryBarrier& barrier)
+	VulkanCommandBuffer& putPipelineBarrier(VkImageMemoryBarrier& barrier, VkPipelineStageFlags pipelineStage)
 	{
 		vkCmdPipelineBarrier(
 			vkBuffer,
 			VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+			pipelineStage,
 			0,
 			0, nullptr,
 			0, nullptr,
 			1, &barrier);
+		return *this;
 	}
 
 	VkCommandBuffer vkBuffer;

@@ -26,32 +26,32 @@ public:
 		deviceCreateInfo.enabledExtensionCount = (uint32_t)enabledExtensions.size();
 		deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
-		VkResult err = vkCreateDevice(pd, &deviceCreateInfo, nullptr, &device);
+		VkResult err = vkCreateDevice(pd, &deviceCreateInfo, nullptr, &vkDevice);
 		assert(!err);
 	}
 
 	void waitIdle()
 	{
-		vkDeviceWaitIdle(device);
+		vkDeviceWaitIdle(vkDevice);
 	}
 
 	VkQueue queueAt(uint32_t index)
 	{
 		VkQueue queue;
-		vkGetDeviceQueue(device, index, 0, &queue);
+		vkGetDeviceQueue(vkDevice, index, 0, &queue);
 		return queue;
 	}
 
 	void bindBufferMemory(VkBuffer buffer, VkDeviceMemory memory)
 	{
-		VkResult error = vkBindBufferMemory(device, buffer, memory, 0);
+		VkResult error = vkBindBufferMemory(vkDevice, buffer, memory, 0);
 		assert(!error);
 	}
 
 	VkQueue getQueueAtIndex(uint32_t index)
 	{
 		VkQueue queue;
-		vkGetDeviceQueue(device, index, 0, &queue);
+		vkGetDeviceQueue(vkDevice, index, 0, &queue);
 		return queue;
 	}
 
@@ -59,7 +59,7 @@ public:
 	{
 		VkCommandPool cmdPool;
 
-		VkResult errorStatus = vkCreateCommandPool(device, &cmdPoolInfo, nullptr, &cmdPool);
+		VkResult errorStatus = vkCreateCommandPool(vkDevice, &cmdPoolInfo, nullptr, &cmdPool);
 		assert(!errorStatus);
 
 		return cmdPool;
@@ -69,7 +69,7 @@ public:
 	{
 		std::vector<VkCommandBuffer> buffers;
 		buffers.resize(vkInfo.commandBufferCount);
-		VkResult errorStatus = vkAllocateCommandBuffers(device, &vkInfo, buffers.data());
+		VkResult errorStatus = vkAllocateCommandBuffers(vkDevice, &vkInfo, buffers.data());
 		assert(!errorStatus);
 
 		std::vector<VulkanCommandBuffer> wrappers;
@@ -87,25 +87,25 @@ public:
 		for(VulkanCommandBuffer b : buffer) 
 			raw_buffer.push_back(b.vkBuffer);
 
-		vkFreeCommandBuffers(device, pool, buffer.size(), raw_buffer.data());
+		vkFreeCommandBuffers(vkDevice, pool, buffer.size(), raw_buffer.data());
 	}
 
 	void freeCommandBuffer(VkCommandPool& pool, VulkanCommandBuffer& buffer)
 	{
-		vkFreeCommandBuffers(device, pool, 1, &buffer.vkBuffer);
+		vkFreeCommandBuffers(vkDevice, pool, 1, &buffer.vkBuffer);
 	}
 
 	VkMemoryRequirements getBufferMemoryRequirements(VkBuffer& buffer)
 	{
 		VkMemoryRequirements reqs;
-		vkGetBufferMemoryRequirements(device, buffer, &reqs);
+		vkGetBufferMemoryRequirements(vkDevice, buffer, &reqs);
 		return reqs;
 	}
 
 	VkDeviceMemory allocateMemory(VkMemoryAllocateInfo& vkInfo)
 	{
 		VkDeviceMemory mem;
-		VkResult error = vkAllocateMemory(device, &vkInfo, nullptr, &mem);
+		VkResult error = vkAllocateMemory(vkDevice, &vkInfo, nullptr, &mem);
 		assert(!error);
 		return mem;
 	}
@@ -113,26 +113,26 @@ public:
 	void* mapMemory(VkDeviceMemory& memory, int size)
 	{
 		void* data;
-		VkResult error = vkMapMemory(device, memory, 0, size, 0, &data);
+		VkResult error = vkMapMemory(vkDevice, memory, 0, size, 0, &data);
 		assert(!error);
 		return data;
 	}
 
 	void unmapMemory(VkDeviceMemory& memory)
 	{
-		vkUnmapMemory(device, memory);
+		vkUnmapMemory(vkDevice, memory);
 	}
 
 	void bindImageMemory(VkImage& image, VkDeviceMemory memory)
 	{
-		VkResult error = vkBindImageMemory(device, image, memory, 0);
+		VkResult error = vkBindImageMemory(vkDevice, image, memory, 0);
 		assert(!error);
 	}
 
 	VkRenderPass createRenderPass(VkRenderPassCreateInfo& vkInfo)
 	{
 		VkRenderPass pass;
-		VkResult error = vkCreateRenderPass(device, &vkInfo, nullptr, &pass);
+		VkResult error = vkCreateRenderPass(vkDevice, &vkInfo, nullptr, &pass);
 		assert(!error);
 
 		return pass;
@@ -141,7 +141,7 @@ public:
 	VkImage createImage(VkImageCreateInfo& vkInfo)
 	{
 		VkImage image;
-		VkResult error = vkCreateImage(device, &vkInfo, nullptr, &image);
+		VkResult error = vkCreateImage(vkDevice, &vkInfo, nullptr, &image);
 		assert(!error);
 		return image;
 	}
@@ -149,21 +149,21 @@ public:
 	VkImageView createImageView(VkImageViewCreateInfo& vkInfo)
 	{
 		VkImageView view;
-		VkResult error = vkCreateImageView(device, &vkInfo, nullptr, &view);
+		VkResult error = vkCreateImageView(vkDevice, &vkInfo, nullptr, &view);
 		return view;
 	}
 
 	VkMemoryRequirements getImageMemoryRequirements(VkImage& image)
 	{
 		VkMemoryRequirements reqs;
-		vkGetImageMemoryRequirements(device, image, &reqs);
+		vkGetImageMemoryRequirements(vkDevice, image, &reqs);
 		return reqs;
 	}
 
 	VkPipelineCache createPipelineCache(VkPipelineCacheCreateInfo& vkInfo)
 	{
 		VkPipelineCache cache;
-		VkResult error = vkCreatePipelineCache(device, &vkInfo, nullptr, &cache);
+		VkResult error = vkCreatePipelineCache(vkDevice, &vkInfo, nullptr, &cache);
 		assert(!error);
 		return cache;
 	}
@@ -171,7 +171,7 @@ public:
 	VkFramebuffer createFrameBuffer(VkFramebufferCreateInfo& vkInfo)
 	{
 		VkFramebuffer buffer;
-		VkResult error = vkCreateFramebuffer(device, &vkInfo, nullptr, &buffer);
+		VkResult error = vkCreateFramebuffer(vkDevice, &vkInfo, nullptr, &buffer);
 		assert(!error);
 		return buffer;
 	}
@@ -179,7 +179,7 @@ public:
 	VkBuffer createBuffer(VkBufferCreateInfo& vkInfo)
 	{
 		VkBuffer buffer;
-		VkResult error = vkCreateBuffer(device, &vkInfo, nullptr, &buffer);
+		VkResult error = vkCreateBuffer(vkDevice, &vkInfo, nullptr, &buffer);
 		assert(!error);
 
 		return buffer;
@@ -188,7 +188,7 @@ public:
 	VkDescriptorSetLayout createDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& vkInfo)
 	{
 		VkDescriptorSetLayout layout;
-		VkResult error = vkCreateDescriptorSetLayout(device, &vkInfo, nullptr, &layout);
+		VkResult error = vkCreateDescriptorSetLayout(vkDevice, &vkInfo, nullptr, &layout);
 		assert(!error);
 		return layout;
 	}
@@ -196,7 +196,7 @@ public:
 	VkPipelineLayout createPipelineLayout(VkPipelineLayoutCreateInfo& vkInfo)
 	{
 		VkPipelineLayout layout;
-		VkResult error = vkCreatePipelineLayout(device, &vkInfo, nullptr, &layout);
+		VkResult error = vkCreatePipelineLayout(vkDevice, &vkInfo, nullptr, &layout);
 		assert(!error);
 
 		return layout;
@@ -207,7 +207,7 @@ public:
 		std::vector<VkPipeline> pipelines;
 		pipelines.resize(count);
 
-		VkResult error = vkCreateGraphicsPipelines(device, cache, count, &vkInfo, nullptr, pipelines.data());
+		VkResult error = vkCreateGraphicsPipelines(vkDevice, cache, count, &vkInfo, nullptr, pipelines.data());
 		assert(!error);
 		
 		return pipelines;
@@ -216,35 +216,29 @@ public:
 	VkDescriptorPool createDescriptorPool (VkDescriptorPoolCreateInfo& vkInfo)
 	{
 		VkDescriptorPool pool;
-		VkResult error = vkCreateDescriptorPool(device, &vkInfo, nullptr, &pool);
+		VkResult error = vkCreateDescriptorPool(vkDevice, &vkInfo, nullptr, &pool);
 		assert(!error);
 		return pool;
 	}
 
 	void allocateDescriptorSet(VkDescriptorSetAllocateInfo& vkInfo, VkDescriptorSet& set)
 	{
-		VkResult error = vkAllocateDescriptorSets(device, &vkInfo, &set);
+		VkResult error = vkAllocateDescriptorSets(vkDevice, &vkInfo, &set);
 		assert(!error);
 	}
 
 	void updateDescriptorSet(VkWriteDescriptorSet& set)
 	{
-		vkUpdateDescriptorSets(device, 1, &set, 0, NULL);
+		vkUpdateDescriptorSets(vkDevice, 1, &set, 0, NULL);
 	}
 
 	VkSemaphore createSemaphore(VkSemaphoreCreateInfo& semaphoreCreateInfo)
 	{
 		VkSemaphore semaphore;
-		VkResult error = vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, &semaphore);
+		VkResult error = vkCreateSemaphore(vkDevice, &semaphoreCreateInfo, nullptr, &semaphore);
 		assert(!error);
 		return semaphore;
 	}
 
-	operator VkDevice() const { return device; };
-	VkDevice& getVkDevice()
-	{
-		return device;
-	}
-private:
-	VkDevice device;
+	VkDevice vkDevice;
 };

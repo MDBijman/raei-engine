@@ -131,7 +131,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
 	createWindowsContext(hInstance, WndProc, "triangle", 1280, 720);
-	std::unique_ptr<VkTriangle> application = std::make_unique<VkTriangle>(hInstance, window, "triangle", 1280, 720);
+	std::unique_ptr<VulkanTriangle> application = std::make_unique<VulkanTriangle>(hInstance, window, "triangle", 1280, 720);
 
 	MSG msg;
 	while (TRUE)
