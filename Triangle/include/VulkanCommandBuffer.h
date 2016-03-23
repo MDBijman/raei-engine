@@ -79,7 +79,7 @@ public:
 		return *this;
 	}
 
-	VulkanCommandBuffer& putPipelineBarrier(VkImageMemoryBarrier& barrier, VkPipelineStageFlags pipelineStage)
+	VulkanCommandBuffer& putPipelineBarrier(const VkImageMemoryBarrier& barrier, const VkPipelineStageFlags& pipelineStage)
 	{
 		vkCmdPipelineBarrier(
 			vkBuffer,

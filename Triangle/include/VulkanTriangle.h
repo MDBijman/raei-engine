@@ -5,6 +5,7 @@
 
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 #include <math.h>
 #include <vector>
 #include <iostream>
@@ -143,5 +144,22 @@ private:
 
 	void prepareCommandBuffers();
 
+	void updateUniformBuffers()
+	{
+		// Update matrices
+		uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 256.0f);
 
+		uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.5f));
+
+		uboVS.modelMatrix = glm::mat4();
+		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(1.0f, 0.0f, 0.0f));
+		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(0.0f, 1.0f, 0.0f));
+		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+		// Map uniform buffer and update it
+		uint8_t *pData;
+		pData = (uint8_t*) context.device->mapMemory(uniformDataVS.memory, sizeof(uboVS));
+		memcpy(pData, &uboVS, sizeof(uboVS));
+		context.device->unmapMemory(uniformDataVS.memory);
+	}
 };

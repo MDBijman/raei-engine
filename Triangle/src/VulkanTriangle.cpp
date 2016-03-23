@@ -74,7 +74,8 @@ void VulkanTriangle::render()
 
 	// Submit to the queue
 	std::vector<VkCommandBuffer> buffers{ context.postPresentCmdBuffer.vkBuffer };
-	submitInfo.setCommandBuffers(buffers);
+	// Initialize submitInfo as an empty object, except for command buffers
+	submitInfo = VulkanSubmitInfo().setCommandBuffers(buffers);
 
 	context.queue->submit(1, submitInfo.vkInfo);
 	context.queue->waitIdle();

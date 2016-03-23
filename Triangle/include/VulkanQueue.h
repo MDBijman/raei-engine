@@ -1,7 +1,7 @@
 #pragma once
-
 #include <assert.h>
 #include <vulkan\vulkan.h>
+#include <iostream>
 
 class VulkanQueue
 {

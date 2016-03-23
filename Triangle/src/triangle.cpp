@@ -2,8 +2,8 @@
 
 float frameTimer = 1.0f;
 float timerSpeed = 0.25f;
-float timer = 0.0f;
-bool paused = false;
+float timer      = 0.0f;
+bool paused      = false;
 
 HWND window;
 
@@ -24,18 +24,18 @@ void createWindowsContext(HINSTANCE hInstance, WNDPROC WndProc, std::string name
 	}
 
 	WNDCLASSEX wndClass;
-	wndClass.cbSize = sizeof(WNDCLASSEX);
-	wndClass.style = CS_HREDRAW | CS_VREDRAW;
-	wndClass.lpfnWndProc = WndProc;
-	wndClass.cbClsExtra = 0;
-	wndClass.cbWndExtra = 0;
-	wndClass.hInstance = hInstance;
-	wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wndClass.cbSize        = sizeof(WNDCLASSEX);
+	wndClass.style         = CS_HREDRAW | CS_VREDRAW;
+	wndClass.lpfnWndProc   = WndProc;
+	wndClass.cbClsExtra    = 0;
+	wndClass.cbWndExtra    = 0;
+	wndClass.hInstance     = hInstance;
+	wndClass.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
+	wndClass.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-	wndClass.lpszMenuName = NULL;
+	wndClass.lpszMenuName  = NULL;
 	wndClass.lpszClassName = name.c_str();
-	wndClass.hIconSm = LoadIcon(NULL, IDI_WINLOGO);
+	wndClass.hIconSm       = LoadIcon(NULL, IDI_WINLOGO);
 
 	if (!RegisterClassEx(&wndClass))
 	{
@@ -44,18 +44,18 @@ void createWindowsContext(HINSTANCE hInstance, WNDPROC WndProc, std::string name
 		exit(1);
 	}
 
-	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	int screenWidth  = GetSystemMetrics(SM_CXSCREEN);
 	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 	if (fullscreen)
 	{
 		DEVMODE dmScreenSettings;
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-		dmScreenSettings.dmSize = sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsWidth = screenWidth;
+		dmScreenSettings.dmSize       = sizeof(dmScreenSettings);
+		dmScreenSettings.dmPelsWidth  = screenWidth;
 		dmScreenSettings.dmPelsHeight = screenHeight;
 		dmScreenSettings.dmBitsPerPel = 32;
-		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+		dmScreenSettings.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
 		if ((width != screenWidth) && (height != screenHeight))
 		{
@@ -78,21 +78,21 @@ void createWindowsContext(HINSTANCE hInstance, WNDPROC WndProc, std::string name
 	if (fullscreen)
 	{
 		dwExStyle = WS_EX_APPWINDOW;
-		dwStyle = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+		dwStyle   = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-		windowRect.left = (long)0;
-		windowRect.right = (long)screenWidth;
-		windowRect.top = (long)0;
+		windowRect.left   = (long)0;
+		windowRect.right  = (long)screenWidth;
+		windowRect.top    = (long)0;
 		windowRect.bottom = (long)screenHeight;
 	}
 	else
 	{
 		dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-		dwStyle = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+		dwStyle   = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-		windowRect.left = (long)screenWidth / 2 - width / 2;
-		windowRect.right = (long)width;
-		windowRect.top = (long)screenHeight / 2 - height / 2;
+		windowRect.left   = (long)screenWidth / 2 - width / 2;
+		windowRect.right  = (long)width;
+		windowRect.top    = (long)screenHeight / 2 - height / 2;
 		windowRect.bottom = (long)height;
 	}
 
@@ -123,6 +123,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CLOSE:
 		exit(0);
 		break;
+	case WM_LBUTTONDOWN:
+		// Handle left button down
+		break;
+	case WM_RBUTTONDOWN:
+		// Handle right button down
+		break;
 	}
 
 	return (DefWindowProc(hWnd, uMsg, wParam, lParam));
@@ -133,6 +139,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	createWindowsContext(hInstance, WndProc, "triangle", 1280, 720);
 	std::unique_ptr<VulkanTriangle> application = std::make_unique<VulkanTriangle>(hInstance, window, "triangle", 1280, 720);
 
+	AllocConsole();
+	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	DWORD cCharsWritten;
+	freopen("CONOUT$", "w", stdout);
+
 	MSG msg;
 	while (TRUE)
 	{
@@ -142,8 +153,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 			break;
 
 		TranslateMessage(&msg);
+
 		DispatchMessage(&msg);
-		
+
 		application->render();
 
 		auto tEnd = std::chrono::high_resolution_clock::now();
