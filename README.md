@@ -1,6 +1,6 @@
 # VulkanTriangle
 
-This is a derivative of Sascha Willems Vulkan repository. I recommend checking out his work.
+This is a derivative of [Sacha Willems Vulkan repository](https://github.com/SaschaWillems/Vulkan). I recommend checking out his work.
 
 
 Some Notes:
