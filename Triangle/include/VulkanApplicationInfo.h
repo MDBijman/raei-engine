@@ -22,6 +22,12 @@ public:
 		vkInfo.pEngineName = name.c_str();
 		return *this;
 	}	
+
+	VulkanApplicationInfo& setApiVersion(uint32_t version)
+	{
+		vkInfo.applicationVersion = version;
+		return *this;
+	}
 	
 	VkApplicationInfo vkInfo;
 };

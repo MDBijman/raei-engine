@@ -78,6 +78,10 @@ private:
 	VkDescriptorPool descriptorPool;
 	VkDescriptorSet descriptorSet;
 
+	const std::string SHADER_LOCATION = "C:\\Dev\\Vulkan\\data\\shaders\\";
+	const std::string VERTEX_LOCATION = SHADER_LOCATION + "triangle.vert.spv";
+	const std::string FRAGMENT_LOCATION = SHADER_LOCATION + "triangle.frag.spv";
+
 	struct {
 		VkBuffer buf;
 		VkDeviceMemory mem;

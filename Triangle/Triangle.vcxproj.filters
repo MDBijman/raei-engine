@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Header Files\VkGraphics">
       <UniqueIdentifier>{eba853eb-b9c8-4c68-941d-5cff6215526f}</UniqueIdentifier>
     </Filter>
@@ -227,13 +223,5 @@
     <ClInclude Include="include\VulkanBaseContext.h">
       <Filter>Header Files\VkGraphics</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\data\shaders\pipelines\wireframe.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\data\shaders\pipelines\base.vert">
-      <Filter>Resource Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

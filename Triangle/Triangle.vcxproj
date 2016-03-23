@@ -173,10 +173,6 @@
     <ClInclude Include="include\VulkanViewport.h" />
     <ClInclude Include="include\VulkanWriteDescriptorSet.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\data\shaders\pipelines\base.vert" />
-    <None Include="..\data\shaders\pipelines\wireframe.frag" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

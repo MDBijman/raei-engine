@@ -19,7 +19,8 @@ public:
 		VulkanApplicationInfo applicationInfo;
 		applicationInfo
 			.setApplicationName(name)
-			.setEngineName(name);
+			.setEngineName(name)
+			.setApiVersion(VK_API_VERSION);
 
 		// Extensions we want
 		std::vector<const char*> extensions = {

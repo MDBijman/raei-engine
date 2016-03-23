@@ -389,17 +389,19 @@ void VulkanTriangle::preparePipeline()
 
 	// Load shaders
 	std::string entryPoint = "main";
+
+
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStages(2);
 	shaderStages[0] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_VERTEX_BIT)
-		.setModule(loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.vert.spv", context.device->vkDevice, VK_SHADER_STAGE_VERTEX_BIT))
+		.setModule(loadShader(VERTEX_LOCATION.c_str(), context.device->vkDevice, VK_SHADER_STAGE_VERTEX_BIT))
 		.setName(entryPoint)
 		.vkInfo;
 	assert(shaderStages[0].module != NULL);
 
 	shaderStages[1] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_FRAGMENT_BIT)
-		.setModule(loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.frag.spv", context.device->vkDevice, VK_SHADER_STAGE_FRAGMENT_BIT))
+		.setModule(loadShader(FRAGMENT_LOCATION.c_str(), context.device->vkDevice, VK_SHADER_STAGE_FRAGMENT_BIT))
 		.setName(entryPoint)
 		.vkInfo;
 	assert(shaderStages[1].module != NULL);
