@@ -29,58 +29,58 @@ public:
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setVertexInputState(VkPipelineVertexInputStateCreateInfo* info)
+	VulkanGraphicsPipelineCreateInfo& setVertexInputState(VkPipelineVertexInputStateCreateInfo& info)
 	{
-		vkInfo.pVertexInputState = info;
+		vkInfo.pVertexInputState = &info;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setInputAssemblyState(VkPipelineInputAssemblyStateCreateInfo* info)
+	VulkanGraphicsPipelineCreateInfo& setInputAssemblyState(VkPipelineInputAssemblyStateCreateInfo& info)
 	{
-		vkInfo.pInputAssemblyState = info;
+		vkInfo.pInputAssemblyState = &info;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setRasterizationState(VkPipelineRasterizationStateCreateInfo* info)
+	VulkanGraphicsPipelineCreateInfo& setRasterizationState(VkPipelineRasterizationStateCreateInfo& info)
 	{
-		vkInfo.pRasterizationState = info;
+		vkInfo.pRasterizationState = &info;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setColorBlendState(VkPipelineColorBlendStateCreateInfo* info)
+	VulkanGraphicsPipelineCreateInfo& setColorBlendState(VkPipelineColorBlendStateCreateInfo& info)
 	{
-		vkInfo.pColorBlendState = info;
+		vkInfo.pColorBlendState = &info;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setMultisampleState(VkPipelineMultisampleStateCreateInfo* info)
+	VulkanGraphicsPipelineCreateInfo& setMultisampleState(VkPipelineMultisampleStateCreateInfo& info)
 	{
-		vkInfo.pMultisampleState = info;
+		vkInfo.pMultisampleState = &info;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setViewportState(VkPipelineViewportStateCreateInfo* info)
+	VulkanGraphicsPipelineCreateInfo& setViewportState(VkPipelineViewportStateCreateInfo& info)
 	{
-		vkInfo.pViewportState = info;
+		vkInfo.pViewportState = &info;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setDepthStencilState(VkPipelineDepthStencilStateCreateInfo* info)
+	VulkanGraphicsPipelineCreateInfo& setDepthStencilState(VkPipelineDepthStencilStateCreateInfo& info)
 	{
-		vkInfo.pDepthStencilState = info;
+		vkInfo.pDepthStencilState = &info;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setStages(std::vector<VkPipelineShaderStageCreateInfo> info)
+	VulkanGraphicsPipelineCreateInfo& setStages(std::vector<VkPipelineShaderStageCreateInfo>& info)
 	{
 		vkInfo.stageCount = info.size();
 		vkInfo.pStages = info.data();
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setDynamicState(VkPipelineDynamicStateCreateInfo* info)
+	VulkanGraphicsPipelineCreateInfo& setDynamicState(VkPipelineDynamicStateCreateInfo& info)
 	{
-		vkInfo.pDynamicState = info;
+		vkInfo.pDynamicState = &info;
 		return *this;
 	}
 

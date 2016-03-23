@@ -24,7 +24,7 @@ public:
 		return *this;
 	}
 
-	VulkanPipelineShaderStageCreateInfo& setName(std::string name)
+	VulkanPipelineShaderStageCreateInfo& setName(std::string& name)
 	{
 		vkInfo.pName = name.c_str();
 		return *this;

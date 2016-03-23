@@ -12,7 +12,7 @@ public:
 		vkInfo.pNext = NULL;
 	}
 
-	VulkanPipelineDynamicStateCreateInfo& setDynamicStates(std::vector<VkDynamicState> states)
+	VulkanPipelineDynamicStateCreateInfo& setDynamicStates(std::vector<VkDynamicState>& states)
 	{
 		vkInfo.pDynamicStates = states.data();
 		vkInfo.dynamicStateCount = states.size();

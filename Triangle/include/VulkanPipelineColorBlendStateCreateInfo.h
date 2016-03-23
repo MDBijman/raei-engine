@@ -11,7 +11,7 @@ public:
 		vkInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	}
 
-	VulkanPipelineColorBlendStateCreateInfo& setAttachments(std::vector<VkPipelineColorBlendAttachmentState> attachments)
+	VulkanPipelineColorBlendStateCreateInfo& setAttachments(std::vector<VkPipelineColorBlendAttachmentState>& attachments)
 	{
 		vkInfo.attachmentCount = attachments.size();
 		vkInfo.pAttachments = attachments.data();

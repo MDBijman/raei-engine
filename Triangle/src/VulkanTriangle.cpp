@@ -338,16 +338,17 @@ void VulkanTriangle::preparePipeline()
 
 	// Color blend state
 	// Describes blend modes and color masks
-	VulkanPipelineColorBlendAttachmentState blendAttachmentState;
-	blendAttachmentState
+	std::vector<VkPipelineColorBlendAttachmentState> blendAttachmentState(1);
+	blendAttachmentState[0] = VulkanPipelineColorBlendAttachmentState()
 		.setColorWriteMask(0xf)
-		.setBlendEnable(VK_FALSE);
+		.setBlendEnable(VK_FALSE)
+		.vkState;
 
 	// One blend attachment state
 	// Blending is not used in this example
 	VulkanPipelineColorBlendStateCreateInfo colorBlendState;
 	colorBlendState
-		.setAttachments({ blendAttachmentState.vkState });
+		.setAttachments(blendAttachmentState);
 
 	// Viewport state
 	VulkanPipelineViewportStateCreateInfo viewportState;
@@ -360,11 +361,9 @@ void VulkanTriangle::preparePipeline()
 	// Dynamic states can be set even after the pipeline has been created
 	// So there is no need to create new pipelines just for changing
 	// a viewport's dimensions or a scissor box
+	std::vector<VkDynamicState> states{ VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 	VulkanPipelineDynamicStateCreateInfo dynamicState;
-	dynamicState.setDynamicStates({
-		VK_DYNAMIC_STATE_VIEWPORT,
-		VK_DYNAMIC_STATE_SCISSOR
-	});
+	dynamicState.setDynamicStates(states);
 
 	// Depth and stencil state
 	// Describes depth and stenctil test and compare ops
@@ -389,32 +388,33 @@ void VulkanTriangle::preparePipeline()
 		.setRasterizationSamples(VK_SAMPLE_COUNT_1_BIT);
 
 	// Load shaders
+	std::string entryPoint = "main";
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStages(2);
 	shaderStages[0] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_VERTEX_BIT)
 		.setModule(loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.vert.spv", context.device->vkDevice, VK_SHADER_STAGE_VERTEX_BIT))
-		.setName("main")
+		.setName(entryPoint)
 		.vkInfo;
 	assert(shaderStages[0].module != NULL);
 
 	shaderStages[1] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_FRAGMENT_BIT)
 		.setModule(loadShader("C:\\Dev\\Vulkan\\data\\shaders\\triangle.frag.spv", context.device->vkDevice, VK_SHADER_STAGE_FRAGMENT_BIT))
-		.setName("name")
+		.setName(entryPoint)
 		.vkInfo;
 	assert(shaderStages[1].module != NULL);
 
 	// Assign states
 	// Two shader stages
 	pipelineCreateInfo
-		.setVertexInputState(&vertices.vi)
-		.setInputAssemblyState(&inputAssemblyState.vkInfo)
-		.setRasterizationState(&rasterizationState.vkInfo)
-		.setColorBlendState(&colorBlendState.vkInfo)
-		.setViewportState(&viewportState.vkInfo)
-		.setDynamicState(&dynamicState.vkInfo)
-		.setDepthStencilState(&depthStencilState.vkInfo)
-		.setMultisampleState(&multisampleState.vkInfo)
+		.setVertexInputState(vertices.vi)
+		.setInputAssemblyState(inputAssemblyState.vkInfo)
+		.setRasterizationState(rasterizationState.vkInfo)
+		.setColorBlendState(colorBlendState.vkInfo)
+		.setViewportState(viewportState.vkInfo)
+		.setDynamicState(dynamicState.vkInfo)
+		.setDepthStencilState(depthStencilState.vkInfo)
+		.setMultisampleState(multisampleState.vkInfo)
 		.setStages(shaderStages)
 		.setRenderPass(context.renderPass);
 
@@ -461,7 +461,7 @@ void VulkanTriangle::updateDescriptorSet()
 	allocInfo
 		.setDescriptorPool(descriptorPool)
 		.setDescriptorSetCount(1)
-		.setSetLayoutsPointer(&descriptorSetLayout);
+		.setSetLayouts(descriptorSetLayout);
 	context.device->allocateDescriptorSet(allocInfo.vkInfo, descriptorSet);
 
 	// Binding 0 : Uniform buffer
@@ -480,9 +480,11 @@ void VulkanTriangle::prepareCommandBuffers()
 {
 	VulkanCommandBufferBeginInfo cmdBufInfo;
 
-	std::vector<VulkanClearValue> clearValues(2);
-	clearValues.at(0).setColor({ { 0.025f, 0.025f, 0.025f, 1.0f } });
-	clearValues.at(1).setDepthStencil({ 1.0f, 0 });
+	std::vector<VkClearValue> clearValues(2);
+	clearValues.at(0) = VulkanClearValue()
+		.setColor({ { 0.025f, 0.025f, 0.025f, 1.0f } }).vkValue;
+	clearValues.at(1) = VulkanClearValue()
+		.setDepthStencil({ 1.0f, 0 }).vkValue;
 
 	// TODO create rectangle constructor to make this a single line
 	VulkanRectangle2D renderArea;
@@ -491,7 +493,7 @@ void VulkanTriangle::prepareCommandBuffers()
 	renderPassBeginInfo
 		.setRenderPass(context.renderPass)
 		.setRenderArea(renderArea.vkRectangle)
-		.setClearValues(VulkanClearValue::toVulkanVector(clearValues));
+		.setClearValues(clearValues);
 
 	for (int32_t i = 0; i < context.drawCmdBuffers.size(); ++i)
 	{

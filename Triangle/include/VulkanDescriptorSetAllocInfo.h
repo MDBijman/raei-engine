@@ -22,9 +22,9 @@ public:
 		return *this;
 	}
 
-	VulkanDescriptorSetAllocInfo& setSetLayoutsPointer(VkDescriptorSetLayout* layouts)
+	VulkanDescriptorSetAllocInfo& setSetLayouts(VkDescriptorSetLayout& layouts)
 	{
-		vkInfo.pSetLayouts = layouts;
+		vkInfo.pSetLayouts = &layouts;
 		return *this;
 	}
 

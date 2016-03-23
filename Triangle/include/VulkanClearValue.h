@@ -20,18 +20,4 @@ public:
 	}
 
 	VkClearValue vkValue;
-
-	static std::vector<VkClearValue> toVulkanVector(std::vector<VulkanClearValue> vector)
-	{
-		std::vector<VkClearValue> vulkanVector(vector.size());
-		std::transform(vector.begin(), vector.end(), vulkanVector.begin(), [](VulkanClearValue value) { return value.vkValue; });
-		return vulkanVector;
-	}
-
-	static std::vector<VulkanClearValue> toWrapperVector(std::vector<VkClearValue> vector)
-	{
-		std::vector<VulkanClearValue> wrapperVector(vector.size());
-		std::transform(vector.begin(), vector.end(), wrapperVector.begin(), [](VkClearValue value) { return VulkanClearValue(value); });
-		return wrapperVector;
-	}
 };
