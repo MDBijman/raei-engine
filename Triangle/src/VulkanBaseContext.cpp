@@ -18,7 +18,7 @@
 
 void VulkanBaseContext::initialize(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height)
 {
-	instance = std::make_unique<VulkanInstance>("triangle");
+	instance       = std::make_unique<VulkanInstance>("triangle");
 	physicalDevice = std::make_unique<VulkanPhysicalDevice>(instance->getPhysicalDevices()->at(0));
 
 	auto queueProperties = physicalDevice->queueFamilyProperties();
@@ -30,9 +30,9 @@ void VulkanBaseContext::initialize(HINSTANCE hInstance, HWND window, std::string
 	}
 	assert(graphicsQueueIndex < queueProperties->size());
 
-	device = std::make_unique<VulkanDevice>(physicalDevice->getVkPhysicalDevice(), graphicsQueueIndex);
+	device    = std::make_unique<VulkanDevice>(physicalDevice->getVkPhysicalDevice(), graphicsQueueIndex);
 	swapchain = std::make_unique<VulkanSwapChain>(instance->vkInstance, physicalDevice->getVkPhysicalDevice(), device->vkDevice);
-	queue = std::make_unique<VulkanQueue>(device->queueAt(graphicsQueueIndex));
+	queue     = std::make_unique<VulkanQueue>(device->queueAt(graphicsQueueIndex));
 
 	// Find supported depth format
 	// We prefer 24 bits of depth and 8 bits of stencil, but that may not be supported by all implementations
@@ -247,7 +247,7 @@ void VulkanBaseContext::prepareFramebuffers(uint32_t width, uint32_t height)
 	for (uint32_t i = 0; i < frameBuffers.size(); i++)
 	{
 		fbAttachments[0] = swapchain->buffers[i].view;
-		frameBuffers[i] = device->createFrameBuffer(frameBufferCreateInfo.vkInfo);
+		frameBuffers[i]  = device->createFrameBuffer(frameBufferCreateInfo.vkInfo);
 	}
 }
 
