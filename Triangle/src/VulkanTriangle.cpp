@@ -72,14 +72,12 @@ void VulkanTriangle::render()
 		.putPipelineBarrier(postPresentBarrier.vkBarrier, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT)
 		.end();
 
-	// Submit to the queue
-	std::vector<VkCommandBuffer> buffers{ context.postPresentCmdBuffer.vkBuffer };
 	// Initialize submitInfo as an empty object, except for command buffers
+	std::vector<VkCommandBuffer> buffers{ context.postPresentCmdBuffer.vkBuffer };
 	submitInfo = VulkanSubmitInfo().setCommandBuffers(buffers);
 
 	context.queue->submit(1, submitInfo.vkInfo);
 	context.queue->waitIdle();
-
 	context.device->waitIdle();
 }
 
@@ -95,9 +93,9 @@ void VulkanTriangle::prepareVertices()
 
 	// Setup vertices
 	std::vector<Vertex> vertexBuffer = {
-		{ { 1.0f,  1.0f, 0.0f },{ 1.0f, 0.0f, 0.0f } },
+		{ {  1.0f,  1.0f, 0.0f },{ 1.0f, 0.0f, 0.0f } },
 		{ { -1.0f,  1.0f, 0.0f },{ 0.0f, 1.0f, 0.0f } },
-		{ { 0.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
+		{ {  0.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
 	};
 	int vertexBufferSize = vertexBuffer.size() * sizeof(Vertex);
 
