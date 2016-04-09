@@ -1,40 +1,41 @@
-#include <VulkanTriangle.h>
+#include "GraphicsRenderingModule.h"
+#include "Triangle.h"
+#include "Vertex.h"
 
-VulkanTriangle::VulkanTriangle(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height) : name(name), width(width), height(height)
+GraphicsRenderingModule::GraphicsRenderingModule(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, VkCommandPool& cmdPool, const glm::fvec2& SCREEN_DIMENSIONS, VkRenderPass& renderPass, VkPipelineCache& pipelineCache, std::vector<VulkanCommandBuffer>& drawCmdBuffers, std::vector<VkFramebuffer>& frameBuffers, const VulkanSwapChain& swapchain)
 {
-	context.initialize(hInstance, window, name, width, height);
 
 	VulkanCommandBufferAllocateInfo info;
-	info.setCommandPool(context.cmdPool)
+	info.setCommandPool(cmdPool)
 		.setCommandBufferLevel(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
 		.setCommandBufferCount(1);
 
-	VulkanCommandBuffer setupCmdBuffer = context.device->allocateCommandBuffers(info.vkInfo).at(0);
+	VulkanCommandBuffer setupCmdBuffer = device.allocateCommandBuffers(info.vkInfo).at(0);
 
-	prepareVertices();
-	prepareUniformBuffers();
-	prepareDescriptorSetLayout();
-	preparePipeline();
-	prepareDescriptorPool();
-	updateDescriptorSet();
-	prepareCommandBuffers();
+	prepareVertices(device, physicalDevice);
+	prepareUniformBuffers(device, physicalDevice, SCREEN_DIMENSIONS);
+	prepareDescriptorSetLayout(device);
+	preparePipeline(renderPass, device, pipelineCache);
+	prepareDescriptorPool(device);
+	updateDescriptorSet(device);
+	prepareCommandBuffers(SCREEN_DIMENSIONS, drawCmdBuffers, frameBuffers, renderPass, swapchain);
 }
 
-void VulkanTriangle::render()
+void GraphicsRenderingModule::render(VulkanDevice& device, VulkanSwapChain& swapchain, VulkanQueue& queue, std::vector<VulkanCommandBuffer>& drawCmdBuffers, VulkanCommandBuffer& postPresentCmdBuffer, const VkSemaphore& presentComplete, const VkSemaphore& renderComplete)
 {
-	context.device->waitIdle();
+	device.waitIdle();
 
 	// Get next image in the swap chain (back/front buffer)
-	context.swapchain->acquireNextImage(context.semaphores.presentComplete, &currentBuffer);
+	swapchain.acquireNextImage(presentComplete, &currentBuffer);
 
 	// The submit info structure contains a list of
 	// command buffers and semaphores to be submitted to a queue
 	// If you want to submit multiple command buffers, pass an array
 	VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 	VulkanSubmitInfo submitInfo;
-	std::vector<VkSemaphore> waitSemaphores{ context.semaphores.presentComplete };
-	std::vector<VkSemaphore> signalSemaphores{ context.semaphores.renderComplete };
-	std::vector<VkCommandBuffer> commandBuffers{ context.drawCmdBuffers[currentBuffer].vkBuffer };
+	std::vector<VkSemaphore> waitSemaphores{ presentComplete };
+	std::vector<VkSemaphore> signalSemaphores{ renderComplete };
+	std::vector<VkCommandBuffer> commandBuffers{ drawCmdBuffers[currentBuffer].vkBuffer };
 	submitInfo
 		.setDstStageMask(&pipelineStages)
 		.setWaitSemaphores(waitSemaphores)
@@ -42,10 +43,10 @@ void VulkanTriangle::render()
 		.setSignalSemaphores(signalSemaphores);
 
 	// Submit to the graphics queue
-	context.queue->submit(1, submitInfo.vkInfo);
+	queue.submit(1, submitInfo.vkInfo);
 	// Present the current buffer to the swap chain
 	// This will display the image
-	context.swapchain->queuePresent(*context.queue, currentBuffer);
+	swapchain.queuePresent(queue, currentBuffer);
 
 	// Add a post present image memory barrier
 	// This will transform the frame buffer color attachment back
@@ -64,27 +65,24 @@ void VulkanTriangle::render()
 		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 		.setSubresourceRange({ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 })
-		.setImage(context.swapchain->buffers[currentBuffer].image);
+		.setImage(swapchain.buffers[currentBuffer].image);
 
 	VulkanCommandBufferBeginInfo cmdBufInfo;
-	context.postPresentCmdBuffer
+	postPresentCmdBuffer
 		.beginCommandBuffer(cmdBufInfo.vkInfo)
 		.putPipelineBarrier(postPresentBarrier.vkBarrier, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT)
 		.end();
 
 	// Initialize submitInfo as an empty object, except for command buffers
-	std::vector<VkCommandBuffer> buffers{ context.postPresentCmdBuffer.vkBuffer };
+	std::vector<VkCommandBuffer> buffers{ postPresentCmdBuffer.vkBuffer };
 	submitInfo = VulkanSubmitInfo().setCommandBuffers(buffers);
 
-	context.queue->submit(1, submitInfo.vkInfo);
-	context.queue->waitIdle();
-	context.device->waitIdle();
+	queue.submit(1, submitInfo.vkInfo);
+	queue.waitIdle();
+	device.waitIdle();
 }
 
-/*
-* Initializes the vertices and uploads them to the GPU. 
-*/
-void VulkanTriangle::prepareVertices()
+void GraphicsRenderingModule::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice)
 {
 	struct Vertex {
 		float pos[3];
@@ -95,7 +93,7 @@ void VulkanTriangle::prepareVertices()
 	std::vector<Vertex> vertexBuffer = {
 		{ {  1.0f,  1.0f, 0.0f },{ 1.0f, 0.0f, 0.0f } },
 		{ { -1.0f,  1.0f, 0.0f },{ 0.0f, 1.0f, 0.0f } },
-		{ {  0.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
+		{ {  0.0f, -1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
 	};
 	int vertexBufferSize = vertexBuffer.size() * sizeof(Vertex);
 
@@ -113,7 +111,7 @@ void VulkanTriangle::prepareVertices()
 	void *data;
 
 	// Generate vertex buffer
-	//	Setup
+	// Setup
 	VulkanBufferCreateInfo bufInfo;
 	bufInfo
 		.setSize(vertexBufferSize)
@@ -122,15 +120,15 @@ void VulkanTriangle::prepareVertices()
 
 	//	Copy vertex data to VRAM
 	memset(&vertices, 0, sizeof(vertices));
-	vertices.buf = context.device->createBuffer(bufInfo.vkInfo);
-	memReqs = context.device->getBufferMemoryRequirements(vertices.buf);
+	vertices.buf = device.createBuffer(bufInfo.vkInfo);
+	memReqs = device.getBufferMemoryRequirements(vertices.buf);
 	memAlloc.vkInfo.allocationSize = memReqs.size;
 
 	for (uint32_t i = 0; i < 32; i++)
 	{
 		if ((memReqs.memoryTypeBits & 1) == 1)
 		{
-			if ((context.physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+			if ((physicalDevice.memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 			{
 				memAlloc.vkInfo.memoryTypeIndex = i;
 			}
@@ -139,11 +137,11 @@ void VulkanTriangle::prepareVertices()
 	}
 
 	memReqs.memoryTypeBits = 1;
-	vertices.mem = context.device->allocateMemory(memAlloc.vkInfo);
-	data = context.device->mapMemory(vertices.mem, memAlloc.vkInfo.allocationSize);
+	vertices.mem = device.allocateMemory(memAlloc.vkInfo);
+	data = device.mapMemory(vertices.mem, memAlloc.vkInfo.allocationSize);
 	memcpy(data, vertexBuffer.data(), vertexBufferSize);
-	context.device->unmapMemory(vertices.mem);
-	context.device->bindBufferMemory(vertices.buf, vertices.mem);
+	device.unmapMemory(vertices.mem);
+	device.bindBufferMemory(vertices.buf, vertices.mem);
 
 	// Generate index buffer
 	//	Setup
@@ -155,8 +153,8 @@ void VulkanTriangle::prepareVertices()
 
 	// Copy index data to VRAM
 	memset(&indices, 0, sizeof(indices));
-	indices.buf = context.device->createBuffer(bufInfo.vkInfo);
-	memReqs = context.device->getBufferMemoryRequirements(indices.buf);
+	indices.buf = device.createBuffer(bufInfo.vkInfo);
+	memReqs = device.getBufferMemoryRequirements(indices.buf);
 
 	memAlloc.vkInfo.allocationSize = memReqs.size;
 
@@ -164,7 +162,7 @@ void VulkanTriangle::prepareVertices()
 	{
 		if ((memReqs.memoryTypeBits & 1) == 1)
 		{
-			if ((context.physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+			if ((physicalDevice.memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 			{
 				memAlloc.vkInfo.memoryTypeIndex = i;
 			}
@@ -172,11 +170,11 @@ void VulkanTriangle::prepareVertices()
 		memReqs.memoryTypeBits >>= 1;
 	}
 
-	indices.mem = context.device->allocateMemory(memAlloc.vkInfo);
-	data = context.device->mapMemory(indices.mem, indexBufferSize);
+	indices.mem = device.allocateMemory(memAlloc.vkInfo);
+	data = device.mapMemory(indices.mem, indexBufferSize);
 	memcpy(data, indexBuffer.data(), indexBufferSize);
-	context.device->unmapMemory(indices.mem);
-	context.device->bindBufferMemory(indices.buf, indices.mem);
+	device.unmapMemory(indices.mem);
+	device.bindBufferMemory(indices.buf, indices.mem);
 	indices.count = indexBuffer.size();
 
 	// Binding description
@@ -210,10 +208,7 @@ void VulkanTriangle::prepareVertices()
 	vertices.vi.pVertexAttributeDescriptions = vertices.attributeDescriptions.data();
 }
 
-/*
-* Initializes the Uniform Buffers of the shader.
-*/
-void VulkanTriangle::prepareUniformBuffers()
+void GraphicsRenderingModule::prepareUniformBuffers(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, const glm::fvec2& SCREEN_DIMENSIONS)
 {
 	VkMemoryRequirements memReqs;
 
@@ -229,9 +224,9 @@ void VulkanTriangle::prepareUniformBuffers()
 		.setMemoryTypeIndex(0);
 
 	// Create a new buffer
-	uniformDataVS.buffer = context.device->createBuffer(bufferInfo.vkInfo);
+	uniformDataVS.buffer = device.createBuffer(bufferInfo.vkInfo);
 	// Get memory requirements including size, alignment and memory type 
-	memReqs = context.device->getBufferMemoryRequirements(uniformDataVS.buffer);
+	memReqs = device.getBufferMemoryRequirements(uniformDataVS.buffer);
 	allocInfo.vkInfo.allocationSize = memReqs.size;
 	// Gets the appropriate memory type for this type of buffer allocation
 	// Only memory types that are visible to the host
@@ -240,16 +235,16 @@ void VulkanTriangle::prepareUniformBuffers()
 	{
 		if ((memReqs.memoryTypeBits & 1) == 1)
 		{
-			if ((context.physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+			if ((physicalDevice.memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
 				allocInfo.vkInfo.memoryTypeIndex = i;
 		}
 		memReqs.memoryTypeBits >>= 1;
 	}
 
 	// Allocate memory for the uniform buffer
-	uniformDataVS.memory = context.device->allocateMemory(allocInfo.vkInfo);
+	uniformDataVS.memory = device.allocateMemory(allocInfo.vkInfo);
 	// Bind memory to buffer
-	context.device->bindBufferMemory(uniformDataVS.buffer, uniformDataVS.memory);
+	device.bindBufferMemory(uniformDataVS.buffer, uniformDataVS.memory);
 
 	// Store information in the uniform's descriptor
 	uniformDataVS.descriptor.buffer = uniformDataVS.buffer;
@@ -260,7 +255,7 @@ void VulkanTriangle::prepareUniformBuffers()
 	float zoom = -2.5f;
 	glm::vec3 rotation;
 
-	uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 256.0f);
+	uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), SCREEN_DIMENSIONS.x / SCREEN_DIMENSIONS.y, 0.1f, 256.0f);
 	uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, zoom));
 
 	uboVS.modelMatrix = glm::mat4();
@@ -270,15 +265,12 @@ void VulkanTriangle::prepareUniformBuffers()
 
 	// Map uniform buffer and update it
 	uint8_t *pData;
-	pData = (uint8_t*) context.device->mapMemory(uniformDataVS.memory, sizeof(uboVS));
+	pData = (uint8_t*) device.mapMemory(uniformDataVS.memory, sizeof(uboVS));
 	memcpy(pData, &uboVS, sizeof(uboVS));
-	context.device->unmapMemory(uniformDataVS.memory);
+	device.unmapMemory(uniformDataVS.memory);
 }
 
-/*
-* Initializes the Descriptor Set Layout, used to connect shader stages to uniform buffers, image samplers etc. Each shader binding should map to one descriptor set layout.
-*/
-void VulkanTriangle::prepareDescriptorSetLayout()
+void GraphicsRenderingModule::prepareDescriptorSetLayout(VulkanDevice& device)
 {
 	// Binding 0 : Uniform buffer (Vertex shader)
 	VulkanDescriptorSetLayoutBinding layoutBinding;
@@ -293,7 +285,7 @@ void VulkanTriangle::prepareDescriptorSetLayout()
 		.setBindingCount(1)
 		.setBindings(&layoutBinding.vkLayoutBinding);
 
-	descriptorSetLayout = context.device->createDescriptorSetLayout(descriptorLayout.vkInfo);
+	descriptorSetLayout = device.createDescriptorSetLayout(descriptorLayout.vkInfo);
 
 	// Create the pipeline layout that is used to generate the rendering pipelines that
 	// are based on this descriptor set layout
@@ -304,20 +296,17 @@ void VulkanTriangle::prepareDescriptorSetLayout()
 		.setSetLayoutCount(1)
 		.setSetLayouts(&descriptorSetLayout);
 
-	pipelineLayout = context.device->createPipelineLayout(pipelineLayoutCreateInfo.vkInfo);
+	pipelineLayout = device.createPipelineLayout(pipelineLayoutCreateInfo.vkInfo);
 }
 
-/*
-* Initializes and creates the pipeline.
-*/
-void VulkanTriangle::preparePipeline()
+void GraphicsRenderingModule::preparePipeline(VkRenderPass& renderPass, VulkanDevice& device, VkPipelineCache& pipelineCache)
 {
 	// Vulkan uses the concept of rendering pipelines to encapsulate fixed states
 	
 	VulkanGraphicsPipelineCreateInfo pipelineCreateInfo;
 	pipelineCreateInfo
 		.setLayout(pipelineLayout)
-		.setRenderPass(context.renderPass);
+		.setRenderPass(renderPass);
 
 	// Vertex input state
 	// Describes the topoloy used with this pipeline
@@ -393,14 +382,14 @@ void VulkanTriangle::preparePipeline()
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStages(2);
 	shaderStages[0] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_VERTEX_BIT)
-		.setModule(loadShader(VERTEX_LOCATION.c_str(), context.device->vkDevice, VK_SHADER_STAGE_VERTEX_BIT))
+		.setModule(loadShader(VERTEX_LOCATION.c_str(), device.vkDevice, VK_SHADER_STAGE_VERTEX_BIT))
 		.setName(entryPoint)
 		.vkInfo;
 	assert(shaderStages[0].module != NULL);
 
 	shaderStages[1] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_FRAGMENT_BIT)
-		.setModule(loadShader(FRAGMENT_LOCATION.c_str(), context.device->vkDevice, VK_SHADER_STAGE_FRAGMENT_BIT))
+		.setModule(loadShader(FRAGMENT_LOCATION.c_str(), device.vkDevice, VK_SHADER_STAGE_FRAGMENT_BIT))
 		.setName(entryPoint)
 		.vkInfo;
 	assert(shaderStages[1].module != NULL);
@@ -417,16 +406,13 @@ void VulkanTriangle::preparePipeline()
 		.setDepthStencilState(depthStencilState.vkInfo)
 		.setMultisampleState(multisampleState.vkInfo)
 		.setStages(shaderStages)
-		.setRenderPass(context.renderPass);
+		.setRenderPass(renderPass);
 
 	// Create rendering pipeline
-	pipelines.solid = context.device->createGraphicsPipelines(context.pipelineCache, pipelineCreateInfo.vkInfo, 1).at(0);
+	pipelines.solid = device.createGraphicsPipelines(pipelineCache, pipelineCreateInfo.vkInfo, 1).at(0);
 }
 
-/*
-* Initializes the Descriptor Pool.
-*/
-void VulkanTriangle::prepareDescriptorPool()
+void GraphicsRenderingModule::prepareDescriptorPool(VulkanDevice& device)
 {
 	// This example only uses one descriptor type (uniform buffer) and only
 	// requests one descriptor of this type
@@ -449,10 +435,10 @@ void VulkanTriangle::prepareDescriptorPool()
 		// Requesting descriptors beyond maxSets will result in an error
 		.setMaxSets(1);
 
-	descriptorPool = context.device->createDescriptorPool(descriptorPoolInfo.vkInfo);
+	descriptorPool = device.createDescriptorPool(descriptorPoolInfo.vkInfo);
 }
 
-void VulkanTriangle::updateDescriptorSet()
+void GraphicsRenderingModule::updateDescriptorSet(VulkanDevice& device)
 {
 	// Update descriptor sets determining the shader binding points
 	// For every binding point used in a shader there needs to be one
@@ -463,7 +449,7 @@ void VulkanTriangle::updateDescriptorSet()
 		.setDescriptorPool(descriptorPool)
 		.setDescriptorSetCount(1)
 		.setSetLayouts(descriptorSetLayout);
-	context.device->allocateDescriptorSet(allocInfo.vkInfo, descriptorSet);
+	device.allocateDescriptorSet(allocInfo.vkInfo, descriptorSet);
 
 	// Binding 0 : Uniform buffer
 	VulkanWriteDescriptorSet writeDescriptorSet;
@@ -474,44 +460,44 @@ void VulkanTriangle::updateDescriptorSet()
 		.setBufferInfo(&uniformDataVS.descriptor)
 		// Binds this uniform buffer to binding point 0
 		.setDstBinding(0);
-	context.device->updateDescriptorSet(writeDescriptorSet.vkDescriptorSet);
+	device.updateDescriptorSet(writeDescriptorSet.vkDescriptorSet);
 }
 
-void VulkanTriangle::prepareCommandBuffers()
+void GraphicsRenderingModule::prepareCommandBuffers(const glm::fvec2& SCREEN_DIMENSIONS, std::vector<VulkanCommandBuffer>& drawCmdBuffers, std::vector<VkFramebuffer>& frameBuffers, const VkRenderPass& renderPass, const VulkanSwapChain& swapchain)
 {
 	VulkanCommandBufferBeginInfo cmdBufInfo;
 
 	std::vector<VkClearValue> clearValues(2);
 	clearValues.at(0) = VulkanClearValue()
-		.setColor({ { 0.025f, 0.025f, 0.025f, 1.0f } }).vkValue;
+		.setColor({ { 0.0f, 0.0f, 0.5f, 1.0f } }).vkValue;
 	clearValues.at(1) = VulkanClearValue()
 		.setDepthStencil({ 1.0f, 0 }).vkValue;
 
 	// TODO create rectangle constructor to make this a single line
 	VulkanRectangle2D renderArea;
-	renderArea.setX(0).setY(0).setWidth(width).setHeight(height);
+	renderArea.setX(0).setY(0).setWidth(SCREEN_DIMENSIONS.x).setHeight(SCREEN_DIMENSIONS.y);
 	VulkanRenderPassBeginInfo renderPassBeginInfo;
 	renderPassBeginInfo
-		.setRenderPass(context.renderPass)
+		.setRenderPass(renderPass)
 		.setRenderArea(renderArea.vkRectangle)
 		.setClearValues(clearValues);
 
-	for (int32_t i = 0; i < context.drawCmdBuffers.size(); ++i)
+	for (int32_t i = 0; i < drawCmdBuffers.size(); ++i)
 	{
 		// Set target frame buffer
-		renderPassBeginInfo.setFramebuffer(context.frameBuffers.at(i));
+		renderPassBeginInfo.setFramebuffer(frameBuffers.at(i));
 
 		// Vulkan object preparation
 
 		// Update dynamic viewport state
 		VulkanViewport viewport;
 		viewport
-			.setHeight(static_cast<float>(height)).setWidth(static_cast<float>(width))
+			.setWidth(SCREEN_DIMENSIONS.x).setHeight(SCREEN_DIMENSIONS.y)
 			.setMinDepth(0.0f).setMaxDepth(1.0f);
 
 		// Update dynamic scissor state
 		VulkanRectangle2D scissor;
-		scissor.setWidth(width).setHeight(height).setX(0).setY(0);
+		scissor.setWidth(SCREEN_DIMENSIONS.x).setHeight(SCREEN_DIMENSIONS.y).setX(0).setY(0);
 		
 		// Add a present memory barrier to the end of the command buffer
 		// This will transform the frame buffer color attachment to a
@@ -529,11 +515,11 @@ void VulkanTriangle::prepareCommandBuffers()
 			.setNewLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
 			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setImage(context.swapchain->buffers[i].image)
+			.setImage(swapchain.buffers[i].image)
 			.setSubresourceRange(subresourceRange.vkRange);
 
 		// Command chaining
-		VulkanCommandBuffer& buffer = context.drawCmdBuffers.at(i);
+		VulkanCommandBuffer& buffer = drawCmdBuffers.at(i);
 		buffer
 			.beginCommandBuffer(cmdBufInfo.vkInfo)
 			.beginRenderPass(renderPassBeginInfo.vkInfo, VK_SUBPASS_CONTENTS_INLINE)
@@ -550,4 +536,23 @@ void VulkanTriangle::prepareCommandBuffers()
 			.putPipelineBarrier(prePresentBarrier.vkBarrier, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT)
 			.end();
 	}
+}
+
+void GraphicsRenderingModule::updateUniformBuffers(const glm::fvec2& SCREEN_DIMENSIONS, VulkanDevice& device)
+{
+	// Update matrices
+	uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), SCREEN_DIMENSIONS.x / SCREEN_DIMENSIONS.y, 0.1f, 256.0f);
+
+	uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.5f));
+
+	uboVS.modelMatrix = glm::mat4();
+	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(1.0f, 0.0f, 0.0f));
+	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(0.0f, 1.0f, 0.0f));
+	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	// Map uniform buffer and update it
+	uint8_t *pData;
+	pData = (uint8_t*) device.mapMemory(uniformDataVS.memory, sizeof(uboVS));
+	memcpy(pData, &uboVS, sizeof(uboVS));
+	device.unmapMemory(uniformDataVS.memory);
 }

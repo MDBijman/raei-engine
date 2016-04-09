@@ -8,12 +8,10 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <math.h>
 #include <vector>
-#include <iostream>
 #include <chrono>
 #include <memory>
 
 #include "Shaders.h"
-#include "VulkanBaseContext.h"
 
 #include "VulkanInstance.h"
 #include "VulkanPhysicalDevice.h"
@@ -60,28 +58,23 @@
 #include "VulkanPipelineCacheCreateInfo.h"
 #include "VulkanBufferCreateInfo.h"
 
-class VulkanTriangle
+class GraphicsRenderingModule 
 {
 public:
-	VulkanTriangle(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height);
-
-	void render();
+	GraphicsRenderingModule(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, VkCommandPool& cmdPool, const glm::fvec2& SCREEN_DIMENSIONS, VkRenderPass& renderPass, VkPipelineCache& pipelineCache, std::vector<VulkanCommandBuffer>& drawCmdBuffers, std::vector<VkFramebuffer>& frameBuffers, const VulkanSwapChain& swapchain);
+	
+	void render(VulkanDevice& device, VulkanSwapChain& swapchain, VulkanQueue& queue, std::vector<VulkanCommandBuffer>& drawCmdBuffers, VulkanCommandBuffer& postPresentCmdBuffer, const VkSemaphore& presentComplete, const VkSemaphore& renderComplete);
 
 private:
-	uint32_t width, height;
-	std::string name;
-
-	VulkanBaseContext context;
+	const std::string SHADER_LOCATION = "C:\\Dev\\Vulkan\\data\\shaders\\";
+	const std::string VERTEX_LOCATION = SHADER_LOCATION + "triangle.vert.spv";
+	const std::string FRAGMENT_LOCATION = SHADER_LOCATION + "triangle.frag.spv";
 
 	VkPipelineLayout pipelineLayout;
 
 	VkDescriptorSetLayout descriptorSetLayout;
 	VkDescriptorPool descriptorPool;
 	VkDescriptorSet descriptorSet;
-
-	const std::string SHADER_LOCATION = "C:\\Dev\\Vulkan\\data\\shaders\\";
-	const std::string VERTEX_LOCATION = SHADER_LOCATION + "triangle.vert.spv";
-	const std::string FRAGMENT_LOCATION = SHADER_LOCATION + "triangle.frag.spv";
 
 	struct {
 		VkBuffer buf;
@@ -118,48 +111,40 @@ private:
 	/*
 	* Initializes the vertices and uploads them to the GPU. 
 	*/
-	void prepareVertices();
+	void prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice);
 
 	/*
 	* Initializes the Uniform Buffers of the shader.
 	*/
-	void prepareUniformBuffers();
+	void prepareUniformBuffers(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, const glm::fvec2& SCREEN_DIMENSIONS);
 
 	/*
 	* Initializes the Descriptor Set Layout, used to connect shader stages to uniform buffers, image samplers etc. Each shader binding should map to one descriptor set layout.
 	*/
-	void prepareDescriptorSetLayout();
+	void prepareDescriptorSetLayout(VulkanDevice& device);
 
 	/*
 	* Initializes and creates the pipeline.
 	*/
-	void preparePipeline();
+	void preparePipeline(VkRenderPass& renderPass, VulkanDevice& device, VkPipelineCache& pipelineCache);
 
 	/*
 	* Initializes the Descriptor Pool.
 	*/
-	void prepareDescriptorPool();
+	void prepareDescriptorPool(VulkanDevice& device);
 
-	void updateDescriptorSet();
+	/*
+	* Updates the Descriptor Set.
+	*/
+	void updateDescriptorSet(VulkanDevice& device);
 
-	void prepareCommandBuffers();
+	/*
+	* Prepares the Command Buffers.
+	*/
+	void prepareCommandBuffers(const glm::fvec2& SCREEN_DIMENSIONS, std::vector<VulkanCommandBuffer>& drawCmdBuffers, std::vector<VkFramebuffer>& frameBuffers, const VkRenderPass& renderPass, const VulkanSwapChain& swapchain);
 
-	void updateUniformBuffers()
-	{
-		// Update matrices
-		uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.1f, 256.0f);
-
-		uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.5f));
-
-		uboVS.modelMatrix = glm::mat4();
-		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(1.0f, 0.0f, 0.0f));
-		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(0.0f, 1.0f, 0.0f));
-		uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(1.f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-		// Map uniform buffer and update it
-		uint8_t *pData;
-		pData = (uint8_t*) context.device->mapMemory(uniformDataVS.memory, sizeof(uboVS));
-		memcpy(pData, &uboVS, sizeof(uboVS));
-		context.device->unmapMemory(uniformDataVS.memory);
-	}
+	/*
+	* Updates the Uniform Buffers.
+	*/
+	void updateUniformBuffers(const glm::fvec2& SCREEN_DIMENSIONS, VulkanDevice& device);
 };

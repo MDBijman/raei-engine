@@ -1,16 +1,28 @@
 #pragma once
-#include <vulkan\vulkan.h>
+#include <glm\glm.hpp>
 #include <memory>
+#include <vector>
 
 #include "VulkanInstance.h"
 #include "VulkanPhysicalDevice.h"
 #include "VulkanDevice.h"
 #include "VulkanQueue.h"
+#include "VulkanCommandBuffer.h"
 #include "VulkanSwapchain.h"
+#include "VulkanImageMemoryBarrier.h"
 
-class VulkanBaseContext
+#include "GraphicsMemoryModule.h"
+#include "GraphicsRenderingModule.h"
+
+class GraphicsCore
 {
 public:
+	struct
+	{
+		std::unique_ptr<GraphicsMemoryModule> memory;
+		std::unique_ptr<GraphicsRenderingModule> renderer;
+	} modules;
+
 	std::unique_ptr<VulkanInstance> instance;
 	std::unique_ptr<VulkanPhysicalDevice> physicalDevice;
 	std::unique_ptr<VulkanDevice> device; 
@@ -22,9 +34,9 @@ public:
 
 	VkCommandPool cmdPool;
 	std::vector<VulkanCommandBuffer> drawCmdBuffers;
-	VulkanCommandBuffer setupCmdBuffer = VK_NULL_HANDLE;
+	VulkanCommandBuffer setupCmdBuffer       = VK_NULL_HANDLE;
 	VulkanCommandBuffer postPresentCmdBuffer = VK_NULL_HANDLE;
-	VulkanCommandBuffer prePresentCmdBuffer = VK_NULL_HANDLE;
+	VulkanCommandBuffer prePresentCmdBuffer  = VK_NULL_HANDLE;
 
 	struct
 	{
@@ -48,7 +60,9 @@ public:
 	* Initializes a unique Vulkan Instance for this application.
 	* Also initializes physical devices, queue family properties, physical device memory properties, the swapchain, and the queue.
 	*/
-	void initialize(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height);
+	GraphicsCore(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height);
+
+	void render();
 
 private:
 	void prepareCommandPool();
@@ -59,4 +73,6 @@ private:
 	void preparePipelineCache();
 	void prepareFramebuffers(uint32_t width, uint32_t height);
 	void prepareSemaphores();
+
+	
 };

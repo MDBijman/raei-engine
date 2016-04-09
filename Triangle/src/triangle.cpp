@@ -1,4 +1,6 @@
-#include "VulkanTriangle.h"
+#include <chrono>
+#include <windows.h>
+#include "GraphicsCore.h"
 
 float frameTimer = 1.0f;
 float timerSpeed = 0.25f;
@@ -12,17 +14,6 @@ HWND window;
 */
 void createWindowsContext(HINSTANCE hInstance, WNDPROC WndProc, std::string name, int width, int height)
 {
-	bool fullscreen = false;
-
-	// Check command line arguments
-	for (int32_t i = 0; i < __argc; i++)
-	{
-		if (__argv[i] == std::string("-fullscreen"))
-		{
-			fullscreen = true;
-		}
-	}
-
 	WNDCLASSEX wndClass;
 	wndClass.cbSize        = sizeof(WNDCLASSEX);
 	wndClass.style         = CS_HREDRAW | CS_VREDRAW;
@@ -47,54 +38,17 @@ void createWindowsContext(HINSTANCE hInstance, WNDPROC WndProc, std::string name
 	int screenWidth  = GetSystemMetrics(SM_CXSCREEN);
 	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-	if (fullscreen)
-	{
-		DEVMODE dmScreenSettings;
-		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
-		dmScreenSettings.dmSize       = sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsWidth  = screenWidth;
-		dmScreenSettings.dmPelsHeight = screenHeight;
-		dmScreenSettings.dmBitsPerPel = 32;
-		dmScreenSettings.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-
-		if ((width != screenWidth) && (height != screenHeight))
-		{
-			if (ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-			{
-				if (MessageBox(NULL, "Fullscreen Mode not supported!\n Switch to window mode?", "Error", MB_YESNO | MB_ICONEXCLAMATION) == IDYES)
-					fullscreen = FALSE;
-				else
-					exit(1);
-			}
-		}
-
-	}
-
 	DWORD dwExStyle;
 	DWORD dwStyle;
-
 	RECT windowRect;
 
-	if (fullscreen)
-	{
-		dwExStyle = WS_EX_APPWINDOW;
-		dwStyle   = WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+	dwStyle   = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-		windowRect.left   = (long)0;
-		windowRect.right  = (long)screenWidth;
-		windowRect.top    = (long)0;
-		windowRect.bottom = (long)screenHeight;
-	}
-	else
-	{
-		dwExStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
-		dwStyle   = WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-
-		windowRect.left   = (long)screenWidth / 2 - width / 2;
-		windowRect.right  = (long)width;
-		windowRect.top    = (long)screenHeight / 2 - height / 2;
-		windowRect.bottom = (long)height;
-	}
+	windowRect.left   = (long)screenWidth / 2 - width / 2;
+	windowRect.right  = (long)width;
+	windowRect.top    = (long)screenHeight / 2 - height / 2;
+	windowRect.bottom = (long)height;
 
 	AdjustWindowRectEx(&windowRect, dwStyle, FALSE, dwExStyle);
 
@@ -137,7 +91,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
 	createWindowsContext(hInstance, WndProc, "triangle", 1280, 720);
-	std::unique_ptr<VulkanTriangle> application = std::make_unique<VulkanTriangle>(hInstance, window, "triangle", 1280, 720);
+	std::unique_ptr<GraphicsCore> graphics = std::make_unique<GraphicsCore>(hInstance, window, "triangle", 1280, 720);
 
 	AllocConsole();
 	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -156,7 +110,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 
 		DispatchMessage(&msg);
 
-		application->render();
+		graphics->render();
 
 		auto tEnd = std::chrono::high_resolution_clock::now();
 		auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();

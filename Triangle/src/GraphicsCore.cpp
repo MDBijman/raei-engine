@@ -1,4 +1,4 @@
-#include "VulkanBaseContext.h"
+#include "GraphicsCore.h"
 
 #include "VulkanCommandPoolCreateInfo.h"
 #include "VulkanCommandBufferAllocateInfo.h"
@@ -16,7 +16,7 @@
 #include "VulkanSemaphoreCreateInfo.h"
 #include "VulkanSubmitInfo.h"
 
-void VulkanBaseContext::initialize(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height)
+GraphicsCore::GraphicsCore(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height)
 {
 	instance       = std::make_unique<VulkanInstance>("triangle");
 	physicalDevice = std::make_unique<VulkanPhysicalDevice>(instance->getPhysicalDevices()->at(0));
@@ -70,9 +70,17 @@ void VulkanBaseContext::initialize(HINSTANCE hInstance, HWND window, std::string
 	queue->waitIdle();
 	device->freeCommandBuffer(cmdPool, setupCmdBuffer);
 	setupCmdBuffer = VK_NULL_HANDLE;
+
+
+	modules.renderer = std::make_unique<GraphicsRenderingModule>(*device, *physicalDevice, cmdPool, glm::fvec2(width, height), renderPass, pipelineCache, drawCmdBuffers, frameBuffers, *swapchain);
 }
 
-void VulkanBaseContext::prepareCommandPool()
+void GraphicsCore::render()
+{
+	modules.renderer->render(*device, *swapchain, *queue, drawCmdBuffers, postPresentCmdBuffer, semaphores.presentComplete, semaphores.renderComplete);
+}
+
+void GraphicsCore::prepareCommandPool()
 {
 	VulkanCommandPoolCreateInfo cmdPoolInfo;
 	cmdPoolInfo
@@ -81,7 +89,7 @@ void VulkanBaseContext::prepareCommandPool()
 	cmdPool = device->createCommandPool(cmdPoolInfo.vkInfo);
 }
 
-void VulkanBaseContext::prepareSetupCommandBuffer()
+void GraphicsCore::prepareSetupCommandBuffer()
 {
 	VulkanCommandBufferAllocateInfo info;
 	info.setCommandPool(cmdPool)
@@ -91,7 +99,7 @@ void VulkanBaseContext::prepareSetupCommandBuffer()
 	setupCmdBuffer = device->allocateCommandBuffers(info.vkInfo).at(0);
 }
 
-void VulkanBaseContext::prepareCommandBuffers()
+void GraphicsCore::prepareCommandBuffers()
 {
 	VulkanCommandBufferAllocateInfo info;
 	info.setCommandPool(cmdPool)
@@ -106,7 +114,7 @@ void VulkanBaseContext::prepareCommandBuffers()
 	prePresentCmdBuffer  = device->allocateCommandBuffers(info.vkInfo).at(0);
 }
 
-void VulkanBaseContext::prepareDepthStencil(uint32_t width, uint32_t height)
+void GraphicsCore::prepareDepthStencil(uint32_t width, uint32_t height)
 {
 	VulkanImageCreateInfo imageCreateInfo;
 	imageCreateInfo
@@ -157,7 +165,7 @@ void VulkanBaseContext::prepareDepthStencil(uint32_t width, uint32_t height)
 	depthStencil.view = device->createImageView(imageViewCreateInfo.vkInfo);
 }
 
-void VulkanBaseContext::prepareRenderPass()
+void GraphicsCore::prepareRenderPass()
 {
 	// <Attachments>
 	std::vector<VkAttachmentDescription> attachments(2);
@@ -221,13 +229,13 @@ void VulkanBaseContext::prepareRenderPass()
 	renderPass = device->createRenderPass(renderPassInfo.vkInfo);
 }
 
-void VulkanBaseContext::preparePipelineCache()
+void GraphicsCore::preparePipelineCache()
 {
 	VulkanPipelineCacheCreateInfo pipelineCacheCreateInfo;
 	pipelineCache = device->createPipelineCache(pipelineCacheCreateInfo.vkInfo);
 }
 
-void VulkanBaseContext::prepareFramebuffers(uint32_t width, uint32_t height)
+void GraphicsCore::prepareFramebuffers(uint32_t width, uint32_t height)
 {
 	std::vector<VkImageView> fbAttachments(2);
 
@@ -251,7 +259,7 @@ void VulkanBaseContext::prepareFramebuffers(uint32_t width, uint32_t height)
 	}
 }
 
-void VulkanBaseContext::prepareSemaphores()
+void GraphicsCore::prepareSemaphores()
 {
 	VulkanSemaphoreCreateInfo semaphoreCreateInfo;
 
