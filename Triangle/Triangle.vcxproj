@@ -115,21 +115,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Drawable.cpp" />
     <ClCompile Include="src\GraphicsCore.cpp" />
-    <ClCompile Include="src\GraphicsMemoryModule.cpp" />
     <ClCompile Include="src\GraphicsRenderingModule.cpp" />
+    <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\Shaders.cpp" />
     <ClCompile Include="src\triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\GraphicsAssetModule.h" />
+    <ClInclude Include="include\Camera.h" />
+    <ClInclude Include="include\Drawable.h" />
+    <ClInclude Include="include\DrawCall.h" />
     <ClInclude Include="include\GraphicsCore.h" />
-    <ClInclude Include="include\GraphicsMemoryModule.h" />
     <ClInclude Include="include\GraphicsRenderingModule.h" />
+    <ClInclude Include="include\Mesh.h" />
+    <ClInclude Include="include\ObjImporter.h" />
+    <ClInclude Include="include\Parser.h" />
     <ClInclude Include="include\Shaders.h" />
     <ClInclude Include="include\SurfaceExtensions.h" />
     <ClInclude Include="include\SwapchainExtensions.h" />
+    <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Triangle.h" />
+    <ClInclude Include="include\VulkanValidation.h" />
     <ClInclude Include="include\Vertex.h" />
     <ClInclude Include="include\VulkanApplicationInfo.h" />
     <ClInclude Include="include\VulkanAttachmentDescription.h" />
@@ -176,6 +183,7 @@
     <ClInclude Include="include\VulkanSubpassDescription.h" />
     <ClInclude Include="include\VulkanSwapchain.h" />
     <ClInclude Include="include\VulkanViewport.h" />
+    <ClInclude Include="include\VulkanWrappers.h" />
     <ClInclude Include="include\VulkanWriteDescriptorSet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

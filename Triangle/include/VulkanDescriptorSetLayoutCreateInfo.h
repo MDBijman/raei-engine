@@ -11,15 +11,10 @@ public:
 		vkInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	}
 
-	VulkanDescriptorSetLayoutCreateInfo& setBindingCount(uint32_t count)
+	VulkanDescriptorSetLayoutCreateInfo& setBindings(std::vector<VkDescriptorSetLayoutBinding>& bindings)
 	{
-		vkInfo.bindingCount = count;
-		return *this;
-	}
-
-	VulkanDescriptorSetLayoutCreateInfo& setBindings(VkDescriptorSetLayoutBinding* bindings)
-	{
-		vkInfo.pBindings = bindings;
+		vkInfo.pBindings = bindings.data();
+		vkInfo.bindingCount = bindings.size();
 		return *this;
 	}
 

@@ -1,13 +1,10 @@
 #include <chrono>
 #include <windows.h>
-#include "GraphicsCore.h"
-
-float frameTimer = 1.0f;
-float timerSpeed = 0.25f;
-float timer      = 0.0f;
-bool paused      = false;
+#include <iostream>
+#include "Triangle.h"
 
 HWND window;
+Triangle * t;
 
 /*
 * Creates and initializes a Win32 Context.
@@ -78,10 +75,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		exit(0);
 		break;
 	case WM_LBUTTONDOWN:
-		// Handle left button down
+		t->mousePos.x = (float)LOWORD(lParam);
+		t->mousePos.y = (float)HIWORD(lParam);
 		break;
-	case WM_RBUTTONDOWN:
-		// Handle right button down
+	case WM_MOUSEMOVE:
+		if (wParam & MK_LBUTTON)
+		{
+			int32_t posx = LOWORD(lParam);
+			int32_t posy = HIWORD(lParam);
+			t->rotation.x += (t->mousePos.y - (float)posy) * 1.25f * t->rotationSpeed;
+			t->rotation.y -= (t->mousePos.x - (float)posx) * 1.25f * t->rotationSpeed;
+			t->mousePos = glm::vec2((float)posx, (float)posy);
+		}
 		break;
 	}
 
@@ -91,12 +96,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
 	createWindowsContext(hInstance, WndProc, "triangle", 1280, 720);
-	std::unique_ptr<GraphicsCore> graphics = std::make_unique<GraphicsCore>(hInstance, window, "triangle", 1280, 720);
 
 	AllocConsole();
 	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD cCharsWritten;
 	freopen("CONOUT$", "w", stdout);
+
+	t = new Triangle(hInstance, window);
+	t->begin();
 
 	MSG msg;
 	while (TRUE)
@@ -110,18 +117,20 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 
 		DispatchMessage(&msg);
 
-		graphics->render();
+		t->draw();
 
 		auto tEnd = std::chrono::high_resolution_clock::now();
 		auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
-		frameTimer = (float) tDiff / 1000.0f;
+		t->frameTimer = (float) tDiff / 1000.0f;
 		// Convert to clamped timer value
-		if (!paused)
+		if (!t->paused)
 		{
-			timer += timerSpeed * frameTimer;
-			if (timer > 1.0)
-				timer -= 1.0f;
+			t->timer += t->timerSpeed * t->frameTimer;
+			if (t->timer > 1.0)
+				t->timer -= 1.0f;
 		}
 	}
+
+	t->end();
 	return 0;
 }

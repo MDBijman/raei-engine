@@ -1,8 +1,9 @@
 #pragma once
-
 #include <assert.h>
 #include <array>
 #include <vulkan\vulkan.h>
+
+#include "VulkanPhysicalDevice.h"
 #include "VulkanCommandBuffer.h"
 
 class VulkanDevice
@@ -17,7 +18,10 @@ public:
 		queueCreateInfo.queueCount = 1;
 		queueCreateInfo.pQueuePriorities = queuePriorities.data();
 
-		std::vector<const char*> enabledExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		std::vector<const char*> enabledExtensions = { 
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME 
+		};
+		
 		VkDeviceCreateInfo deviceCreateInfo = {};
 		deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		deviceCreateInfo.queueCreateInfoCount = 1;
@@ -26,7 +30,7 @@ public:
 		deviceCreateInfo.enabledExtensionCount = (uint32_t)enabledExtensions.size();
 		deviceCreateInfo.ppEnabledExtensionNames = enabledExtensions.data();
 
-		VkResult err = vkCreateDevice(pd, &deviceCreateInfo, nullptr, &vkDevice);
+		VkResult err = vkCreateDevice(pd.vkPhysicalDevice, &deviceCreateInfo, nullptr, &vkDevice);
 		assert(!err);
 	}
 
@@ -225,9 +229,9 @@ public:
 		assert(!error);
 	}
 
-	void updateDescriptorSet(VkWriteDescriptorSet& set)
+	void updateDescriptorSet(std::vector<VkWriteDescriptorSet>& set)
 	{
-		vkUpdateDescriptorSets(vkDevice, 1, &set, 0, NULL);
+		vkUpdateDescriptorSets(vkDevice, set.size(), set.data(), 0, NULL);
 	}
 
 	VkSemaphore createSemaphore(VkSemaphoreCreateInfo& semaphoreCreateInfo)

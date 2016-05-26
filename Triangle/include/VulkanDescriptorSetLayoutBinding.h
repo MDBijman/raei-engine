@@ -27,6 +27,12 @@ public:
 		return *this;
 	}
 
+	VulkanDescriptorSetLayoutBinding& setBinding(uint32_t binding)
+	{
+		vkLayoutBinding.binding = binding;
+		return *this;
+	}
+
 	VulkanDescriptorSetLayoutBinding& setImmutableSamples(VkSampler* samplers)
 	{
 		vkLayoutBinding.pImmutableSamplers = samplers;

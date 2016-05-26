@@ -1,22 +1,8 @@
 #include "GraphicsCore.h"
 
-#include "VulkanCommandPoolCreateInfo.h"
-#include "VulkanCommandBufferAllocateInfo.h"
-#include "VulkanCommandBufferBeginInfo.h"
-#include "VulkanImageViewCreateInfo.h"
-#include "VulkanImageCreateInfo.h"
-#include "VulkanMemoryAllocateInfo.h"
-#include "VulkanImageSubresourceRange.h"
-#include "VulkanAttachmentDescription.h"
-#include "VulkanAttachmentReference.h"
-#include "VulkanRenderPassCreateInfo.h"
-#include "VulkanSubpassDescription.h"
-#include "VulkanPipelineCacheCreateInfo.h"
-#include "VulkanFramebufferCreateInfo.h"
-#include "VulkanSemaphoreCreateInfo.h"
-#include "VulkanSubmitInfo.h"
+#include "VulkanWrappers.h"
 
-GraphicsCore::GraphicsCore(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height)
+GraphicsCore::GraphicsCore(HINSTANCE hInstance, HWND window, std::string name, uint32_t width, uint32_t height) : SCREEN_DIMENSIONS(width, height)
 {
 	instance       = std::make_unique<VulkanInstance>("triangle");
 	physicalDevice = std::make_unique<VulkanPhysicalDevice>(instance->getPhysicalDevices()->at(0));
@@ -30,8 +16,8 @@ GraphicsCore::GraphicsCore(HINSTANCE hInstance, HWND window, std::string name, u
 	}
 	assert(graphicsQueueIndex < queueProperties->size());
 
-	device    = std::make_unique<VulkanDevice>(physicalDevice->getVkPhysicalDevice(), graphicsQueueIndex);
-	swapchain = std::make_unique<VulkanSwapChain>(instance->vkInstance, physicalDevice->getVkPhysicalDevice(), device->vkDevice);
+	device    = std::make_unique<VulkanDevice>(physicalDevice->vkPhysicalDevice, graphicsQueueIndex);
+	swapchain = std::make_unique<VulkanSwapChain>(instance->vkInstance, physicalDevice->vkPhysicalDevice, device->vkDevice);
 	queue     = std::make_unique<VulkanQueue>(device->queueAt(graphicsQueueIndex));
 
 	// Find supported depth format
@@ -55,12 +41,10 @@ GraphicsCore::GraphicsCore(HINSTANCE hInstance, HWND window, std::string name, u
 
 	setupCmdBuffer.beginCommandBuffer(cmdBufferBeginInfo.vkInfo);
 	swapchain->setup(setupCmdBuffer.vkBuffer, &width, &height);
-	prepareCommandBuffers();
 	prepareDepthStencil(width, height);
 	prepareRenderPass();
 	preparePipelineCache();
 	prepareFramebuffers(width, height);
-	prepareSemaphores();
 	setupCmdBuffer.end();
 	
 	VulkanSubmitInfo submitInfo;
@@ -71,13 +55,15 @@ GraphicsCore::GraphicsCore(HINSTANCE hInstance, HWND window, std::string name, u
 	device->freeCommandBuffer(cmdPool, setupCmdBuffer);
 	setupCmdBuffer = VK_NULL_HANDLE;
 
-
-	modules.renderer = std::make_unique<GraphicsRenderingModule>(*device, *physicalDevice, cmdPool, glm::fvec2(width, height), renderPass, pipelineCache, drawCmdBuffers, frameBuffers, *swapchain);
+	modules.renderer = std::make_unique<GraphicsRenderingModule>(*device, cmdPool, *swapchain, *queue);
 }
 
-void GraphicsCore::render()
+void GraphicsCore::render(std::vector<Drawable> d)
 {
-	modules.renderer->render(*device, *swapchain, *queue, drawCmdBuffers, postPresentCmdBuffer, semaphores.presentComplete, semaphores.renderComplete);
+	modules.renderer->prepare();
+	for(auto it = d.begin(); it != d.end(); ++it)
+		modules.renderer->submit(*it);
+	modules.renderer->present();
 }
 
 void GraphicsCore::prepareCommandPool()
@@ -97,21 +83,6 @@ void GraphicsCore::prepareSetupCommandBuffer()
 		.setCommandBufferCount(1);
 
 	setupCmdBuffer = device->allocateCommandBuffers(info.vkInfo).at(0);
-}
-
-void GraphicsCore::prepareCommandBuffers()
-{
-	VulkanCommandBufferAllocateInfo info;
-	info.setCommandPool(cmdPool)
-		.setCommandBufferLevel(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-		.setCommandBufferCount(swapchain->imageCount);
-
-	drawCmdBuffers = device->allocateCommandBuffers(info.vkInfo);
-
-	// TODO one call instead of two needed?
-	info.setCommandBufferCount(1);
-	postPresentCmdBuffer = device->allocateCommandBuffers(info.vkInfo).at(0);
-	prePresentCmdBuffer  = device->allocateCommandBuffers(info.vkInfo).at(0);
 }
 
 void GraphicsCore::prepareDepthStencil(uint32_t width, uint32_t height)
@@ -257,17 +228,4 @@ void GraphicsCore::prepareFramebuffers(uint32_t width, uint32_t height)
 		fbAttachments[0] = swapchain->buffers[i].view;
 		frameBuffers[i]  = device->createFrameBuffer(frameBufferCreateInfo.vkInfo);
 	}
-}
-
-void GraphicsCore::prepareSemaphores()
-{
-	VulkanSemaphoreCreateInfo semaphoreCreateInfo;
-
-	// This semaphore ensures that the image is complete
-	// before starting to submit again
-	semaphores.presentComplete = device->createSemaphore(semaphoreCreateInfo.vkInfo);
-
-	// This semaphore ensures that all commands submitted
-	// have been finished before submitting the image to the queue
-	semaphores.renderComplete = device->createSemaphore(semaphoreCreateInfo.vkInfo);
 }

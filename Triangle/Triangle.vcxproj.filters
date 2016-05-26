@@ -12,12 +12,6 @@
     <Filter Include="Header Files\VkGraphics">
       <UniqueIdentifier>{eba853eb-b9c8-4c68-941d-5cff6215526f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\VkGraphics\Resources">
-      <UniqueIdentifier>{b7955886-5a3e-4482-8d74-89afb6b4898b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\VkGraphics\Data">
-      <UniqueIdentifier>{6f009bdc-23e8-4a8c-b030-3d2f5b5819cd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\VkGraphics\Engine">
       <UniqueIdentifier>{4bf1f33f-3108-43bd-bf51-f3ac2ad4a498}</UniqueIdentifier>
     </Filter>
@@ -60,28 +54,37 @@
     <Filter Include="Header Files\VkGraphics\Engine\Wrappers\Extensions">
       <UniqueIdentifier>{9944fe8a-1e33-4a50-9cc4-0f922c848468}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\VkGraphics\Engine\Drawing">
+      <UniqueIdentifier>{03a91509-19b6-4369-9b11-5f5a3d0c3bb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VkGraphics\Engine\Drawing\Data">
+      <UniqueIdentifier>{6f009bdc-23e8-4a8c-b030-3d2f5b5819cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VkGraphics\Engine\Wrappers\Validation">
+      <UniqueIdentifier>{5b549ca2-c178-4039-a41c-816583865583}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\triangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Shaders.cpp">
-      <Filter>Header Files\VkGraphics\Resources</Filter>
-    </ClCompile>
     <ClCompile Include="src\GraphicsCore.cpp">
       <Filter>Header Files\VkGraphics\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="src\GraphicsMemoryModule.cpp">
-      <Filter>Header Files\VkGraphics\Engine</Filter>
+    <ClCompile Include="src\Parser.cpp">
+      <Filter>Header Files\VkGraphics\Engine\Drawing\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Drawable.cpp">
+      <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
     </ClCompile>
     <ClCompile Include="src\GraphicsRenderingModule.cpp">
-      <Filter>Header Files\VkGraphics\Engine</Filter>
+      <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shaders.cpp">
+      <Filter>Header Files\VkGraphics\Engine\Drawing\Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Shaders.h">
-      <Filter>Header Files\VkGraphics\Resources</Filter>
-    </ClInclude>
     <ClInclude Include="include\VulkanApplicationInfo.h">
       <Filter>Header Files\VkGraphics\Engine\Wrappers\Application</Filter>
     </ClInclude>
@@ -218,10 +221,7 @@
       <Filter>Header Files\VkGraphics\Engine\Wrappers\Memory</Filter>
     </ClInclude>
     <ClInclude Include="include\Vertex.h">
-      <Filter>Header Files\VkGraphics\Data</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Triangle.h">
-      <Filter>Header Files\VkGraphics\Data</Filter>
+      <Filter>Header Files\VkGraphics\Engine\Drawing\Data</Filter>
     </ClInclude>
     <ClInclude Include="include\SurfaceExtensions.h">
       <Filter>Header Files\VkGraphics\Engine\Wrappers\Extensions</Filter>
@@ -235,14 +235,41 @@
     <ClInclude Include="include\GraphicsCore.h">
       <Filter>Header Files\VkGraphics\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="include\GraphicsMemoryModule.h">
-      <Filter>Header Files\VkGraphics\Engine</Filter>
+    <ClInclude Include="include\ObjImporter.h">
+      <Filter>Header Files\VkGraphics\Engine\Drawing\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Parser.h">
+      <Filter>Header Files\VkGraphics\Engine\Drawing\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mesh.h">
+      <Filter>Header Files\VkGraphics\Engine\Drawing\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Drawable.h">
+      <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="include\GraphicsRenderingModule.h">
-      <Filter>Header Files\VkGraphics\Engine</Filter>
+      <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
     </ClInclude>
-    <ClInclude Include="include\GraphicsAssetModule.h">
-      <Filter>Header Files\VkGraphics\Engine</Filter>
+    <ClInclude Include="include\DrawCall.h">
+      <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Camera.h">
+      <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Triangle.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanWrappers.h">
+      <Filter>Header Files\VkGraphics\Engine\Wrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shaders.h">
+      <Filter>Header Files\VkGraphics\Engine\Drawing\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Texture.h">
+      <Filter>Header Files\VkGraphics\Engine\Drawing\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VulkanValidation.h">
+      <Filter>Header Files\VkGraphics\Engine\Wrappers\Validation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

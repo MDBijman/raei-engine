@@ -34,6 +34,12 @@ public:
 		vkDescriptorSet.pBufferInfo = info;
 		return *this;
 	}
+
+	VulkanWriteDescriptorSet& setImageInfo(VkDescriptorImageInfo* info)
+	{
+		vkDescriptorSet.pImageInfo = info;
+		return *this;
+	}
 	
 	VulkanWriteDescriptorSet& setDstBinding(uint32_t dstBinding)
 	{

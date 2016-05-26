@@ -11,15 +11,10 @@ public:
 		vkInfo.pNext = NULL;
 	}
 
-	VulkanDescriptorPoolCreateInfo& setPoolSizeCount(uint32_t count)
+	VulkanDescriptorPoolCreateInfo& setPoolSizes(std::vector<VkDescriptorPoolSize>& poolSizes)
 	{
-		vkInfo.poolSizeCount = count;
-		return *this;
-	}
-
-	VulkanDescriptorPoolCreateInfo& setPoolSizes(VkDescriptorPoolSize* poolSizes)
-	{
-		vkInfo.pPoolSizes = poolSizes;
+		vkInfo.pPoolSizes = poolSizes.data();
+		vkInfo.poolSizeCount = poolSizes.size();
 		return *this;
 	}
 

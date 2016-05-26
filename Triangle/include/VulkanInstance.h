@@ -4,11 +4,12 @@
 #include <assert.h>
 #include <algorithm>
 #include <iterator>
+#include <iostream>
 #include <vulkan\vulkan.h>
 
-#include "VulkanPhysicalDevice.h"
-#include "VulkanInstanceCreateInfo.h"
-#include "VulkanApplicationInfo.h"
+#include "VulkanWrappers.h"
+#include "VulkanValidation.h"
+
 
 class VulkanInstance
 {
@@ -20,16 +21,19 @@ public:
 		applicationInfo
 			.setApplicationName(name)
 			.setEngineName(name)
-			.setApiVersion(VK_API_VERSION);
+			.setApiVersion(VK_MAKE_VERSION(1, 0, 13));
 
 		// Extensions we want
 		std::vector<const char*> extensions = {
 			VK_KHR_SURFACE_EXTENSION_NAME,
-			VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+			VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+			VK_EXT_DEBUG_REPORT_EXTENSION_NAME
 		};
+
 
 		// Layers we want
 		std::vector<const char*> layers = {
+			"VK_LAYER_LUNARG_standard_validation"
 		};
 
 		// Set some info about the instance to be created
@@ -42,6 +46,35 @@ public:
 			.setLayers(layers.data());
 
 		VkResult err = vkCreateInstance(&instanceCreateInfo.vkInfo, nullptr, &vkInstance);
+		assert(!err);
+
+		{
+			uint32_t layerCount = 0;
+			vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+			std::vector<VkLayerProperties> layerPropertyList(layerCount);
+			vkEnumerateInstanceLayerProperties(&layerCount, layerPropertyList.data());
+			std::cout << "Instance Layers: \n";
+			for (auto &i : layerPropertyList)
+			{
+				std::cout << "  " << i.layerName << "\t\t | " << i.description << std::endl;
+			}
+			std::cout << std::endl;
+		}
+
+		ValidationFunctions functions(vkInstance);
+		/* Setup callback creation information */
+		VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
+		callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+		callbackCreateInfo.pNext = nullptr;
+		callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT |
+			VK_DEBUG_REPORT_WARNING_BIT_EXT |
+			VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+		callbackCreateInfo.pfnCallback = &Validation::ValidationDebugCallback;
+		callbackCreateInfo.pUserData = nullptr;
+
+		/* Register the callback */
+		VkDebugReportCallbackEXT callback;
+		err = functions.fpCreateDebugReportCallbackEXT(vkInstance, &callbackCreateInfo, nullptr, &callback);
 		assert(!err);
 	}
 
