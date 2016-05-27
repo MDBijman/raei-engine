@@ -26,12 +26,13 @@ Drawable::Drawable(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, V
 
 void Drawable::prepareTexture(VulkanPhysicalDevice& physicalDevice, VulkanDevice& device, VkCommandPool& pool, VulkanQueue& queue)
 {
-	texture.load("./../data/textures/bearmug.ktx", VK_FORMAT_BC3_UNORM_BLOCK, physicalDevice, device, pool, queue);
+	
+	texture.load("./../data/textures/tree.dds", VK_FORMAT_BC3_UNORM_BLOCK, physicalDevice, device, pool, queue);
 }
 
 void Drawable::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice)
 {
-	Mesh* m = Importers::Obj::load("C:\\Users\\matth\\Dev\\Vulkan\\tree.obj");
+	Mesh* m = Importers::Obj::load("./../data/models/tree.obj");
 
 	int vertexBufferSize = m->vertices.size() * sizeof(Vertex);
 	int indexBufferSize = m->indices.size() * sizeof(uint32_t);
@@ -125,19 +126,16 @@ void Drawable::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physi
 	vertices.attributeDescriptions[0].location = 0;
 	vertices.attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 	vertices.attributeDescriptions[0].offset = 0;
-	vertices.attributeDescriptions[0].binding = 0;
 	// Location 1 : UV
 	vertices.attributeDescriptions[1].binding = VERTEX_BUFFER_BIND_ID;
 	vertices.attributeDescriptions[1].location = 1;
 	vertices.attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 	vertices.attributeDescriptions[1].offset = sizeof(float) * 3;
-	vertices.attributeDescriptions[1].binding = 0;
 	// Location 2 : Normal
 	vertices.attributeDescriptions[2].binding = VERTEX_BUFFER_BIND_ID;
 	vertices.attributeDescriptions[2].location = 2;
 	vertices.attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
 	vertices.attributeDescriptions[2].offset = sizeof(float) * 5;
-	vertices.attributeDescriptions[2].binding = 0;
 
 	// Assign to vertex buffer
 	vertices.vi.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -325,7 +323,6 @@ void Drawable::preparePipeline(VkRenderPass& renderPass, VulkanDevice& device, V
 	// Load shaders
 	std::string entryPoint = "main";
 
-
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStages(2);
 	shaderStages[0] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_VERTEX_BIT)
@@ -471,17 +468,6 @@ void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::
 			.setAspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
 			.setBaseMipLevel(0).setLevelCount(1).setBaseArrayLayer(0).setLayerCount(1);
 
-		VulkanImageMemoryBarrier prePresentBarrier;
-		prePresentBarrier
-			.setSrcAccessMask(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
-			.setDstAccessMask(VK_ACCESS_MEMORY_READ_BIT)
-			.setOldLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-			.setNewLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setImage(swapchain.buffers[i].image)
-			.setSubresourceRange(subresourceRange.vkRange);
-
 		// Command chaining
 		VulkanCommandBuffer& buffer = commandBuffers.at(i);
 		buffer
@@ -497,7 +483,6 @@ void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::
 			.bindIndexBuffers(indices.buf)
 			.drawIndexed(indices.count)
 			.endRenderPass()
-			.putPipelineBarrier(prePresentBarrier.vkBarrier, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT)
 			.end();
 	}
 }
@@ -505,7 +490,7 @@ void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::
 void Drawable::updateUniformBuffers(Camera& camera, VulkanDevice& device, glm::vec3 rotation)
 {
 	// Update matrices
-	uboVS.projectionMatrix = glm::perspective(glm::radians(80.0f), camera.dimensions.x / camera.dimensions.y, 0.1f, 256.0f);
+	uboVS.projectionMatrix = glm::perspective(glm::radians(90.0f), camera.dimensions.x / camera.dimensions.y, 0.1f, 256.0f);
 
 	uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.f));
 

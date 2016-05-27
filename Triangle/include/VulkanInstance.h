@@ -66,9 +66,7 @@ public:
 		VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
 		callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
 		callbackCreateInfo.pNext = nullptr;
-		callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT |
-			VK_DEBUG_REPORT_WARNING_BIT_EXT |
-			VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+		callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
 		callbackCreateInfo.pfnCallback = &Validation::ValidationDebugCallback;
 		callbackCreateInfo.pUserData = nullptr;
 

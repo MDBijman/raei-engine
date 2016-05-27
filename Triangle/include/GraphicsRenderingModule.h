@@ -18,6 +18,9 @@ public:
 	void present();
 
 private:
+	void submitPrePresentBarrier(VkImage image);
+	void submitPostPresentBarrier(VkImage image);
+
 	uint32_t currentBuffer = 0;
 
 	VulkanDevice&        device;
@@ -28,4 +31,5 @@ private:
 	VkSemaphore          renderComplete;
 
 	VulkanCommandBuffer  postPresentCmdBuffer;
+	VulkanCommandBuffer  prePresentCmdBuffer;
 };

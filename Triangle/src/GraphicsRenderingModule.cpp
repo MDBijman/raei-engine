@@ -11,6 +11,7 @@ GraphicsRenderingModule::GraphicsRenderingModule(VulkanDevice& device, VkCommand
 		.setCommandBufferCount(1);
 
 	postPresentCmdBuffer = device.allocateCommandBuffers(info.vkInfo).at(0);
+	prePresentCmdBuffer = device.allocateCommandBuffers(info.vkInfo).at(0);
 
 	VulkanSemaphoreCreateInfo semaphoreCreateInfo;
 
@@ -25,27 +26,24 @@ GraphicsRenderingModule::GraphicsRenderingModule(VulkanDevice& device, VkCommand
 
 void GraphicsRenderingModule::prepare()
 {
-	device.waitIdle();
 	swapchain.acquireNextImage(presentComplete, &currentBuffer);
+	submitPostPresentBarrier(swapchain.buffers[currentBuffer].image);
 }
 
 void GraphicsRenderingModule::submit(Drawable& c)
 {
-	// Get next image in the swap chain (back/front buffer)
-
 	// The submit info structure contains a list of
 	// command buffers and semaphores to be submitted to a queue
 	// If you want to submit multiple command buffers, pass an array
-	VkPipelineStageFlags pipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 	VulkanSubmitInfo submitInfo;
-	std::vector<VkSemaphore> waitSemaphores{ presentComplete };
-	std::vector<VkSemaphore> signalSemaphores{ renderComplete };
+	VkPipelineStageFlags submitPipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 	std::vector<VkCommandBuffer> commandBuffers{ c.getCommandBuffers()[currentBuffer].vkBuffer };
-	submitInfo
-		.setDstStageMask(&pipelineStages)
-		.setWaitSemaphores(waitSemaphores)
-		.setCommandBuffers(commandBuffers)
-		.setSignalSemaphores(signalSemaphores);
+	std::vector<VkSemaphore> wait{presentComplete};
+	std::vector<VkSemaphore> signal{renderComplete};
+	submitInfo.setCommandBuffers(commandBuffers)
+		.setDstStageMask(&submitPipelineStages)
+		.setSignalSemaphores(signal)
+		.setWaitSemaphores(wait);
 
 	// Submit to the graphics queue
 	queue.submit(1, submitInfo.vkInfo);
@@ -53,40 +51,100 @@ void GraphicsRenderingModule::submit(Drawable& c)
 
 void GraphicsRenderingModule::present()
 {
-	// Present the current buffer to the swap chain
-	// This will display the image
-	swapchain.queuePresent(queue, currentBuffer);
+	submitPrePresentBarrier(swapchain.buffers[currentBuffer].image);
 
-	// Add a post present image memory barrier
-	// This will transform the frame buffer color attachment back
-	// to it's initial layout after it has been presented to the
-	// windowing system
-	// See buildCommandBuffers for the pre present barrier that 
-	// does the opposite transformation 
-	// Use dedicated command buffer from example base class for submitting the post present barrier
+	swapchain.queuePresent(queue, currentBuffer, renderComplete);
 
-	VulkanImageMemoryBarrier postPresentBarrier;
-	postPresentBarrier
-		.setSrcAccessMask(0)
-		.setDstAccessMask(VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
-		.setOldLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-		.setNewLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-		.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-		.setSubresourceRange({ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 })
-		.setImage(swapchain.buffers[currentBuffer].image);
+	VkResult err = (vkQueueWaitIdle(queue));
+	assert(!err);
+}
 
-	VulkanCommandBufferBeginInfo cmdBufInfo;
-	postPresentCmdBuffer
-		.beginCommandBuffer(cmdBufInfo.vkInfo)
-		.putPipelineBarrier(postPresentBarrier.vkBarrier, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT)
-		.end();
+void GraphicsRenderingModule::submitPostPresentBarrier(VkImage image)
+{
+	VkCommandBufferBeginInfo cmdBufInfo = {};
+	cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	cmdBufInfo.pNext = NULL;
 
-	// Initialize submitInfo as an empty object, except for command buffers
-	std::vector<VkCommandBuffer> buffers{ postPresentCmdBuffer.vkBuffer };
-	VulkanSubmitInfo submitInfo = VulkanSubmitInfo().setCommandBuffers(buffers);
+	VkResult err = (vkBeginCommandBuffer(postPresentCmdBuffer.vkBuffer, &cmdBufInfo));
+	assert(!err);
 
-	queue.submit(1, submitInfo.vkInfo);
-	queue.waitIdle();
-	device.waitIdle();
+	VkImageMemoryBarrier postPresentBarrier = {};
+	postPresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	postPresentBarrier.pNext = NULL;
+	postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	postPresentBarrier.srcAccessMask = 0;
+	postPresentBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	postPresentBarrier.oldLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	postPresentBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	postPresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	postPresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	postPresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	postPresentBarrier.image = image;
+
+	vkCmdPipelineBarrier(
+		postPresentCmdBuffer.vkBuffer,
+		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+		0,
+		0, nullptr, // No memory barriers,
+		0, nullptr, // No buffer barriers,
+		1, &postPresentBarrier);
+
+	err = (vkEndCommandBuffer(postPresentCmdBuffer.vkBuffer));
+	assert(!err);
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.pNext = NULL;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &postPresentCmdBuffer.vkBuffer;
+
+	err = (vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
+	assert(!err);
+}
+
+void GraphicsRenderingModule::submitPrePresentBarrier(VkImage image)
+{
+	VkCommandBufferBeginInfo cmdBufInfo = {};
+	cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	cmdBufInfo.pNext = NULL;
+
+	VkResult err = (vkBeginCommandBuffer(prePresentCmdBuffer.vkBuffer, &cmdBufInfo));
+	assert(!err);
+
+	VkImageMemoryBarrier prePresentBarrier = {};
+	prePresentBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	prePresentBarrier.pNext = NULL;
+	prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	prePresentBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	prePresentBarrier.dstAccessMask = 0;
+	prePresentBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	prePresentBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	prePresentBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	prePresentBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	prePresentBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	prePresentBarrier.image = image;
+
+	vkCmdPipelineBarrier(
+		prePresentCmdBuffer.vkBuffer,
+		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+		0,
+		0, nullptr, // No memory barriers,
+		0, nullptr, // No buffer barriers,
+		1, &prePresentBarrier);
+
+	err = (vkEndCommandBuffer(prePresentCmdBuffer.vkBuffer));
+	assert(!err);
+
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.pNext = NULL;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &prePresentCmdBuffer.vkBuffer;
+
+	err = (vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE));
+	assert(!err);
 }

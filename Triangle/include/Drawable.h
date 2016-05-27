@@ -32,10 +32,11 @@ public:
 
 private:
 
-	const std::string SHADER_LOCATION = "C:\\Users\\matth\\Dev\\Vulkan\\data\\shaders\\";
-	const std::string VERTEX_LOCATION = SHADER_LOCATION + "triangle.vert.spv";
-	const std::string FRAGMENT_LOCATION = SHADER_LOCATION + "triangle.frag.spv";
-	
+	const std::string SHADER_LOCATION = "./../data/shaders/";
+	const std::string SHADER_NAME = "mesh";
+	const std::string VERTEX_LOCATION = SHADER_LOCATION + SHADER_NAME + ".vert.spv";
+	const std::string FRAGMENT_LOCATION = SHADER_LOCATION + SHADER_NAME + ".frag.spv";
+
 	Texture texture;
 
 	struct {
