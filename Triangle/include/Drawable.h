@@ -26,7 +26,7 @@ public:
 	void updateDescriptorSet(VulkanDevice& device);
 	void prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::vector<VkFramebuffer>& frameBuffers, const VkRenderPass& renderPass, const VulkanSwapChain& swapchain, VkCommandPool& cmdPool);
 
-	void updateUniformBuffers(Camera& camera, VulkanDevice& device, glm::vec3 rotation);
+	void updateUniformBuffers(Camera& camera, VulkanDevice& device, glm::vec3 rotation, glm::vec3 translation);
 
 	std::vector<VulkanCommandBuffer>& getCommandBuffers();
 

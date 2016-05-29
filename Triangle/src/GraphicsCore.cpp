@@ -117,16 +117,7 @@ void GraphicsCore::prepareDepthStencil(uint32_t width, uint32_t height)
 
 	VulkanMemoryAllocateInfo memoryInfo;
 	memoryInfo.setAllocationSize(memReqs.size);
-
-	for (uint32_t i = 0; i < 32; i++)
-	{
-		if ((memReqs.memoryTypeBits & 1) == 1)
-		{
-			if ((physicalDevice->memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-				memoryInfo.setMemoryTypeIndex(i);
-		}
-		memReqs.memoryTypeBits >>= 1;
-	}
+	memoryInfo.setMemoryTypeIndex(physicalDevice->getMemoryPropertyIndex(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memReqs));
 
 	depthStencil.mem = device->allocateMemory(memoryInfo.vkInfo);
 

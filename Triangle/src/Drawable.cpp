@@ -1,7 +1,8 @@
-#include "DrawCall.h"
+#include "Drawable.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #include <glm\glm.hpp>
 #include <glm\gtx\transform.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -58,18 +59,7 @@ void Drawable::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physi
 	vertices.buf = device.createBuffer(bufInfo.vkInfo);
 	memReqs = device.getBufferMemoryRequirements(vertices.buf);
 	memAlloc.vkInfo.allocationSize = memReqs.size;
-
-	for (uint32_t i = 0; i < 32; i++)
-	{
-		if ((memReqs.memoryTypeBits & 1) == 1)
-		{
-			if ((physicalDevice.memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-			{
-				memAlloc.vkInfo.memoryTypeIndex = i;
-			}
-		}
-		memReqs.memoryTypeBits >>= 1;
-	}
+	memAlloc.setMemoryTypeIndex(physicalDevice.getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
 
 	memReqs.memoryTypeBits = 1;
 	vertices.mem = device.allocateMemory(memAlloc.vkInfo);
@@ -92,18 +82,7 @@ void Drawable::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physi
 	memReqs = device.getBufferMemoryRequirements(indices.buf);
 
 	memAlloc.vkInfo.allocationSize = memReqs.size;
-
-	for (uint32_t i = 0; i < 32; i++)
-	{
-		if ((memReqs.memoryTypeBits & 1) == 1)
-		{
-			if ((physicalDevice.memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-			{
-				memAlloc.vkInfo.memoryTypeIndex = i;
-			}
-		}
-		memReqs.memoryTypeBits >>= 1;
-	}
+	memAlloc.setMemoryTypeIndex(physicalDevice.getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
 
 	indices.mem = device.allocateMemory(memAlloc.vkInfo);
 	data = device.mapMemory(indices.mem, indexBufferSize);
@@ -169,15 +148,7 @@ void Drawable::prepareUniformBuffers(Camera& camera, VulkanDevice& device, Vulka
 	// Gets the appropriate memory type for this type of buffer allocation
 	// Only memory types that are visible to the host
 
-	for (uint32_t i = 0; i < 32; i++)
-	{
-		if ((memReqs.memoryTypeBits & 1) == 1)
-		{
-			if ((physicalDevice.memoryProperties().memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-				allocInfo.vkInfo.memoryTypeIndex = i;
-		}
-		memReqs.memoryTypeBits >>= 1;
-	}
+	allocInfo.setMemoryTypeIndex(physicalDevice.getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
 
 	// Allocate memory for the uniform buffer
 	uniformDataVS.memory = device.allocateMemory(allocInfo.vkInfo);
@@ -189,23 +160,7 @@ void Drawable::prepareUniformBuffers(Camera& camera, VulkanDevice& device, Vulka
 	uniformDataVS.descriptor.offset = 0;
 	uniformDataVS.descriptor.range = sizeof(uboVS);
 
-	// Update matrices
-	float zoom = -2.5f;
-	glm::vec3 rotation;
-
-	uboVS.projectionMatrix = glm::perspective(glm::radians(60.0f), camera.dimensions.x / camera.dimensions.y, 0.1f, 256.0f);
-	uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, zoom));
-
-	uboVS.modelMatrix = glm::mat4();
-	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	// Map uniform buffer and update it
-	uint8_t *pData;
-	pData = (uint8_t*) device.mapMemory(uniformDataVS.memory, sizeof(uboVS));
-	memcpy(pData, &uboVS, sizeof(uboVS));
-	device.unmapMemory(uniformDataVS.memory);
+	updateUniformBuffers(camera, device, glm::vec3(0, 0, 0));
 }
 
 void Drawable::prepareDescriptorSetLayout(VulkanDevice& device)
@@ -247,11 +202,6 @@ void Drawable::prepareDescriptorSetLayout(VulkanDevice& device)
 
 void Drawable::preparePipeline(VkRenderPass& renderPass, VulkanDevice& device, VkPipelineCache& pipelineCache)
 {
-	// Vulkan uses the concept of rendering pipelines to encapsulate fixed states
-	VulkanGraphicsPipelineCreateInfo pipelineCreateInfo;
-	pipelineCreateInfo
-		.setLayout(pipelineLayout)
-		.setRenderPass(renderPass);
 
 	// Vertex input state
 	// Describes the topoloy used with this pipeline
@@ -340,7 +290,10 @@ void Drawable::preparePipeline(VkRenderPass& renderPass, VulkanDevice& device, V
 
 	// Assign states
 	// Two shader stages
+	// Vulkan uses the concept of rendering pipelines to encapsulate fixed states
+	VulkanGraphicsPipelineCreateInfo pipelineCreateInfo;
 	pipelineCreateInfo
+		.setLayout(pipelineLayout)
 		.setVertexInputState(vertices.vi)
 		.setInputAssemblyState(inputAssemblyState.vkInfo)
 		.setRasterizationState(rasterizationState.vkInfo)
@@ -436,7 +389,12 @@ void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::
 
 	// TODO create rectangle constructor to make this a single line
 	VulkanRectangle2D renderArea;
-	renderArea.setX(0).setY(0).setWidth(camera.dimensions.x).setHeight(camera.dimensions.y);
+	renderArea
+		.setX(0)
+		.setY(0)
+		.setWidth(camera.dimensions.x)
+		.setHeight(camera.dimensions.y);
+	
 	VulkanRenderPassBeginInfo renderPassBeginInfo;
 	renderPassBeginInfo
 		.setRenderPass(renderPass)
@@ -487,7 +445,7 @@ void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::
 	}
 }
 
-void Drawable::updateUniformBuffers(Camera& camera, VulkanDevice& device, glm::vec3 rotation)
+void Drawable::updateUniformBuffers(Camera& camera, VulkanDevice& device, glm::vec3 rotation, glm::vec3 translation)
 {
 	// Update matrices
 	uboVS.projectionMatrix = glm::perspective(glm::radians(90.0f), camera.dimensions.x / camera.dimensions.y, 0.1f, 256.0f);
@@ -495,13 +453,15 @@ void Drawable::updateUniformBuffers(Camera& camera, VulkanDevice& device, glm::v
 	uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.f));
 
 	uboVS.modelMatrix = glm::mat4();
+	uboVS.modelMatrix = glm::translate(uboVS.modelMatrix, translation);
+
 	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
 	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
 	// Map uniform buffer and update it
-	uint8_t *pData;
-	pData = (uint8_t*) device.mapMemory(uniformDataVS.memory, sizeof(uboVS));
+	void *pData;
+	pData = device.mapMemory(uniformDataVS.memory, sizeof(uboVS));
 	memcpy(pData, &uboVS, sizeof(uboVS));
 	device.unmapMemory(uniformDataVS.memory);
 }

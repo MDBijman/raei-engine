@@ -1,6 +1,6 @@
 #pragma once
 #include "Camera.h"
-#include "DrawCall.h"
+#include "Drawable.h"
 #include "GraphicsCore.h"
 
 class Triangle
@@ -19,7 +19,7 @@ public:
 	void draw()
 	{
 		for(auto it = drawable.begin(); it != drawable.end(); ++it)
-			(*it).updateUniformBuffers(camera, *graphics->device, rotation);
+			(*it).updateUniformBuffers(camera, *graphics->device, rotation, translation);
 
 		graphics->render(drawable);
 	}
@@ -35,6 +35,7 @@ public:
 
 	float rotationSpeed = 1.0f;
 	glm::vec3 rotation = glm::vec3();
+	glm::vec3 translation = glm::vec3();
 	glm::vec2 mousePos;
 
 private:

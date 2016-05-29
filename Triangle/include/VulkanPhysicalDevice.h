@@ -22,6 +22,21 @@ public:
 		return queueProperties;
 	}
 
+	uint32_t getMemoryPropertyIndex(VkMemoryPropertyFlagBits flag, VkMemoryRequirements requirements)
+	{
+		for (uint32_t i = 0; i < 32; i++)
+		{
+			if ((requirements.memoryTypeBits & 1) == 1)
+			{
+				if ((memoryProperties().memoryTypes[i].propertyFlags & flag) == flag)
+				{
+					return i;
+				}
+			}
+			requirements.memoryTypeBits >>= 1;
+		}
+	}
+
 	VkPhysicalDeviceMemoryProperties& memoryProperties()
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;

@@ -74,6 +74,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CLOSE:
 		exit(0);
 		break;
+	case WM_KEYDOWN:
+		if (wParam == 'w')
+			t->translation += t->rotation;
+		else if (wParam == 's')
+			t->translation -= t->rotation;
+		break;
 	case WM_LBUTTONDOWN:
 		t->mousePos.x = (float)LOWORD(lParam);
 		t->mousePos.y = (float)HIWORD(lParam);

@@ -1,16 +1,13 @@
 #pragma once
-
 #include <stdlib.h>
 #include <string>
 #include <fstream>
 #include <assert.h>
 #include <stdio.h>
-#ifdef _WIN32
+#include <vector>
 #include <windows.h>
 #include <fcntl.h>
 #include <io.h>
-#else
-#endif
 
 #include <vulkan/vulkan.h>
 #include "SurfaceExtensions.h"

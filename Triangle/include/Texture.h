@@ -125,14 +125,14 @@ public:
 				bufferCopyRegion.imageSubresource.mipLevel = i;
 				bufferCopyRegion.imageSubresource.baseArrayLayer = 0;
 				bufferCopyRegion.imageSubresource.layerCount = 1;
-				bufferCopyRegion.imageExtent.width = tex2D[i].dimensions().x;
-				bufferCopyRegion.imageExtent.height = tex2D[i].dimensions().y;
+				bufferCopyRegion.imageExtent.width = static_cast<uint32_t>(tex2D[i].dimensions().x);
+				bufferCopyRegion.imageExtent.height = static_cast<uint32_t>(tex2D[i].dimensions().y);
 				bufferCopyRegion.imageExtent.depth = 1;
 				bufferCopyRegion.bufferOffset = offset;
 
 				bufferCopyRegions.push_back(bufferCopyRegion);
 
-				offset += tex2D[i].size();
+				offset += static_cast<uint32_t>(tex2D[i].size());
 			}
 
 			// Create optimal tiled target image
