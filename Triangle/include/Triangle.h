@@ -6,7 +6,7 @@
 class Triangle
 {
 public:
-	Triangle(HINSTANCE hInstance, HWND window) : camera(glm::vec2(1280, 720), -2.5f, 60.0f, 1.0f, 256.0f)
+	Triangle(HINSTANCE hInstance, HWND window) : camera(glm::vec2(1280, 720), -2.5f, 60.0f, .1f, 256.0f)
 	{
 		graphics = std::make_unique<GraphicsCore>(hInstance, window, "triangle", 1280, 720);
 	}
@@ -18,8 +18,8 @@ public:
 
 	void draw()
 	{
-		for(auto it = drawable.begin(); it != drawable.end(); ++it)
-			(*it).updateUniformBuffers(camera, *graphics->device, rotation, translation);
+		for (auto it = drawable.begin(); it != drawable.end(); ++it)
+			(*it).updateUniformBuffers(camera, *graphics->device);
 
 		graphics->render(drawable);
 	}
@@ -33,14 +33,11 @@ public:
 	float timer      = 0.0f;
 	bool paused      = false;
 
-	float rotationSpeed = 1.0f;
-	glm::vec3 rotation = glm::vec3();
-	glm::vec3 translation = glm::vec3();
-	glm::vec2 mousePos;
+	Camera camera;
+	float rotationSpeed = 0.3f;
 
 private:
 	std::unique_ptr<GraphicsCore> graphics;
 
 	std::vector<Drawable> drawable;
-	Camera camera;
 };

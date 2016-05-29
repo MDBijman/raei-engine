@@ -75,24 +75,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		exit(0);
 		break;
 	case WM_KEYDOWN:
-		if (wParam == 'w')
-			t->translation += t->rotation;
-		else if (wParam == 's')
-			t->translation -= t->rotation;
-		break;
-	case WM_LBUTTONDOWN:
-		t->mousePos.x = (float)LOWORD(lParam);
-		t->mousePos.y = (float)HIWORD(lParam);
+		if (wParam == 'W') 
+			t->camera.forward(0.1f);
+		else if (wParam == 'S')
+			t->camera.backward(0.1f);
+		if (wParam == 'A') 
+			t->camera.left(0.1f);
+		else if (wParam == 'D')
+			t->camera.right(0.1f);
 		break;
 	case WM_MOUSEMOVE:
-		if (wParam & MK_LBUTTON)
-		{
-			int32_t posx = LOWORD(lParam);
-			int32_t posy = HIWORD(lParam);
-			t->rotation.x += (t->mousePos.y - (float)posy) * 1.25f * t->rotationSpeed;
-			t->rotation.y -= (t->mousePos.x - (float)posx) * 1.25f * t->rotationSpeed;
-			t->mousePos = glm::vec2((float)posx, (float)posy);
-		}
+		POINT cursor;
+		GetCursorPos(&cursor);
+		ScreenToClient(hWnd, &cursor);
+
+		POINT middle;
+		middle.x = 640;
+		middle.y = 360;
+		
+		POINT delta;
+		delta.x = cursor.x - middle.x;
+		delta.y = cursor.y - middle.y;
+
+		t->camera.rotate(delta.x * t->rotationSpeed, delta.y * t->rotationSpeed);
+
+		ClientToScreen(hWnd, &middle);
+		SetCursorPos(middle.x, middle.y);
 		break;
 	}
 

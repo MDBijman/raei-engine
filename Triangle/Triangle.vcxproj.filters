@@ -250,9 +250,6 @@
     <ClInclude Include="include\GraphicsRenderingModule.h">
       <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
     </ClInclude>
-    <ClInclude Include="include\DrawCall.h">
-      <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
-    </ClInclude>
     <ClInclude Include="include\Camera.h">
       <Filter>Header Files\VkGraphics\Engine\Drawing</Filter>
     </ClInclude>

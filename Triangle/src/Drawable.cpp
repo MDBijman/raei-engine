@@ -160,7 +160,7 @@ void Drawable::prepareUniformBuffers(Camera& camera, VulkanDevice& device, Vulka
 	uniformDataVS.descriptor.offset = 0;
 	uniformDataVS.descriptor.range = sizeof(uboVS);
 
-	updateUniformBuffers(camera, device, glm::vec3(0, 0, 0));
+	updateUniformBuffers(camera, device);
 }
 
 void Drawable::prepareDescriptorSetLayout(VulkanDevice& device)
@@ -445,19 +445,14 @@ void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::
 	}
 }
 
-void Drawable::updateUniformBuffers(Camera& camera, VulkanDevice& device, glm::vec3 rotation, glm::vec3 translation)
+void Drawable::updateUniformBuffers(Camera& camera, VulkanDevice& device)
 {
 	// Update matrices
-	uboVS.projectionMatrix = glm::perspective(glm::radians(90.0f), camera.dimensions.x / camera.dimensions.y, 0.1f, 256.0f);
-
-	uboVS.viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.f));
-
+	camera.update();
+	uboVS.projectionMatrix = camera.getProjection();
+	uboVS.viewMatrix = camera.getView();
 	uboVS.modelMatrix = glm::mat4();
-	uboVS.modelMatrix = glm::translate(uboVS.modelMatrix, translation);
-
-	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	uboVS.modelMatrix = glm::rotate(uboVS.modelMatrix, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+	uboVS.modelMatrix = glm::scale(uboVS.modelMatrix, glm::vec3(1, -1, 1));
 
 	// Map uniform buffer and update it
 	void *pData;

@@ -125,7 +125,6 @@
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Drawable.h" />
-    <ClInclude Include="include\DrawCall.h" />
     <ClInclude Include="include\GraphicsCore.h" />
     <ClInclude Include="include\GraphicsRenderingModule.h" />
     <ClInclude Include="include\Mesh.h" />
