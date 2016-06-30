@@ -1,19 +1,22 @@
 #pragma once
 #include "Camera.h"
 #include "Drawable.h"
-#include "GraphicsBase.h"
+#include "Renderer.h"
 
 class Triangle
 {
 public:
 	Triangle(HINSTANCE hInstance, HWND window) : camera(glm::vec2(1280, 720), -2.5f, 60.0f, .1f, 256.0f)
 	{
-		graphics = std::make_unique<GraphicsBase>(hInstance, window, "triangle", 1280, 720);
+		Graphics::WindowsContext context = {
+			hInstance, window, "triangle", 1280, 720 
+		};
+		graphics = std::make_unique<Graphics::Renderer>(context);
 	}
 
 	void begin()
 	{
-		drawable.push_back(Drawable(graphics->state, camera));
+		drawable.push_back(Graphics::Drawable(graphics->state, camera));
 	}
 
 	void draw()
@@ -37,7 +40,7 @@ public:
 	float rotationSpeed = 0.3f;
 
 private:
-	std::unique_ptr<GraphicsBase> graphics;
+	std::unique_ptr<Graphics::Renderer> graphics;
 
-	std::vector<Drawable> drawable;
+	std::vector<Graphics::Drawable> drawable;
 };

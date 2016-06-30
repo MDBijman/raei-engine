@@ -116,8 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Drawable.cpp" />
-    <ClCompile Include="src\GraphicsBase.cpp" />
-    <ClCompile Include="src\GraphicsStateBucket.cpp" />
+    <ClCompile Include="src\StateBucket.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\Shaders.cpp" />
@@ -126,8 +125,7 @@
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Drawable.h" />
-    <ClInclude Include="include\GraphicsBase.h" />
-    <ClInclude Include="include\GraphicsStateBucket.h" />
+    <ClInclude Include="include\StateBucket.h" />
     <ClInclude Include="include\Indices.h" />
     <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Mesh.h" />

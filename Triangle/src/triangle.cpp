@@ -75,10 +75,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		exit(0);
 		break;
 	case WM_KEYDOWN:
+		std::cout << wParam << std::endl;
+
+		// Delete button
+		if (wParam == VK_ESCAPE)
+			exit(0);
+
+		// Move forward or backward
 		if (wParam == 'W') 
 			t->camera.forward(0.1f);
 		else if (wParam == 'S')
 			t->camera.backward(0.1f);
+
+		// Move left or right
 		if (wParam == 'A') 
 			t->camera.left(0.1f);
 		else if (wParam == 'D')
