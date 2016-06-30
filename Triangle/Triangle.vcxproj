@@ -116,8 +116,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Drawable.cpp" />
-    <ClCompile Include="src\GraphicsCore.cpp" />
-    <ClCompile Include="src\GraphicsRenderingModule.cpp" />
+    <ClCompile Include="src\GraphicsBase.cpp" />
+    <ClCompile Include="src\GraphicsStateBucket.cpp" />
+    <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\Shaders.cpp" />
     <ClCompile Include="src\triangle.cpp" />
@@ -125,8 +126,10 @@
   <ItemGroup>
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Drawable.h" />
-    <ClInclude Include="include\GraphicsCore.h" />
-    <ClInclude Include="include\GraphicsRenderingModule.h" />
+    <ClInclude Include="include\GraphicsBase.h" />
+    <ClInclude Include="include\GraphicsStateBucket.h" />
+    <ClInclude Include="include\Indices.h" />
+    <ClInclude Include="include\Renderer.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\ObjImporter.h" />
     <ClInclude Include="include\Parser.h" />
@@ -135,6 +138,8 @@
     <ClInclude Include="include\SwapchainExtensions.h" />
     <ClInclude Include="include\Texture.h" />
     <ClInclude Include="include\Triangle.h" />
+    <ClInclude Include="include\UniformData.h" />
+    <ClInclude Include="include\Vertices.h" />
     <ClInclude Include="include\VulkanValidation.h" />
     <ClInclude Include="include\Vertex.h" />
     <ClInclude Include="include\VulkanApplicationInfo.h" />

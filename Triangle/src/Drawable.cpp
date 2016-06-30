@@ -13,25 +13,25 @@
 #include "VulkanWrappers.h"
 
 
-Drawable::Drawable(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, VkRenderPass& renderPass, VkPipelineCache& pipelineCache, std::vector<VkFramebuffer>& frameBuffers, const VulkanSwapChain& swapchain, VkCommandPool& cmdPool, VulkanQueue& queue, Camera& camera)
+Drawable::Drawable(GraphicsStateBucket& state, Camera& camera) : state(state)
 {
-	prepareTexture(physicalDevice, device, cmdPool, queue);
-	prepareVertices(device, physicalDevice);
-	prepareUniformBuffers(camera, device, physicalDevice);
-	prepareDescriptorSetLayout(device);
-	preparePipeline(renderPass, device, pipelineCache);
-	prepareDescriptorPool(device);
-	updateDescriptorSet(device);
-	prepareCommandBuffers(camera, device, frameBuffers, renderPass, swapchain, cmdPool);
+	prepareTexture();
+	prepareVertices();
+	prepareUniformBuffers(camera);
+	prepareDescriptorSetLayout();
+	preparePipeline();
+	prepareDescriptorPool();
+	updateDescriptorSet();
+	prepareCommandBuffers(camera);
 }
 
-void Drawable::prepareTexture(VulkanPhysicalDevice& physicalDevice, VulkanDevice& device, VkCommandPool& pool, VulkanQueue& queue)
+void Drawable::prepareTexture()
 {
 	
-	texture.load("./../data/textures/tree.dds", VK_FORMAT_BC3_UNORM_BLOCK, physicalDevice, device, pool, queue);
+	texture.load("./../data/textures/tree.dds", VK_FORMAT_BC3_UNORM_BLOCK, *state.physicalDevice, *state.device, state.cmdPool, *state.queue);
 }
 
-void Drawable::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice)
+void Drawable::prepareVertices()
 {
 	Mesh* m = Importers::Obj::load("./../data/models/tree.obj");
 
@@ -56,17 +56,17 @@ void Drawable::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physi
 
 	//	Copy data to VRAM
 	memset(&vertices, 0, sizeof(vertices));
-	vertices.buf = device.createBuffer(bufInfo.vkInfo);
-	memReqs = device.getBufferMemoryRequirements(vertices.buf);
+	vertices.buf = state.device->createBuffer(bufInfo.vkInfo);
+	memReqs = state.device->getBufferMemoryRequirements(vertices.buf);
 	memAlloc.vkInfo.allocationSize = memReqs.size;
-	memAlloc.setMemoryTypeIndex(physicalDevice.getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
+	memAlloc.setMemoryTypeIndex(state.physicalDevice->getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
 
 	memReqs.memoryTypeBits = 1;
-	vertices.mem = device.allocateMemory(memAlloc.vkInfo);
-	data = device.mapMemory(vertices.mem, memAlloc.vkInfo.allocationSize);
+	vertices.mem = state.device->allocateMemory(memAlloc.vkInfo);
+	data = state.device->mapMemory(vertices.mem, memAlloc.vkInfo.allocationSize);
 	memcpy(data, m->vertices.data(), vertexBufferSize);
-	device.unmapMemory(vertices.mem);
-	device.bindBufferMemory(vertices.buf, vertices.mem);
+	state.device->unmapMemory(vertices.mem);
+	state.device->bindBufferMemory(vertices.buf, vertices.mem);
 
 	// Generate index buffer
 	//	Setup
@@ -78,17 +78,17 @@ void Drawable::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physi
 
 	// Copy index data to VRAM
 	memset(&indices, 0, sizeof(indices));
-	indices.buf = device.createBuffer(bufInfo.vkInfo);
-	memReqs = device.getBufferMemoryRequirements(indices.buf);
+	indices.buf = state.device->createBuffer(bufInfo.vkInfo);
+	memReqs = state.device->getBufferMemoryRequirements(indices.buf);
 
 	memAlloc.vkInfo.allocationSize = memReqs.size;
-	memAlloc.setMemoryTypeIndex(physicalDevice.getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
+	memAlloc.setMemoryTypeIndex(state.physicalDevice->getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
 
-	indices.mem = device.allocateMemory(memAlloc.vkInfo);
-	data = device.mapMemory(indices.mem, indexBufferSize);
+	indices.mem = state.device->allocateMemory(memAlloc.vkInfo);
+	data = state.device->mapMemory(indices.mem, indexBufferSize);
 	memcpy(data, m->indices.data(), indexBufferSize);
-	device.unmapMemory(indices.mem);
-	device.bindBufferMemory(indices.buf, indices.mem);
+	state.device->unmapMemory(indices.mem);
+	state.device->bindBufferMemory(indices.buf, indices.mem);
 	indices.count = m->indices.size();
 
 	// Binding description
@@ -125,7 +125,7 @@ void Drawable::prepareVertices(VulkanDevice& device, VulkanPhysicalDevice& physi
 	vertices.vi.pVertexAttributeDescriptions = vertices.attributeDescriptions.data();
 }
 
-void Drawable::prepareUniformBuffers(Camera& camera, VulkanDevice& device, VulkanPhysicalDevice& physicalDevice)
+void Drawable::prepareUniformBuffers(Camera& camera)
 {
 	VkMemoryRequirements memReqs;
 
@@ -141,29 +141,29 @@ void Drawable::prepareUniformBuffers(Camera& camera, VulkanDevice& device, Vulka
 		.setMemoryTypeIndex(0);
 
 	// Create a new buffer
-	uniformDataVS.buffer = device.createBuffer(bufferInfo.vkInfo);
+	uniformDataVS.buffer = state.device->createBuffer(bufferInfo.vkInfo);
 	// Get memory requirements including size, alignment and memory type 
-	memReqs = device.getBufferMemoryRequirements(uniformDataVS.buffer);
+	memReqs = state.device->getBufferMemoryRequirements(uniformDataVS.buffer);
 	allocInfo.vkInfo.allocationSize = memReqs.size;
 	// Gets the appropriate memory type for this type of buffer allocation
 	// Only memory types that are visible to the host
 
-	allocInfo.setMemoryTypeIndex(physicalDevice.getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
+	allocInfo.setMemoryTypeIndex(state.physicalDevice->getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
 
 	// Allocate memory for the uniform buffer
-	uniformDataVS.memory = device.allocateMemory(allocInfo.vkInfo);
+	uniformDataVS.memory = state.device->allocateMemory(allocInfo.vkInfo);
 	// Bind memory to buffer
-	device.bindBufferMemory(uniformDataVS.buffer, uniformDataVS.memory);
+	state.device->bindBufferMemory(uniformDataVS.buffer, uniformDataVS.memory);
 
 	// Store information in the uniform's descriptor
 	uniformDataVS.descriptor.buffer = uniformDataVS.buffer;
 	uniformDataVS.descriptor.offset = 0;
 	uniformDataVS.descriptor.range = sizeof(uboVS);
 
-	updateUniformBuffers(camera, device);
+	updateUniformBuffers(camera);
 }
 
-void Drawable::prepareDescriptorSetLayout(VulkanDevice& device)
+void Drawable::prepareDescriptorSetLayout()
 {
 	std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings(2);
 		// Binding 0 : Uniform buffer (Vertex shader)
@@ -186,7 +186,7 @@ void Drawable::prepareDescriptorSetLayout(VulkanDevice& device)
 	descriptorLayout
 		.setBindings(setLayoutBindings);
 
-	descriptorSetLayout = device.createDescriptorSetLayout(descriptorLayout.vkInfo);
+	descriptorSetLayout = state.device->createDescriptorSetLayout(descriptorLayout.vkInfo);
 
 	// Create the pipeline layout that is used to generate the rendering pipelines that
 	// are based on this descriptor set layout
@@ -197,10 +197,10 @@ void Drawable::prepareDescriptorSetLayout(VulkanDevice& device)
 		.setSetLayoutCount(1)
 		.setSetLayouts(&descriptorSetLayout);
 
-	pipelineLayout = device.createPipelineLayout(pipelineLayoutCreateInfo.vkInfo);
+	pipelineLayout = state.device->createPipelineLayout(pipelineLayoutCreateInfo.vkInfo);
 }
 
-void Drawable::preparePipeline(VkRenderPass& renderPass, VulkanDevice& device, VkPipelineCache& pipelineCache)
+void Drawable::preparePipeline()
 {
 
 	// Vertex input state
@@ -276,14 +276,14 @@ void Drawable::preparePipeline(VkRenderPass& renderPass, VulkanDevice& device, V
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStages(2);
 	shaderStages[0] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_VERTEX_BIT)
-		.setModule(loadShader(VERTEX_LOCATION.c_str(), device.vkDevice, VK_SHADER_STAGE_VERTEX_BIT))
+		.setModule(loadShader(VERTEX_LOCATION.c_str(), state.device->vkDevice, VK_SHADER_STAGE_VERTEX_BIT))
 		.setName(entryPoint)
 		.vkInfo;
 	assert(shaderStages[0].module != NULL);
 
 	shaderStages[1] = VulkanPipelineShaderStageCreateInfo()
 		.setStage(VK_SHADER_STAGE_FRAGMENT_BIT)
-		.setModule(loadShader(FRAGMENT_LOCATION.c_str(), device.vkDevice, VK_SHADER_STAGE_FRAGMENT_BIT))
+		.setModule(loadShader(FRAGMENT_LOCATION.c_str(), state.device->vkDevice, VK_SHADER_STAGE_FRAGMENT_BIT))
 		.setName(entryPoint)
 		.vkInfo;
 	assert(shaderStages[1].module != NULL);
@@ -303,13 +303,13 @@ void Drawable::preparePipeline(VkRenderPass& renderPass, VulkanDevice& device, V
 		.setDepthStencilState(depthStencilState.vkInfo)
 		.setMultisampleState(multisampleState.vkInfo)
 		.setStages(shaderStages)
-		.setRenderPass(renderPass);
+		.setRenderPass(state.renderPass);
 
 	// Create rendering pipeline
-	pipelines.solid = device.createGraphicsPipelines(pipelineCache, pipelineCreateInfo.vkInfo, 1).at(0);
+	pipelines.solid = state.device->createGraphicsPipelines(state.pipelineCache, pipelineCreateInfo.vkInfo, 1).at(0);
 }
 
-void Drawable::prepareDescriptorPool(VulkanDevice& device)
+void Drawable::prepareDescriptorPool()
 {
 	// We need to tell the API the number of max. requested descriptors per type
 	VulkanDescriptorPoolSize typeCounts;
@@ -328,10 +328,10 @@ void Drawable::prepareDescriptorPool(VulkanDevice& device)
 		// Requesting descriptors beyond maxSets will result in an error
 		.setMaxSets(2);
 
-	descriptorPool = device.createDescriptorPool(descriptorPoolInfo.vkInfo);
+	descriptorPool = state.device->createDescriptorPool(descriptorPoolInfo.vkInfo);
 }
 
-void Drawable::updateDescriptorSet(VulkanDevice& device)
+void Drawable::updateDescriptorSet()
 {
 	// Update descriptor sets determining the shader binding points
 	// For every binding point used in a shader there needs to be one
@@ -342,7 +342,7 @@ void Drawable::updateDescriptorSet(VulkanDevice& device)
 		.setDescriptorPool(descriptorPool)
 		.setDescriptorSetCount(1)
 		.setSetLayouts(descriptorSetLayout);
-	device.allocateDescriptorSet(allocInfo.vkInfo, descriptorSet);
+	state.device->allocateDescriptorSet(allocInfo.vkInfo, descriptorSet);
 
 	VkDescriptorImageInfo texDescriptor;
 	texDescriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -367,17 +367,17 @@ void Drawable::updateDescriptorSet(VulkanDevice& device)
 		.setDstBinding(1)
 		.vkDescriptorSet;
 
-	device.updateDescriptorSet(descriptorSets);
+	state.device->updateDescriptorSet(descriptorSets);
 }
 
-void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::vector<VkFramebuffer>& frameBuffers, const VkRenderPass& renderPass, const VulkanSwapChain& swapchain, VkCommandPool& cmdPool)
+void Drawable::prepareCommandBuffers(Camera& camera)
 {
 	VulkanCommandBufferAllocateInfo info;
-	info.setCommandPool(cmdPool)
+	info.setCommandPool(state.cmdPool)
 		.setCommandBufferLevel(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-		.setCommandBufferCount(swapchain.imageCount);
+		.setCommandBufferCount(state.swapchain->imageCount);
 
-	commandBuffers = device.allocateCommandBuffers(info.vkInfo);
+	commandBuffers = state.device->allocateCommandBuffers(info.vkInfo);
 
 	VulkanCommandBufferBeginInfo cmdBufInfo;
 
@@ -397,14 +397,14 @@ void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::
 	
 	VulkanRenderPassBeginInfo renderPassBeginInfo;
 	renderPassBeginInfo
-		.setRenderPass(renderPass)
+		.setRenderPass(state.renderPass)
 		.setRenderArea(renderArea.vkRectangle)
 		.setClearValues(clearValues);
 
 	for (int32_t i = 0; i < commandBuffers.size(); ++i)
 	{
 		// Set target frame buffer
-		renderPassBeginInfo.setFramebuffer(frameBuffers.at(i));
+		renderPassBeginInfo.setFramebuffer(state.frameBuffers.at(i));
 
 		// Vulkan object preparation
 
@@ -445,7 +445,7 @@ void Drawable::prepareCommandBuffers(Camera& camera, VulkanDevice& device, std::
 	}
 }
 
-void Drawable::updateUniformBuffers(Camera& camera, VulkanDevice& device)
+void Drawable::updateUniformBuffers(Camera& camera)
 {
 	// Update matrices
 	camera.update();
@@ -456,9 +456,9 @@ void Drawable::updateUniformBuffers(Camera& camera, VulkanDevice& device)
 
 	// Map uniform buffer and update it
 	void *pData;
-	pData = device.mapMemory(uniformDataVS.memory, sizeof(uboVS));
+	pData = state.device->mapMemory(uniformDataVS.memory, sizeof(uboVS));
 	memcpy(pData, &uboVS, sizeof(uboVS));
-	device.unmapMemory(uniformDataVS.memory);
+	state.device->unmapMemory(uniformDataVS.memory);
 }
 
 std::vector<VulkanCommandBuffer>& Drawable::getCommandBuffers()
