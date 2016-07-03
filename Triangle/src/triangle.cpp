@@ -1,10 +1,10 @@
 #include <chrono>
 #include <windows.h>
 #include <iostream>
-#include "Triangle.h"
+#include "Game.h"
 
 HWND window;
-Triangle * t;
+Game* t;
 
 /*
 * Creates and initializes a Win32 Context.
@@ -83,15 +83,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		// Move forward or backward
 		if (wParam == 'W') 
-			t->camera.forward(0.1f);
+			t->camera.forward(300.0f, t->dt);
 		else if (wParam == 'S')
-			t->camera.backward(0.1f);
+			t->camera.backward(300.0f, t->dt);
 
 		// Move left or right
 		if (wParam == 'A') 
-			t->camera.left(0.1f);
+			t->camera.left(300.0f, t->dt);
 		else if (wParam == 'D')
-			t->camera.right(0.1f);
+			t->camera.right(300.0f, t->dt);
 		break;
 	case WM_MOUSEMOVE:
 		POINT cursor;
@@ -106,7 +106,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		delta.x = cursor.x - middle.x;
 		delta.y = cursor.y - middle.y;
 
-		t->camera.rotate(delta.x * t->rotationSpeed, delta.y * t->rotationSpeed);
+		t->camera.rotate(delta.x * t->rotationSpeed * 20.0f, delta.y * t->rotationSpeed * 20.0f, t->dt);
 
 		ClientToScreen(hWnd, &middle);
 		SetCursorPos(middle.x, middle.y);
@@ -125,33 +125,25 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	DWORD cCharsWritten;
 	freopen("CONOUT$", "w", stdout);
 
-	t = new Triangle(hInstance, window);
+	t = new Game(hInstance, window);
 	t->begin();
 
 	MSG msg;
 	while (TRUE)
 	{
-		auto tStart = std::chrono::high_resolution_clock::now();
+		auto startTime = std::chrono::high_resolution_clock::now();
+
 		PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
 		if (msg.message == WM_QUIT)
 			break;
-
 		TranslateMessage(&msg);
-
 		DispatchMessage(&msg);
 
 		t->draw();
 
-		auto tEnd = std::chrono::high_resolution_clock::now();
-		auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
-		t->frameTimer = (float) tDiff / 1000.0f;
-		// Convert to clamped timer value
-		if (!t->paused)
-		{
-			t->timer += t->timerSpeed * t->frameTimer;
-			if (t->timer > 1.0)
-				t->timer -= 1.0f;
-		}
+		auto endTime = std::chrono::high_resolution_clock::now();
+		auto difference = std::chrono::duration<double, std::milli>(endTime - startTime).count();
+		t->dt = difference / 1000;
 	}
 
 	t->end();

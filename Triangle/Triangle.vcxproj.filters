@@ -9,291 +9,276 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\Modules">
-      <UniqueIdentifier>{151c0e3a-ebf0-4ecb-abbb-31c1655ec637}</UniqueIdentifier>
+    <Filter Include="Source Files\Geometry">
+      <UniqueIdentifier>{a1513a50-3b84-4b7b-a9ae-e70ffb25df32}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Importers">
-      <UniqueIdentifier>{d0f61156-c7d0-4122-b62b-39b31678f9a6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Modules\Importers\Obj">
-      <UniqueIdentifier>{5c69a6d6-cd82-440d-8291-9182939b4b78}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Modules\Importers\Utility">
-      <UniqueIdentifier>{141214c2-f055-4484-a496-819b0ffff1fb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Modules\Geometry">
+    <Filter Include="Header Files\Geometry">
       <UniqueIdentifier>{7f069b4d-5b65-409e-a1b5-89800d6467ca}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics">
+    <Filter Include="Header Files\Graphics">
       <UniqueIdentifier>{6260621f-35c2-46f7-bfe2-85cdaa342ca6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\Data">
-      <UniqueIdentifier>{d12b1c64-2b48-4814-b75f-08b7dbe48e72}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Modules\Graphics\Data\Textures">
-      <UniqueIdentifier>{5d1e0f7d-279f-4ddf-8a65-b37ceefe9518}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Modules\Graphics\Data\Shaders">
-      <UniqueIdentifier>{09dbbcd3-0757-4384-a00d-a4956001e4cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Modules\Graphics\Renderer">
-      <UniqueIdentifier>{01acfb73-8689-4770-8269-82bef9962684}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers">
+    <Filter Include="Header Files\Graphics\VulkanWrappers">
       <UniqueIdentifier>{d5333330-3f7b-4562-9e39-1da199926493}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Application">
-      <UniqueIdentifier>{b0ecb29b-774a-471d-8164-5d92acb4a634}</UniqueIdentifier>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{b39e8440-2c9b-4933-a550-cc2f7d26c463}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Command">
-      <UniqueIdentifier>{dad402a1-616d-459d-af22-a09da07485a0}</UniqueIdentifier>
+    <Filter Include="Source Files\Graphics\Resources">
+      <UniqueIdentifier>{bca2643c-8f57-406f-b551-4ab515b1301f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Descriptor">
-      <UniqueIdentifier>{8f3406c3-d229-47e8-ab78-a63ba6ec1972}</UniqueIdentifier>
+    <Filter Include="Header Files\Graphics\Resources">
+      <UniqueIdentifier>{d12b1c64-2b48-4814-b75f-08b7dbe48e72}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Device">
-      <UniqueIdentifier>{f3610df0-effb-4c2c-9f2b-c2ffbadc8ea8}</UniqueIdentifier>
+    <Filter Include="Header Files\Graphics\Resources\Textures">
+      <UniqueIdentifier>{5d1e0f7d-279f-4ddf-8a65-b37ceefe9518}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Extensions">
-      <UniqueIdentifier>{9944fe8a-1e33-4a50-9cc4-0f922c848468}</UniqueIdentifier>
+    <Filter Include="Header Files\Graphics\Resources\Shaders">
+      <UniqueIdentifier>{09dbbcd3-0757-4384-a00d-a4956001e4cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Image">
-      <UniqueIdentifier>{58437398-2df0-4667-a7c6-bf8cada1edd5}</UniqueIdentifier>
+    <Filter Include="Source Files\Graphics\Resources\Shaders">
+      <UniqueIdentifier>{7666fcfe-0cca-4ce7-a88d-8f51e7c2055c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Instance">
-      <UniqueIdentifier>{4ccf7201-4b77-48c5-8617-2890ea974ef4}</UniqueIdentifier>
+    <Filter Include="Source Files\Graphics\Renderer">
+      <UniqueIdentifier>{68908627-c366-4f90-8b8a-a8fdc075bb10}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Memory">
-      <UniqueIdentifier>{c99135f8-4cf5-4558-afd2-f4d1d0045a5f}</UniqueIdentifier>
+    <Filter Include="Header Files\Graphics\Renderer">
+      <UniqueIdentifier>{01acfb73-8689-4770-8269-82bef9962684}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Pipeline">
-      <UniqueIdentifier>{e3290f1f-0f36-48d3-8b24-ef22d324e8a1}</UniqueIdentifier>
+    <Filter Include="Source Files\Graphics\Resources\Textures">
+      <UniqueIdentifier>{40346bd7-1d63-4ce3-a78a-69e994d3659c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Queue">
-      <UniqueIdentifier>{8d52d718-8236-4460-a927-84fca3e3d3c2}</UniqueIdentifier>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{86ab258a-4893-4f45-a533-8d8767dd93c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Render">
-      <UniqueIdentifier>{4fe7635a-3ffe-4aac-9098-239dd93fc844}</UniqueIdentifier>
+    <Filter Include="Header Files\Imports">
+      <UniqueIdentifier>{d0f61156-c7d0-4122-b62b-39b31678f9a6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Synchronization">
-      <UniqueIdentifier>{c86a716f-b54e-4744-93db-f73bf17c1964}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Modules\Graphics\VulkanWrappers\Validation">
-      <UniqueIdentifier>{5b549ca2-c178-4039-a41c-816583865583}</UniqueIdentifier>
+    <Filter Include="Source Files\Imports">
+      <UniqueIdentifier>{2fbe6264-9e75-4bed-ac0c-9dc96df473c2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\triangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Parser.cpp">
-      <Filter>Header Files\Modules\Importers\Utility</Filter>
+    <ClCompile Include="src\Graphics\Renderer\Drawable.cpp">
+      <Filter>Source Files\Graphics\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Shaders.cpp">
-      <Filter>Header Files\Modules\Graphics\Data\Shaders</Filter>
+    <ClCompile Include="src\Graphics\Renderer\Renderer.cpp">
+      <Filter>Source Files\Graphics\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Drawable.cpp">
-      <Filter>Header Files\Modules\Graphics\Renderer</Filter>
+    <ClCompile Include="src\Graphics\Renderer\StateBucket.cpp">
+      <Filter>Source Files\Graphics\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\Renderer.cpp">
-      <Filter>Header Files\Modules\Graphics\Renderer</Filter>
+    <ClCompile Include="src\Graphics\Resources\Shaders\Shaders.cpp">
+      <Filter>Source Files\Graphics\Resources\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="src\StateBucket.cpp">
-      <Filter>Header Files\Modules\Graphics\Renderer</Filter>
+    <ClCompile Include="src\Graphics\Resources\Textures\Texture.cpp">
+      <Filter>Source Files\Graphics\Resources\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Imports\Parser.cpp">
+      <Filter>Source Files\Imports</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Imports\Obj.cpp">
+      <Filter>Source Files\Imports</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\VulkanApplicationInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Application</Filter>
+    <ClInclude Include="include\Geometry\Indices.h">
+      <Filter>Header Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanCommandBuffer.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Command</Filter>
+    <ClInclude Include="include\Geometry\Mesh.h">
+      <Filter>Header Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanCommandBufferAllocateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Command</Filter>
+    <ClInclude Include="include\Geometry\Vertex.h">
+      <Filter>Header Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanCommandBufferBeginInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Command</Filter>
+    <ClInclude Include="include\Geometry\Vertices.h">
+      <Filter>Header Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanImageCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Image</Filter>
+    <ClInclude Include="include\Graphics\Renderer\Camera.h">
+      <Filter>Header Files\Graphics\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanImageViewCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Image</Filter>
+    <ClInclude Include="include\Graphics\Renderer\Drawable.h">
+      <Filter>Header Files\Graphics\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanImageSubresourceRange.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Image</Filter>
+    <ClInclude Include="include\Graphics\Renderer\Renderer.h">
+      <Filter>Header Files\Graphics\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanDevice.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Device</Filter>
+    <ClInclude Include="include\Graphics\Renderer\StateBucket.h">
+      <Filter>Header Files\Graphics\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPhysicalDevice.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Device</Filter>
+    <ClInclude Include="include\Graphics\Resources\Shaders\Shaders.h">
+      <Filter>Header Files\Graphics\Resources\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanInstance.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Instance</Filter>
+    <ClInclude Include="include\Graphics\Resources\Shaders\UniformData.h">
+      <Filter>Header Files\Graphics\Resources\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanInstanceCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Instance</Filter>
+    <ClInclude Include="include\Graphics\Resources\Textures\Texture.h">
+      <Filter>Header Files\Graphics\Resources\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanCommandPoolCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Command</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\SurfaceExtensions.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanQueue.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Queue</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\SwapchainExtensions.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanSubmitInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Queue</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanApplicationInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanMemoryAllocateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Memory</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanAttachmentDescription.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanImageMemoryBarrier.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Memory</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanAttachmentReference.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanAttachmentDescription.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanBufferCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanAttachmentReference.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanClearValue.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanSubpassDescription.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanCommandBuffer.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanViewport.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanCommandBufferAllocateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanRectangle2D.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanCommandBufferBeginInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanClearValue.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanCommandPoolCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanRenderPassBeginInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorPoolCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanDescriptorSetAllocInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Descriptor</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorPoolSize.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanWriteDescriptorSet.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Descriptor</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetAllocInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanDescriptorPoolSize.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Descriptor</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetLayoutBinding.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanDescriptorPoolCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Descriptor</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetLayoutCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanDescriptorSetLayoutBinding.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Descriptor</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDevice.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanDescriptorSetLayoutCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Descriptor</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanFramebufferCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanFramebufferCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanGraphicsPipelineCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanSemaphoreCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Synchronization</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanImageCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineLayoutCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanImageMemoryBarrier.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanGraphicsPipelineCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanImageSubresourceRange.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineInputAssemblyStateCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanImageViewCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineRasterizationStateCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanInstance.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineColorBlendStateCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanInstanceCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineColorBlendAttachmentState.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanMemoryAllocateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineViewportStateCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPhysicalDevice.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineDynamicStateCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineCacheCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineDepthStencilStateCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineColorBlendAttachmentState.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineMultisampleStateCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineColorBlendStateCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineShaderStageCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineDepthStencilStateCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanRenderPassCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Render</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineDynamicStateCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanPipelineCacheCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Pipeline</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineInputAssemblyStateCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanBufferCreateInfo.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Memory</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineLayoutCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\SurfaceExtensions.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Extensions</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineMultisampleStateCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\SwapchainExtensions.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Extensions</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineRasterizationStateCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Triangle.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineShaderStageCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanValidation.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers\Validation</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineViewportStateCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Indices.h">
-      <Filter>Header Files\Modules\Geometry</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanQueue.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Mesh.h">
-      <Filter>Header Files\Modules\Geometry</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanRectangle2D.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Vertex.h">
-      <Filter>Header Files\Modules\Geometry</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanRenderPassBeginInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Vertices.h">
-      <Filter>Header Files\Modules\Geometry</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanRenderPassCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\ObjImporter.h">
-      <Filter>Header Files\Modules\Importers\Obj</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanSemaphoreCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Parser.h">
-      <Filter>Header Files\Modules\Importers\Utility</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanSubmitInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Shaders.h">
-      <Filter>Header Files\Modules\Graphics\Data\Shaders</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanSubpassDescription.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Texture.h">
-      <Filter>Header Files\Modules\Graphics\Data\Textures</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanSwapchain.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\UniformData.h">
-      <Filter>Header Files\Modules\Graphics\Data\Shaders</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanValidation.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Camera.h">
-      <Filter>Header Files\Modules\Graphics\Renderer</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanViewport.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Drawable.h">
-      <Filter>Header Files\Modules\Graphics\Renderer</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanWrappers.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Renderer.h">
-      <Filter>Header Files\Modules\Graphics\Renderer</Filter>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanWriteDescriptorSet.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanWrappers.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers</Filter>
+    <ClInclude Include="include\Imports\Parser.h">
+      <Filter>Header Files\Imports</Filter>
     </ClInclude>
-    <ClInclude Include="include\VulkanSwapchain.h">
-      <Filter>Header Files\Modules\Graphics\VulkanWrappers</Filter>
+    <ClInclude Include="include\Math\Matrices.h">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
-    <ClInclude Include="include\StateBucket.h">
-      <Filter>Header Files\Modules\Graphics\Renderer</Filter>
+    <ClInclude Include="include\Imports\Obj.h">
+      <Filter>Header Files\Imports</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
