@@ -1,27 +1,42 @@
 #pragma once
+#include "VulkanPipelineLayoutCreateInfo.h"
+#include "VulkanDescriptorSetLayout.h"
+
 #include <vulkan\vulkan.h>
+#include <vector>
 
 class VulkanPipelineLayoutCreateInfo
 {
 public:
 	VulkanPipelineLayoutCreateInfo()
 	{
-		vkInfo = {};
-		vkInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		vkInfo.pNext = NULL;
+		vk = {};
+		vk.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		vk.pNext = NULL;
 	}
 
-	VulkanPipelineLayoutCreateInfo& setSetLayoutCount(uint32_t count)
+	VulkanPipelineLayoutCreateInfo& setSetLayouts(std::vector<VulkanDescriptorSetLayout> l)
 	{
-		vkInfo.setLayoutCount = count;
+		layouts.clear();
+		std::transform(l.begin(), l.end(), std::back_inserter(layouts), [](VulkanDescriptorSetLayout& r) {
+			return r.vk;
+		});
+		vk.pSetLayouts = layouts.data();
+		vk.setLayoutCount = layouts.size();
 		return *this;
 	}
 
-	VulkanPipelineLayoutCreateInfo& setSetLayouts(VkDescriptorSetLayout* layouts)
+	VulkanPipelineLayoutCreateInfo& setSetLayouts(VulkanDescriptorSetLayout l)
 	{
-		vkInfo.pSetLayouts = layouts;
+		layouts.clear();
+		layouts.push_back(l.vk);
+		vk.pSetLayouts = layouts.data();
+		vk.setLayoutCount = layouts.size();
 		return *this;
 	}
 
-	VkPipelineLayoutCreateInfo vkInfo;
+	VkPipelineLayoutCreateInfo vk;
+
+private:
+	std::vector<VkDescriptorSetLayout> layouts;
 };

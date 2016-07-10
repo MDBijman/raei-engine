@@ -6,63 +6,63 @@ class VulkanPipelineDepthStencilStateCreateInfo
 public:
 	VulkanPipelineDepthStencilStateCreateInfo()
 	{
-		vkInfo = {};
-		vkInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		vk = {};
+		vk.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setDepthTestEnable(VkBool32 state)
 	{
-		vkInfo.depthTestEnable = state;
+		vk.depthTestEnable = state;
 		return *this;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setDepthWriteEnable(VkBool32 state)
 	{
-		vkInfo.depthWriteEnable = state;
+		vk.depthWriteEnable = state;
 		return *this;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setDepthCompareOp(VkCompareOp operation)
 	{
-		vkInfo.depthCompareOp = operation;
+		vk.depthCompareOp = operation;
 		return *this;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setDepthBoundsTestEnable(VkBool32 state)
 	{
-		vkInfo.depthBoundsTestEnable = state;
+		vk.depthBoundsTestEnable = state;
 		return *this;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setFailOp(VkStencilOp operation)
 	{
-		vkInfo.back.failOp = operation;
+		vk.back.failOp = operation;
 		return *this;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setPassOp(VkStencilOp operation)
 	{
-		vkInfo.back.passOp = operation;
+		vk.back.passOp = operation;
 		return *this;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setCompareOp(VkCompareOp operation)
 	{
-		vkInfo.back.compareOp = operation;
+		vk.back.compareOp = operation;
 		return *this;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setStencilTestEnable(VkBool32 state)
 	{
-		vkInfo.stencilTestEnable = state;
+		vk.stencilTestEnable = state;
 		return *this;
 	}
 
 	VulkanPipelineDepthStencilStateCreateInfo& setFront(VkStencilOpState state)
 	{
-		vkInfo.front = state;
+		vk.front = state;
 		return *this;
 	}
 
-	VkPipelineDepthStencilStateCreateInfo vkInfo;
+	VkPipelineDepthStencilStateCreateInfo vk;
 };

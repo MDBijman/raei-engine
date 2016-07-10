@@ -1,4 +1,6 @@
 #pragma once
+#include "VulkanWrappers.h"
+
 #include <vulkan\vulkan.h>
 #include <vector>
 
@@ -11,9 +13,9 @@ public:
 		vkInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	}
 
-	VulkanRenderPassBeginInfo& setRenderPass(VkRenderPass renderPass)
+	VulkanRenderPassBeginInfo& setRenderPass(VulkanRenderPass renderPass)
 	{
-		vkInfo.renderPass = renderPass;
+		vkInfo.renderPass = renderPass.vk;
 		return *this;
 	}
 

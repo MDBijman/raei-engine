@@ -1,58 +1,81 @@
 #pragma once
 #include <vulkan\vulkan.h>
+#include <algorithm>
+#include <iterator>
 
 class VulkanSubpassDescription
 {
 public:
 	VulkanSubpassDescription()
 	{
-		vkDescription = {};
+		vk = {};
 	}
 
 	VulkanSubpassDescription& setFlags(VkSubpassDescriptionFlags flags)
 	{
-		vkDescription.flags = flags;
+		vk.flags = flags;
 		return *this;
 	}
 
 	VulkanSubpassDescription& setPipelineBindPoint(VkPipelineBindPoint bindPoint)
 	{
-		vkDescription.pipelineBindPoint = bindPoint;
+		vk.pipelineBindPoint = bindPoint;
 		return *this;
 	}
 
-	VulkanSubpassDescription& setInputAttachments(std::vector<VkAttachmentReference>& inputAttachments)
+	VulkanSubpassDescription& setInputAttachments(std::vector<VulkanAttachmentReference> references)
 	{
-		vkDescription.inputAttachmentCount = inputAttachments.size();
-		vkDescription.pInputAttachments = inputAttachments.data();
+		inputAttachments.clear();
+		std::transform(references.begin(), references.end(), std::back_inserter(inputAttachments), [](VulkanAttachmentReference& r) { 
+			return r.vkReference; 
+		});
+		vk.inputAttachmentCount = inputAttachments.size();
+		vk.pInputAttachments = inputAttachments.data();
 		return *this;
 	}
 
-	VulkanSubpassDescription& setColorAttachments(std::vector<VkAttachmentReference>& colorAttachments)
+	VulkanSubpassDescription& setColorAttachments(std::vector<VulkanAttachmentReference> references)
 	{
-		vkDescription.colorAttachmentCount = colorAttachments.size();
-		vkDescription.pColorAttachments = colorAttachments.data();
+		colorAttachments.clear();
+		std::transform(references.begin(), references.end(), std::back_inserter(colorAttachments), [](VulkanAttachmentReference& r) { 
+			return r.vkReference; 
+		});
+		vk.colorAttachmentCount = colorAttachments.size();
+		vk.pColorAttachments = colorAttachments.data();
 		return *this;
 	}
 
-	VulkanSubpassDescription& setResolveAttachments(std::vector<VkAttachmentReference>& resolveAttachments)
+	VulkanSubpassDescription& setResolveAttachments(std::vector<VulkanAttachmentReference> references)
 	{
-		vkDescription.pResolveAttachments = resolveAttachments.data();
+		resolveAttachments.clear();
+		std::transform(references.begin(), references.end(), std::back_inserter(resolveAttachments), [](VulkanAttachmentReference& r) { 
+			return r.vkReference; 
+		});
+		vk.pResolveAttachments = resolveAttachments.data();
 		return *this;
 	}
 
-	VulkanSubpassDescription& setDepthStencilAttachment(VkAttachmentReference& depthStencilAttachment)
+	VulkanSubpassDescription& setDepthStencilAttachment(VulkanAttachmentReference attachment)
 	{
-		vkDescription.pDepthStencilAttachment = &depthStencilAttachment;
+		depthStencilAttachment = attachment.vkReference;
+		vk.pDepthStencilAttachment = &depthStencilAttachment;
 		return *this;
 	}
 
-	VulkanSubpassDescription& setPreserveAttachments(std::vector<uint32_t>& preserveAttachments)
+	VulkanSubpassDescription& setPreserveAttachments(std::vector<uint32_t> attachments)
 	{
-		vkDescription.preserveAttachmentCount = preserveAttachments.size();
-		vkDescription.pPreserveAttachments = preserveAttachments.data();
+		preserveAttachments = preserveAttachments;
+		vk.preserveAttachmentCount = preserveAttachments.size();
+		vk.pPreserveAttachments = preserveAttachments.data();
 		return *this;
 	}
 
-	VkSubpassDescription vkDescription;
+	VkSubpassDescription vk;
+
+private:
+	std::vector<VkAttachmentReference> inputAttachments;
+	std::vector<VkAttachmentReference> colorAttachments;
+	std::vector<VkAttachmentReference> resolveAttachments;
+	std::vector<uint32_t> preserveAttachments;
+	VkAttachmentReference depthStencilAttachment;
 };

@@ -1,10 +1,15 @@
 #pragma once
+#include "VulkanPhysicalDevice.h"
+#include "VulkanRenderPass.h"
+#include "VulkanRenderPassCreateInfo.h"
+#include "VulkanCommandBuffer.h"
+#include "VulkanDescriptorSetLayout.h"
+#include "VulkanDescriptorSetAllocateInfo.h"
+
 #include <assert.h>
 #include <array>
 #include <vulkan\vulkan.h>
 
-#include "VulkanPhysicalDevice.h"
-#include "VulkanCommandBuffer.h"
 
 class VulkanDevice
 {
@@ -131,12 +136,12 @@ public:
 		assert(!error);
 	}
 
-	VkRenderPass createRenderPass(VkRenderPassCreateInfo& vkInfo)
+	VulkanRenderPass createRenderPass(VulkanRenderPassCreateInfo info)
 	{
 		VkRenderPass pass;
-		VkResult error = vkCreateRenderPass(vkDevice, &vkInfo, nullptr, &pass);
+		VkResult error = vkCreateRenderPass(vkDevice, &info.vk, nullptr, &pass);
 		assert(!error);
-		return pass;
+		return VulkanRenderPass(pass);
 	}
 	
 	VkImage createImage(VkImageCreateInfo& vkInfo)
@@ -187,12 +192,12 @@ public:
 		return buffer;
 	}
 
-	VkDescriptorSetLayout createDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& vkInfo)
+	VulkanDescriptorSetLayout createDescriptorSetLayout(VkDescriptorSetLayoutCreateInfo& vkInfo)
 	{
 		VkDescriptorSetLayout layout;
 		VkResult error = vkCreateDescriptorSetLayout(vkDevice, &vkInfo, nullptr, &layout);
 		assert(!error);
-		return layout;
+		return VulkanDescriptorSetLayout(layout);
 	}
 
 	VkPipelineLayout createPipelineLayout(VkPipelineLayoutCreateInfo& vkInfo)
@@ -223,9 +228,9 @@ public:
 		return pool;
 	}
 
-	void allocateDescriptorSet(VkDescriptorSetAllocateInfo& vkInfo, VkDescriptorSet& set)
+	void allocateDescriptorSet(VulkanDescriptorSetAllocateInfo& vkInfo, VkDescriptorSet& set)
 	{
-		VkResult error = vkAllocateDescriptorSets(vkDevice, &vkInfo, &set);
+		VkResult error = vkAllocateDescriptorSets(vkDevice, &vkInfo.vk, &set);
 		assert(!error);
 	}
 

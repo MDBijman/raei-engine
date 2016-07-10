@@ -1,4 +1,6 @@
 #pragma once
+#include "VulkanWrappers.h"
+
 #include <vulkan\vulkan.h>
 
 class VulkanPipelineMultisampleStateCreateInfo
@@ -6,22 +8,27 @@ class VulkanPipelineMultisampleStateCreateInfo
 public:
 	VulkanPipelineMultisampleStateCreateInfo()
 	{
-		vkInfo = {};
-		vkInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-		vkInfo.pNext = NULL;
+		vk = {};
+		vk.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+		vk.pNext = NULL;
+		vk.pSampleMask = NULL;
+		mask = NULL;
 	}
 
-	VulkanPipelineMultisampleStateCreateInfo& setSampleMask(VkSampleMask* mask)
+	VulkanPipelineMultisampleStateCreateInfo& setSampleMask(VulkanSampleMask m)
 	{
-		vkInfo.pSampleMask = mask;
+		vk.pSampleMask = &mask;
 		return *this;
 	}
 
 	VulkanPipelineMultisampleStateCreateInfo& setRasterizationSamples(VkSampleCountFlagBits bits)
 	{
-		vkInfo.rasterizationSamples = bits;
+		vk.rasterizationSamples = bits;
 		return *this;
 	}
 
-	VkPipelineMultisampleStateCreateInfo vkInfo;
+	VkPipelineMultisampleStateCreateInfo vk;
+
+private:
+	VkSampleMask mask;
 };

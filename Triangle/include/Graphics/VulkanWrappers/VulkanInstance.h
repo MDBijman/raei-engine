@@ -1,4 +1,10 @@
 #pragma once
+#include "VulkanValidation.h"
+#include "VulkanApplicationInfo.h"
+#include "VulkanInstanceCreateInfo.h"
+#include "VulkanPhysicalDevice.h"
+
+#include <memory>
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -7,8 +13,6 @@
 #include <iostream>
 #include <vulkan\vulkan.h>
 
-#include "VulkanWrappers.h"
-#include "VulkanValidation.h"
 
 
 class VulkanInstance

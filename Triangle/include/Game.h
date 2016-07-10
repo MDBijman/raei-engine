@@ -16,7 +16,12 @@ public:
 
 	void begin()
 	{
-		drawable.push_back(Graphics::Drawable(renderer->state, camera));
+		auto& device = *renderer->device;
+		auto& physicalDevice = *renderer->physicalDevice;
+		auto& queue = *renderer->queue;
+		auto& swapchain = *renderer->swapchain;
+
+		drawable.push_back(Graphics::Drawable(camera, device, physicalDevice, renderer->cmdPool, queue, renderer->renderPass, renderer->pipelineCache, renderer->frameBuffers, swapchain));
 	}
 
 	void draw()
@@ -24,7 +29,7 @@ public:
 		if (paused) return;
 
 		for (auto it = drawable.begin(); it != drawable.end(); ++it)
-			(*it).updateUniformBuffers(camera);
+			(*it).updateUniformBuffers(camera, *renderer->device);
 
 		renderer->render(drawable);
 	}

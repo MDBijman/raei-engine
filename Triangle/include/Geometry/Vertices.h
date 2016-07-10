@@ -5,9 +5,9 @@
 class Vertices
 {
 public:
+	Vertices() {}
+
 	VkBuffer buf;
 	VkDeviceMemory mem;
-	VkPipelineVertexInputStateCreateInfo vi;
-	std::vector<VkVertexInputBindingDescription> bindingDescriptions;
-	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+	VulkanPipelineVertexInputStateCreateInfo vi;
 };

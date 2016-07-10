@@ -6,16 +6,16 @@ class VulkanPipelineInputAssemblyStateCreateInfo
 public:
 	VulkanPipelineInputAssemblyStateCreateInfo()
 	{
-		vkInfo = {};
-		vkInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		vkInfo.pNext = NULL;
+		vk = {};
+		vk.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+		vk.pNext = NULL;
 	}
 
 	VulkanPipelineInputAssemblyStateCreateInfo& setTopology(VkPrimitiveTopology topology)
 	{
-		vkInfo.topology = topology;
+		vk.topology = topology;
 		return *this;
 	}
 
-	VkPipelineInputAssemblyStateCreateInfo vkInfo;
+	VkPipelineInputAssemblyStateCreateInfo vk;
 };

@@ -116,12 +116,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Graphics\Renderer\Drawable.cpp" />
+    <ClCompile Include="src\Graphics\Renderer\Pipeline.cpp" />
     <ClCompile Include="src\Graphics\Renderer\Renderer.cpp" />
-    <ClCompile Include="src\Graphics\Renderer\StateBucket.cpp" />
     <ClCompile Include="src\Graphics\Resources\Shaders\Shaders.cpp" />
     <ClCompile Include="src\Graphics\Resources\Textures\Texture.cpp" />
     <ClCompile Include="src\Imports\Obj.cpp" />
     <ClCompile Include="src\Imports\Parser.cpp" />
+    <ClCompile Include="src\Imports\PipelineLoader.cpp" />
+    <ClCompile Include="src\Input\Input.cpp" />
     <ClCompile Include="src\triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -131,8 +133,16 @@
     <ClInclude Include="include\Geometry\Vertices.h" />
     <ClInclude Include="include\Graphics\Renderer\Camera.h" />
     <ClInclude Include="include\Graphics\Renderer\Drawable.h" />
+    <ClInclude Include="include\Graphics\Renderer\Pipeline.h" />
     <ClInclude Include="include\Graphics\Renderer\Renderer.h" />
-    <ClInclude Include="include\Graphics\Renderer\StateBucket.h" />
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetLayout.h" />
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDynamicState.h" />
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineLayout.h" />
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineVertexInputStateCreateInfo.h" />
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanRenderPass.h" />
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanSampleMask.h" />
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanSubpassDependency.h" />
+    <ClInclude Include="include\Imports\PipelineLoader.h" />
     <ClInclude Include="include\Graphics\Resources\Shaders\Shaders.h" />
     <ClInclude Include="include\Graphics\Resources\Shaders\UniformData.h" />
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h" />
@@ -149,7 +159,7 @@
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanCommandPoolCreateInfo.h" />
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorPoolCreateInfo.h" />
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorPoolSize.h" />
-    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetAllocInfo.h" />
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetAllocateInfo.h" />
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetLayoutBinding.h" />
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetLayoutCreateInfo.h" />
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDevice.h" />
@@ -188,8 +198,13 @@
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanWriteDescriptorSet.h" />
     <ClInclude Include="include\Imports\Obj.h" />
     <ClInclude Include="include\Imports\Parser.h" />
+    <ClInclude Include="include\Input\Input.h" />
     <ClInclude Include="include\Math\Matrices.h" />
     <ClInclude Include="include\Game.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\pipeline-example.json" />
+    <None Include="res\shader-metadata-example.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

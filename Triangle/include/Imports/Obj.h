@@ -6,11 +6,10 @@
 #include <vector>
 #include <fstream>
 
-
 namespace Importers
 {
 	namespace Obj
 	{
-		Mesh* load(std::string path);
+		Mesh* load(const std::string& path);
 	}
-};
+}

@@ -57,6 +57,15 @@
     <Filter Include="Source Files\Imports">
       <UniqueIdentifier>{2fbe6264-9e75-4bed-ac0c-9dc96df473c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Input">
+      <UniqueIdentifier>{7e184e6f-130d-4ace-840c-829eee69da3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Input">
+      <UniqueIdentifier>{17bbfcda-8c10-4b64-b6ad-29765b8b19f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{81292c2d-6236-4a4b-8d78-0a74d4185c3c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\triangle.cpp">
@@ -66,9 +75,6 @@
       <Filter>Source Files\Graphics\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\Renderer\Renderer.cpp">
-      <Filter>Source Files\Graphics\Renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics\Renderer\StateBucket.cpp">
       <Filter>Source Files\Graphics\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\Graphics\Resources\Shaders\Shaders.cpp">
@@ -81,6 +87,15 @@
       <Filter>Source Files\Imports</Filter>
     </ClCompile>
     <ClCompile Include="src\Imports\Obj.cpp">
+      <Filter>Source Files\Imports</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input\Input.cpp">
+      <Filter>Source Files\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\Renderer\Pipeline.cpp">
+      <Filter>Source Files\Graphics\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Imports\PipelineLoader.cpp">
       <Filter>Source Files\Imports</Filter>
     </ClCompile>
   </ItemGroup>
@@ -104,9 +119,6 @@
       <Filter>Header Files\Graphics\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="include\Graphics\Renderer\Renderer.h">
-      <Filter>Header Files\Graphics\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\Renderer\StateBucket.h">
       <Filter>Header Files\Graphics\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="include\Graphics\Resources\Shaders\Shaders.h">
@@ -155,9 +167,6 @@
       <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorPoolSize.h">
-      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetAllocInfo.h">
       <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
     <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetLayoutBinding.h">
@@ -280,5 +289,46 @@
     <ClInclude Include="include\Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Input\Input.h">
+      <Filter>Header Files\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetLayout.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDescriptorSetAllocateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanSampleMask.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanDynamicState.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineVertexInputStateCreateInfo.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanRenderPass.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanPipelineLayout.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\VulkanWrappers\VulkanSubpassDependency.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Graphics\Renderer\Pipeline.h">
+      <Filter>Header Files\Graphics\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Imports\PipelineLoader.h">
+      <Filter>Header Files\Imports</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\pipeline-example.json">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="res\shader-metadata-example.json">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
 </Project>

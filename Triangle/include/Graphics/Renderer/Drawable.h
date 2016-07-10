@@ -1,7 +1,7 @@
 #pragma once
 #include "Graphics\VulkanWrappers\VulkanWrappers.h"
-#include "Graphics\Renderer\StateBucket.h"
 #include "Graphics\Renderer\Camera.h"
+#include "Graphics\Renderer\Pipeline.h"
 #include "Graphics\Resources\Textures\Texture.h"
 #include "Graphics\Resources\Shaders\UniformData.h"
 #include "Geometry\Vertices.h"
@@ -17,32 +17,26 @@ namespace Graphics
 	class Drawable
 	{
 	public:
-		Drawable(StateBucket& state, Camera& camera);
+		Drawable(Camera& camera, VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, VkCommandPool& cmdPool, VulkanQueue& queue, VulkanRenderPass& renderpass, VkPipelineCache& cache, std::vector<VkFramebuffer>& framebuffers, VulkanSwapChain& swapchain);
 
 		/*
 		* Initialization Methods
 		*/
 
-		void addShaderStage();
-		void prepareTexture();
-		void prepareVertices();
-		void prepareUniformBuffers(Camera& camera);
-		void prepareDescriptorSetLayout();
-		void preparePipeline();
-		void prepareDescriptorPool();
-		void updateDescriptorSet();
-		void prepareCommandBuffers(Camera& camera);
+		void addTexture(const std::string& name, VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, VkCommandPool& cmdPool, VulkanQueue& queue);
+		void addObject(const std::string& name, VulkanDevice& device, VulkanPhysicalDevice& physicalDevice);
+		void prepareUniformBuffers(Camera& camera, VulkanDevice& device, VulkanPhysicalDevice& physicalDevice);
+		void prepareDescriptorSetLayout(VulkanDevice& device);
+		void loadPipeline(const std::string& location, VulkanRenderPass& renderpass, VkPipelineCache& cache, VulkanDevice& device);
+		void prepareDescriptorPool(VulkanDevice& device);
+		void updateDescriptorSet(VulkanDevice& device);
+		void prepareCommandBuffers(Camera& camera, VulkanDevice& device, VkCommandPool cmdPool, VulkanSwapChain& swapchain, VulkanRenderPass& renderPass, std::vector<VkFramebuffer>& framebuffers);
 
-		void updateUniformBuffers(Camera& camera);
+		void updateUniformBuffers(Camera& camera, VulkanDevice& device);
 
 		std::vector<VulkanCommandBuffer>& getCommandBuffers();
 
 	private:
-		const std::string SHADER_LOCATION = "./../data/shaders/";
-		const std::string SHADER_NAME = "mesh";
-		const std::string VERTEX_LOCATION = SHADER_LOCATION + SHADER_NAME + ".vert.spv";
-		const std::string FRAGMENT_LOCATION = SHADER_LOCATION + SHADER_NAME + ".frag.spv";
-
 		Texture texture;
 		Vertices vertices;
 		Indices indices;
@@ -54,16 +48,12 @@ namespace Graphics
 			glm::mat4 viewMatrix;
 		} uboVS;
 
-		struct {
-			VkPipeline solid;
-		} pipelines;
+		Pipeline solidPipeline;
 
-		VkPipelineLayout      pipelineLayout;
-		VkDescriptorSetLayout descriptorSetLayout;
-		VkDescriptorSet       descriptorSet;
-		VkDescriptorPool      descriptorPool;
-
-		StateBucket& state;
+		VulkanPipelineLayout      pipelineLayout;
+		VulkanDescriptorSetLayout descriptorSetLayout;
+		VkDescriptorSet           descriptorSet;
+		VkDescriptorPool          descriptorPool;
 
 		std::vector<VulkanCommandBuffer> commandBuffers;
 	};

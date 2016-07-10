@@ -2,30 +2,59 @@
 
 #include "Graphics\VulkanWrappers\VulkanWrappers.h"
 #include "Geometry\Vertex.h"
-#include "Graphics\Renderer\StateBucket.h"
+
+#include <vector>
 
 namespace Graphics
 {
-	Renderer::Renderer(WindowsContext context) : state()
+	Renderer::Renderer(WindowsContext context)
 	{
-		state.swapchain->initSurface(context.hInstance, context.window, context.name);
+		instance = std::make_unique<VulkanInstance>("triangle");
+		physicalDevice = std::make_unique<VulkanPhysicalDevice>(instance->getPhysicalDevices()->at(0));
+
+		auto queueProperties = physicalDevice->queueFamilyProperties();
+		uint32_t graphicsQueueIndex;
+		for (graphicsQueueIndex = 0; graphicsQueueIndex < queueProperties->size(); graphicsQueueIndex++)
+		{
+			if (queueProperties->at(graphicsQueueIndex).queueFlags & VK_QUEUE_GRAPHICS_BIT)
+				break;
+		}
+		assert(graphicsQueueIndex < queueProperties->size());
+
+		device = std::make_unique<VulkanDevice>(physicalDevice->vkPhysicalDevice, graphicsQueueIndex);
+		swapchain = std::make_unique<VulkanSwapChain>(instance->vkInstance, physicalDevice->vkPhysicalDevice, device->vkDevice);
+		queue = std::make_unique<VulkanQueue>(device->queueAt(graphicsQueueIndex));
+
+		// Find supported depth format
+		// We prefer 24 bits of depth and 8 bits of stencil, but that may not be supported by all implementations
+		std::vector<VkFormat> depthFormats = { VK_FORMAT_D24_UNORM_S8_UINT, VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM };
+		for (auto& format : depthFormats)
+		{
+			if (physicalDevice->formatProperties(format).optimalTilingFeatures && VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+			{
+				depthFormat = format;
+				break;
+			}
+		}
+
+		swapchain->initSurface(context.hInstance, context.window, context.name);
 
 		VulkanCommandPoolCreateInfo cmdPoolInfo;
 		cmdPoolInfo
-			.setQueueFamilyIndex(state.swapchain->queueNodeIndex)
+			.setQueueFamilyIndex(swapchain->queueNodeIndex)
 			.setFlags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-		state.cmdPool = state.device->createCommandPool(cmdPoolInfo.vkInfo);
+		cmdPool = device->createCommandPool(cmdPoolInfo.vkInfo);
 
 		VulkanCommandBufferBeginInfo cmdBufferBeginInfo;
 		VulkanCommandBuffer setupCmdBuffer;
 		VulkanCommandBufferAllocateInfo info;
-		info.setCommandPool(state.cmdPool)
+		info.setCommandPool(cmdPool)
 			.setCommandBufferLevel(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
 			.setCommandBufferCount(1);
 
-		setupCmdBuffer = state.device->allocateCommandBuffers(info.vkInfo).at(0);
+		setupCmdBuffer = device->allocateCommandBuffers(info.vkInfo).at(0);
 		setupCmdBuffer.beginCommandBuffer(cmdBufferBeginInfo.vkInfo);
-		state.swapchain->setup(setupCmdBuffer.vkBuffer, &context.width, &context.height);
+		swapchain->setup(setupCmdBuffer.vkBuffer, &context.width, &context.height);
 		prepareDepthStencil(context.width, context.height);
 		prepareRenderPass();
 		preparePipelineCache();
@@ -35,27 +64,27 @@ namespace Graphics
 		VulkanSubmitInfo submitInfo;
 		std::vector<VkCommandBuffer> buffers{ setupCmdBuffer.vkBuffer };
 		submitInfo.setCommandBuffers(buffers);
-		state.queue->submit(1, submitInfo.vkInfo);
-		state.queue->waitIdle();
-		state.device->freeCommandBuffer(state.cmdPool, setupCmdBuffer);
+		queue->submit(1, submitInfo.vkInfo);
+		queue->waitIdle();
+		device->freeCommandBuffer(cmdPool, setupCmdBuffer);
 
 		VulkanCommandBufferAllocateInfo info2;
-		info2.setCommandPool(state.cmdPool)
+		info2.setCommandPool(cmdPool)
 			.setCommandBufferLevel(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
 			.setCommandBufferCount(1);
 
-		postPresentCmdBuffer = state.device->allocateCommandBuffers(info2.vkInfo).at(0);
-		prePresentCmdBuffer = state.device->allocateCommandBuffers(info2.vkInfo).at(0);
+		postPresentCmdBuffer = device->allocateCommandBuffers(info2.vkInfo).at(0);
+		prePresentCmdBuffer = device->allocateCommandBuffers(info2.vkInfo).at(0);
 
 		VulkanSemaphoreCreateInfo semaphoreCreateInfo;
 
 		// This semaphore ensures that the image is complete
 		// before starting to submit again
-		presentComplete = state.device->createSemaphore(semaphoreCreateInfo.vkInfo);
+		presentComplete = device->createSemaphore(semaphoreCreateInfo.vkInfo);
 
 		// This semaphore ensures that all commands submitted
 		// have been finished before submitting the image to the queue
-		renderComplete = state.device->createSemaphore(semaphoreCreateInfo.vkInfo);
+		renderComplete = device->createSemaphore(semaphoreCreateInfo.vkInfo);
 	}
 
 	void Renderer::render(std::vector<Drawable> d)
@@ -68,8 +97,8 @@ namespace Graphics
 
 	void Renderer::prepare()
 	{
-		state.swapchain->acquireNextImage(presentComplete, &currentBuffer);
-		submitPostPresentBarrier(state.swapchain->buffers[currentBuffer].image);
+		swapchain->acquireNextImage(presentComplete, &currentBuffer);
+		submitPostPresentBarrier(swapchain->buffers[currentBuffer].image);
 	}
 
 	void Renderer::submit(Drawable& c)
@@ -88,16 +117,16 @@ namespace Graphics
 			.setWaitSemaphores(wait);
 
 		// Submit to the graphics queue
-		state.queue->submit(1, submitInfo.vkInfo);
+		queue->submit(1, submitInfo.vkInfo);
 	}
 
 	void Renderer::present()
 	{
-		submitPrePresentBarrier(state.swapchain->buffers[currentBuffer].image);
+		submitPrePresentBarrier(swapchain->buffers[currentBuffer].image);
 
-		state.swapchain->queuePresent(*state.queue, currentBuffer, renderComplete);
+		swapchain->queuePresent(*queue, currentBuffer, renderComplete);
 
-		VkResult err = vkQueueWaitIdle(*state.queue);
+		VkResult err = vkQueueWaitIdle(*queue);
 		assert(!err);
 	}
 
@@ -142,7 +171,7 @@ namespace Graphics
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &postPresentCmdBuffer.vkBuffer;
 
-		err = vkQueueSubmit(*state.queue, 1, &submitInfo, VK_NULL_HANDLE);
+		err = vkQueueSubmit(*queue, 1, &submitInfo, VK_NULL_HANDLE);
 		assert(!err);
 	}
 
@@ -151,19 +180,19 @@ namespace Graphics
 		VulkanImageCreateInfo imageCreateInfo;
 		imageCreateInfo
 			.setImageType(VK_IMAGE_TYPE_2D)
-			.setFormat(state.depthFormat)
+			.setFormat(depthFormat)
 			.setExtent({ width, height, 1 })
 			.setMipLevels(1).setArrayLayers(1)
 			.setSamples(VK_SAMPLE_COUNT_1_BIT)
 			.setTiling(VK_IMAGE_TILING_OPTIMAL)
 			.setUsage(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT)
 			.setFlags(0);
-		state.depthStencil.image = state.device->createImage(imageCreateInfo.vkInfo);
+		depthStencil.image = device->createImage(imageCreateInfo.vkInfo);
 
 		VulkanImageViewCreateInfo imageViewCreateInfo;
 		imageViewCreateInfo
 			.setViewType(VK_IMAGE_VIEW_TYPE_2D)
-			.setFormat(state.depthFormat)
+			.setFormat(depthFormat)
 			.setFlags(0);
 		VulkanImageSubresourceRange subresourceRange;
 		subresourceRange
@@ -174,55 +203,52 @@ namespace Graphics
 			.setLayerCount(1);
 		imageViewCreateInfo.setSubresourceRange(subresourceRange.vkRange);
 
-		VkMemoryRequirements memReqs = state.device->getImageMemoryRequirements(state.depthStencil.image);
+		VkMemoryRequirements memReqs = device->getImageMemoryRequirements(depthStencil.image);
 
 		VulkanMemoryAllocateInfo memoryInfo;
 		memoryInfo.setAllocationSize(memReqs.size);
-		memoryInfo.setMemoryTypeIndex(state.physicalDevice->getMemoryPropertyIndex(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memReqs));
+		memoryInfo.setMemoryTypeIndex(physicalDevice->getMemoryPropertyIndex(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memReqs));
 
-		state.depthStencil.mem = state.device->allocateMemory(memoryInfo.vkInfo);
+		depthStencil.mem = device->allocateMemory(memoryInfo.vkInfo);
 
-		state.device->bindImageMemory(state.depthStencil.image, state.depthStencil.mem);
+		device->bindImageMemory(depthStencil.image, depthStencil.mem);
 
-		imageViewCreateInfo.setImage(state.depthStencil.image);
-		state.depthStencil.view = state.device->createImageView(imageViewCreateInfo.vkInfo);
+		imageViewCreateInfo.setImage(depthStencil.image);
+		depthStencil.view = device->createImageView(imageViewCreateInfo.vkInfo);
 	}
 
 	void Renderer::prepareRenderPass()
 	{	
 		// Attachments
 		// Color attachment
-		std::vector<VkAttachmentDescription> attachments(2);
-		attachments[0] = VulkanAttachmentDescription()
-			.setFormat(state.colorformat)
+		std::vector<VulkanAttachmentDescription> attachments(2);
+		attachments[0]
+			.setFormat(colorformat)
 			.setSamples(VK_SAMPLE_COUNT_1_BIT)
 			.setLoadOp(VK_ATTACHMENT_LOAD_OP_CLEAR)
 			.setStoreOp(VK_ATTACHMENT_STORE_OP_STORE)
 			.setStencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE)
 			.setStencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE)
 			.setInitialLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-			.setFinalLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-			.vkDescription;
+			.setFinalLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		// Depth attachment
-		attachments[1] = VulkanAttachmentDescription()
-			.setFormat(state.depthFormat)
+		attachments[1] 
+			.setFormat(depthFormat)
 			.setSamples(VK_SAMPLE_COUNT_1_BIT)
 			.setLoadOp(VK_ATTACHMENT_LOAD_OP_CLEAR)
 			.setStoreOp(VK_ATTACHMENT_STORE_OP_STORE)
 			.setStencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE)
 			.setStencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE)
 			.setInitialLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
-			.setFinalLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
-			.vkDescription;
+			.setFinalLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 		// Subpasses
-		std::vector<VkAttachmentReference> colorReference(1);
+		std::vector<VulkanAttachmentReference> colorReference(1);
 		// Color reference
-		colorReference[0] = VulkanAttachmentReference()
+		colorReference[0]
 			.setAttachment(0)
-			.setImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
-			.vkReference;
+			.setImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		// Depth reference
 		VulkanAttachmentReference depthReference;
@@ -230,19 +256,18 @@ namespace Graphics
 			.setAttachment(1)
 			.setImageLayout(VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
-		std::vector<VkSubpassDescription> subpass(1);
-		subpass[0] = VulkanSubpassDescription()
+		std::vector<VulkanSubpassDescription> subpass(1);
+		subpass[0]
 			.setPipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS)
 			.setFlags(0)
-			.setInputAttachments(std::vector<VkAttachmentReference>(0))
+			.setInputAttachments(std::vector<VulkanAttachmentReference>(0))
 			.setColorAttachments(colorReference)
-			.setResolveAttachments(std::vector<VkAttachmentReference>(0))
-			.setDepthStencilAttachment(depthReference.vkReference)
-			.setPreserveAttachments(std::vector<uint32_t>(0))
-			.vkDescription;
+			.setResolveAttachments(std::vector<VulkanAttachmentReference>(0))
+			.setDepthStencilAttachment(depthReference)
+			.setPreserveAttachments(std::vector<uint32_t>(0));
 
 		// Dependencies
-		std::vector<VkSubpassDependency> dependencies(0);
+		std::vector<VulkanSubpassDependency> dependencies(0);
 
 		// RenderPass creation
 		VulkanRenderPassCreateInfo renderPassInfo;
@@ -251,13 +276,13 @@ namespace Graphics
 			.setSubpasses(subpass)
 			.setDependencies(dependencies);
 
-		state.renderPass = state.device->createRenderPass(renderPassInfo.vkInfo);
+		renderPass = device->createRenderPass(renderPassInfo);
 	}
 
 	void Renderer::preparePipelineCache()
 	{
 		VulkanPipelineCacheCreateInfo pipelineCacheCreateInfo;
-		state.pipelineCache = state.device->createPipelineCache(pipelineCacheCreateInfo.vkInfo);
+		pipelineCache = device->createPipelineCache(pipelineCacheCreateInfo.vkInfo);
 	}
 
 	void Renderer::prepareFramebuffers(uint32_t width, uint32_t height)
@@ -265,22 +290,22 @@ namespace Graphics
 		std::vector<VkImageView> fbAttachments(2);
 
 		// Depth/Stencil attachment is the same for all frame buffers
-		fbAttachments[1] = state.depthStencil.view;
+		fbAttachments[1] = depthStencil.view;
 
 		VulkanFramebufferCreateInfo frameBufferCreateInfo;
 		frameBufferCreateInfo
-			.setRenderPass(state.renderPass)
+			.setRenderPass(renderPass.vk)
 			.setAttachments(fbAttachments)
 			.setWidth(width)
 			.setHeight(height)
 			.setLayers(1);
 
 		// Create frame buffers for every swap chain image
-		state.frameBuffers.resize(state.swapchain->imageCount);
-		for (uint32_t i = 0; i < state.frameBuffers.size(); i++)
+		frameBuffers.resize(swapchain->imageCount);
+		for (uint32_t i = 0; i < frameBuffers.size(); i++)
 		{
-			fbAttachments[0] = state.swapchain->buffers[i].view;
-			state.frameBuffers[i] = state.device->createFrameBuffer(frameBufferCreateInfo.vkInfo);
+			fbAttachments[0] = swapchain->buffers[i].view;
+			frameBuffers[i] = device->createFrameBuffer(frameBufferCreateInfo.vkInfo);
 		}
 	}
 
@@ -325,7 +350,7 @@ namespace Graphics
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &prePresentCmdBuffer.vkBuffer;
 
-		err = vkQueueSubmit(*state.queue, 1, &submitInfo, VK_NULL_HANDLE);
+		err = vkQueueSubmit(*queue, 1, &submitInfo, VK_NULL_HANDLE);
 		assert(!err);
 	}
 }

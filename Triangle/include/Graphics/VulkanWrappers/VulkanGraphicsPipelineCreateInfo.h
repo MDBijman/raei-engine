@@ -1,4 +1,5 @@
 #pragma once
+#include "VulkanWrappers.h"
 #include <vulkan\vulkan.h>
 
 class VulkanGraphicsPipelineCreateInfo
@@ -11,14 +12,16 @@ public:
 		vkInfo.pNext = NULL;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setLayout(VkPipelineLayout layout)
+	VulkanGraphicsPipelineCreateInfo& setLayout(VulkanPipelineLayout layout)
 	{
-		vkInfo.layout = layout;
+		pipelineLayout = layout.vk;
+		vkInfo.layout = pipelineLayout;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setRenderPass(VkRenderPass renderPass)
+	VulkanGraphicsPipelineCreateInfo& setRenderPass(VulkanRenderPass rp)
 	{
+		renderPass = rp.vk;
 		vkInfo.renderPass = renderPass;
 		return *this;
 	}
@@ -29,60 +32,85 @@ public:
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setVertexInputState(VkPipelineVertexInputStateCreateInfo& info)
+	VulkanGraphicsPipelineCreateInfo& setVertexInputState(VulkanPipelineVertexInputStateCreateInfo info)
 	{
-		vkInfo.pVertexInputState = &info;
+		vertexInputInfo = info.vk;
+		vkInfo.pVertexInputState = &vertexInputInfo;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setInputAssemblyState(VkPipelineInputAssemblyStateCreateInfo& info)
+	VulkanGraphicsPipelineCreateInfo& setInputAssemblyState(VulkanPipelineInputAssemblyStateCreateInfo info)
 	{
-		vkInfo.pInputAssemblyState = &info;
+		inputAssemblyInfo = info.vk;
+		vkInfo.pInputAssemblyState = &inputAssemblyInfo;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setRasterizationState(VkPipelineRasterizationStateCreateInfo& info)
+	VulkanGraphicsPipelineCreateInfo& setRasterizationState(VulkanPipelineRasterizationStateCreateInfo info)
 	{
-		vkInfo.pRasterizationState = &info;
+		rasterizationInfo = info.vk;
+		vkInfo.pRasterizationState = &rasterizationInfo;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setColorBlendState(VkPipelineColorBlendStateCreateInfo& info)
+	VulkanGraphicsPipelineCreateInfo& setColorBlendState(VulkanPipelineColorBlendStateCreateInfo info)
 	{
-		vkInfo.pColorBlendState = &info;
+		colorBlendInfo = info.vk;
+		vkInfo.pColorBlendState = &colorBlendInfo;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setMultisampleState(VkPipelineMultisampleStateCreateInfo& info)
+	VulkanGraphicsPipelineCreateInfo& setMultisampleState(VulkanPipelineMultisampleStateCreateInfo info)
 	{
-		vkInfo.pMultisampleState = &info;
+		multisampleInfo = info.vk;
+		vkInfo.pMultisampleState = &multisampleInfo;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setViewportState(VkPipelineViewportStateCreateInfo& info)
+	VulkanGraphicsPipelineCreateInfo& setViewportState(VulkanPipelineViewportStateCreateInfo info)
 	{
-		vkInfo.pViewportState = &info;
+		viewportInfo = info.vk;
+		vkInfo.pViewportState = &viewportInfo;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setDepthStencilState(VkPipelineDepthStencilStateCreateInfo& info)
+	VulkanGraphicsPipelineCreateInfo& setDepthStencilState(VulkanPipelineDepthStencilStateCreateInfo info)
 	{
-		vkInfo.pDepthStencilState = &info;
+		depthStencilInfo = info.vk;
+		vkInfo.pDepthStencilState = &depthStencilInfo;
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setStages(std::vector<VkPipelineShaderStageCreateInfo>& info)
+	VulkanGraphicsPipelineCreateInfo& setStages(std::vector<VulkanPipelineShaderStageCreateInfo> info)
 	{
-		vkInfo.stageCount = info.size();
-		vkInfo.pStages = info.data();
+		std::transform(info.begin(), info.end(), std::back_inserter(shaderStageInfo), [](VulkanPipelineShaderStageCreateInfo& a) {
+			return a.vk;
+		});
+		vkInfo.stageCount = shaderStageInfo.size();
+		vkInfo.pStages = shaderStageInfo.data();
 		return *this;
 	}
 
-	VulkanGraphicsPipelineCreateInfo& setDynamicState(VkPipelineDynamicStateCreateInfo& info)
+	VulkanGraphicsPipelineCreateInfo& setDynamicState(VulkanPipelineDynamicStateCreateInfo info)
 	{
-		vkInfo.pDynamicState = &info;
+		dynamicStateInfo = info.vk;
+		vkInfo.pDynamicState = &dynamicStateInfo;
 		return *this;
 	}
 
 	VkGraphicsPipelineCreateInfo vkInfo;
+
+private:
+	VkPipelineLayout pipelineLayout;
+	VkRenderPass renderPass;
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+	VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+	VkPipelineRasterizationStateCreateInfo rasterizationInfo;
+	VkPipelineColorBlendStateCreateInfo colorBlendInfo;
+	VkPipelineMultisampleStateCreateInfo multisampleInfo;
+	VkPipelineViewportStateCreateInfo viewportInfo;
+	VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+	std::vector<VkPipelineShaderStageCreateInfo> shaderStageInfo;
+	VkPipelineDynamicStateCreateInfo dynamicStateInfo;
+
 };

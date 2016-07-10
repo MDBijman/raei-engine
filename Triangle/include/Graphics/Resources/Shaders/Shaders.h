@@ -3,6 +3,9 @@
 #include <assert.h>
 #include <iostream>
 
-char* readBinaryFile(const char *filename, size_t *psize);
+namespace Shaders
+{
+	char* readBinaryFile(const char *filename, size_t *psize);
 
-VkShaderModule loadShader(const char *fileName, VkDevice device);
+	VkShaderModule loadShader(const char *fileName, VkDevice device);
+}

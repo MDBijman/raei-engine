@@ -7,28 +7,32 @@ class VulkanPipelineShaderStageCreateInfo
 public:
 	VulkanPipelineShaderStageCreateInfo()
 	{
-		vkInfo = {};
-		vkInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-		vkInfo.pNext = NULL;
+		vk = {};
+		vk.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		vk.pNext = NULL;
 	}
 
 	VulkanPipelineShaderStageCreateInfo& setStage(VkShaderStageFlagBits bits)
 	{
-		vkInfo.stage = bits;
+		vk.stage = bits;
 		return *this;
 	}
 
 	VulkanPipelineShaderStageCreateInfo& setModule(VkShaderModule module)
 	{
-		vkInfo.module = module;
+		vk.module = module;
 		return *this;
 	}
 
-	VulkanPipelineShaderStageCreateInfo& setName(std::string& name)
+	VulkanPipelineShaderStageCreateInfo& setName(std::string name)
 	{
-		vkInfo.pName = name.c_str();
+		this->name = name;
+		vk.pName = this->name.c_str();
 		return *this;
 	}
 
-	VkPipelineShaderStageCreateInfo vkInfo;
+	VkPipelineShaderStageCreateInfo vk;
+
+private:
+	std::string name;
 };

@@ -6,20 +6,20 @@ class VulkanPipelineColorBlendAttachmentState
 public:
 	VulkanPipelineColorBlendAttachmentState()
 	{
-		vkState = {};
+		vk = {};
 	}
 
 	VulkanPipelineColorBlendAttachmentState& setColorWriteMask(VkColorComponentFlags flags)
 	{
-		vkState.colorWriteMask = flags;
+		vk.colorWriteMask = flags;
 		return *this;
 	}
 
 	VulkanPipelineColorBlendAttachmentState& setBlendEnable(VkBool32 blendEnable)
 	{
-		vkState.blendEnable = blendEnable;
+		vk.blendEnable = blendEnable;
 		return *this;
 	}
 
-	VkPipelineColorBlendAttachmentState vkState;
+	VkPipelineColorBlendAttachmentState vk;
 };

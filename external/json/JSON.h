@@ -223,8 +223,8 @@ namespace JSON
 			{
 				throw std::domain_error("Wrong type");
 			}
-
-			while (data.array->size() - 1 < index)
+			int res = data.array->size() - 1;
+			while (static_cast<int>(data.array->size()) - 1 < index)
 			{
 				data.array->push_back(JSON());
 			}
@@ -232,7 +232,7 @@ namespace JSON
 			return data.array->at(index);
 		}
 
-		static JSON array()
+		static JSON getArray()
 		{
 			return JSON(std::vector<JSON>());
 		}
@@ -273,17 +273,18 @@ namespace JSON
 
 		static JSON parseArray(std::string content)
 		{
-			JSON json(std::vector<JSON>());
+			JSON json = JSON::getArray();
 
 			content.erase(0, 1);
 			content.erase(content.length() - 1, 1);
 			std::vector<uint32_t> seperators = findCommaSeperators(content);
 			std::vector<std::string> components = splitAt(seperators, content);
 
-			for (std::string component : components)
+			for (int i = 0; i < components.size(); i++)
 			{
-				parseAny(component);
+				 json[i] = parseAny(components[i]);
 			}
+			return json;
 		}
 
 		static JSON parseObject(std::string content)
@@ -306,6 +307,7 @@ namespace JSON
 
 				json[name] = parseAny(component);
 			}
+			return json;
 		}
 
 		static JSON parseAny(std::string content)

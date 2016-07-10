@@ -1,6 +1,6 @@
 #include "Imports\Obj.h"
 
-Mesh* Importers::Obj::load(std::string path)
+Mesh* Importers::Obj::load(const std::string& path)
 {
 	std::ifstream file(path);
 

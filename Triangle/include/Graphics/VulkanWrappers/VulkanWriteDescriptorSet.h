@@ -4,7 +4,7 @@
 class VulkanWriteDescriptorSet
 {
 public:
-	VulkanWriteDescriptorSet()
+	VulkanWriteDescriptorSet() 
 	{
 		vkDescriptorSet = {};
 		vkDescriptorSet.pNext = NULL;
@@ -29,15 +29,17 @@ public:
 		return *this;
 	}
 
-	VulkanWriteDescriptorSet& setBufferInfo(VkDescriptorBufferInfo* info)
+	VulkanWriteDescriptorSet& setBufferInfo(VkDescriptorBufferInfo info)
 	{
-		vkDescriptorSet.pBufferInfo = info;
+		bufferInfo = info;
+		vkDescriptorSet.pBufferInfo = &bufferInfo;
 		return *this;
 	}
 
-	VulkanWriteDescriptorSet& setImageInfo(VkDescriptorImageInfo* info)
+	VulkanWriteDescriptorSet& setImageInfo(VkDescriptorImageInfo info)
 	{
-		vkDescriptorSet.pImageInfo = info;
+		imageInfo = info;
+		vkDescriptorSet.pImageInfo = &imageInfo;
 		return *this;
 	}
 	
@@ -48,4 +50,8 @@ public:
 	}
 
 	VkWriteDescriptorSet vkDescriptorSet;
+
+private:
+	VkDescriptorBufferInfo bufferInfo;
+	VkDescriptorImageInfo imageInfo;
 };

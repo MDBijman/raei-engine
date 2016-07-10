@@ -1,3 +1,5 @@
+#include "Input\Input.h"
+
 #include <chrono>
 #include <windows.h>
 #include <iostream>
@@ -63,6 +65,7 @@ void createWindowsContext(HINSTANCE hInstance, WNDPROC WndProc, std::string name
 	}
 
 	ShowWindow(window, SW_SHOW);
+	ShowCursor(FALSE);
 	SetForegroundWindow(window);
 	SetFocus(window);
 }
@@ -74,25 +77,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_CLOSE:
 		exit(0);
 		break;
-	case WM_KEYDOWN:
-		std::cout << wParam << std::endl;
-
-		// Delete button
-		if (wParam == VK_ESCAPE)
-			exit(0);
-
-		// Move forward or backward
-		if (wParam == 'W') 
-			t->camera.forward(300.0f, t->dt);
-		else if (wParam == 'S')
-			t->camera.backward(300.0f, t->dt);
-
-		// Move left or right
-		if (wParam == 'A') 
-			t->camera.left(300.0f, t->dt);
-		else if (wParam == 'D')
-			t->camera.right(300.0f, t->dt);
+	case WM_KEYUP:
+		Input::Keyboard::setKeyUp(wParam);
 		break;
+	case WM_KEYDOWN:
+		Input::Keyboard::setKeyDown(wParam);
+	break;
 	case WM_MOUSEMOVE:
 		POINT cursor;
 		GetCursorPos(&cursor);
@@ -138,6 +128,20 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 			break;
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
+
+		// Escape button
+		if (Input::Keyboard::getKeyStatus(VK_ESCAPE) == Input::Keyboard::KeyStatus::DOWN)
+			exit(0);
+		// Move forward or backward
+		if (Input::Keyboard::getKeyStatus('W') == Input::Keyboard::KeyStatus::DOWN)
+			t->camera.forward(3.0f, t->dt);
+		if (Input::Keyboard::getKeyStatus('S') == Input::Keyboard::KeyStatus::DOWN)
+			t->camera.backward(3.0f, t->dt);
+		// Move left or right
+		if (Input::Keyboard::getKeyStatus('A') == Input::Keyboard::KeyStatus::DOWN)
+			t->camera.left(3.0f, t->dt);
+		if (Input::Keyboard::getKeyStatus('D') == Input::Keyboard::KeyStatus::DOWN)
+			t->camera.right(3.0f, t->dt);
 
 		t->draw();
 
