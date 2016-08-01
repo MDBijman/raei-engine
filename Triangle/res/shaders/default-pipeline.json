@@ -1,0 +1,52 @@
+{
+	"input-assembly" : {
+		"topology" : "triangle-list"
+	},
+
+	"rasterization" : {
+		"polygon-mode" : "fill",
+		"cull-mode" : "none",
+		"front-face" : "ccw",
+		"depth-clamp" : false,
+		"rasterizer-discard" : false,
+		"depth-bias" : false
+	},
+
+	"color-blending" : {
+		"color-write-mask" : 15,
+		"blending" : false
+	},
+
+	"viewport" : {
+		"viewport-count" : 1,
+		"scissor-count" : 1
+	},
+
+	"dynamics" : [
+		"viewport", "scissor"
+	],
+
+	"depth-and-stencil" : {
+		"depth-test" : true,
+		"depth-write" : true,
+		"depth-compare-op" : "less-or-equal",
+		"depth-bound-test" : false,
+		"fail-op" : "keep",
+		"pass-op" : "keep",
+		"compare-op" : "always",
+		"stencil-test" : false,
+		"front" : "back"
+	},
+
+	"multisampling" : {
+		"sample-mask" : "null",
+		"rasterization-samples" : 1 
+	},
+
+	"shader-stages" : {
+		"vertex" : "./res/shaders/mesh.vert.spv",
+		"vertex-metadata" : "./res/shaders/mesh-vert.json",
+		"fragment" : "./res/shaders/mesh.frag.spv",
+		"fragment-metadata" : "mesh-frag.json"
+	}
+}

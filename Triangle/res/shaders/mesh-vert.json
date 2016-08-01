@@ -1,0 +1,23 @@
+{
+	"entrypoint" : "main",
+	"version" : 450,
+	"extensions" : [
+		"GL_ARB_seperate_shared_objects",
+		"GL_ARB_shading_language_420pack"
+	],
+	
+	"in-attributes" : {
+		"0" : { "type" : "vec3", "name" : "inPos" },
+		"1" : { "type" : "vec2", "name" : "inUV" },
+		"2" : { "type" : "vec3", "name" : "inNormal" }
+	},
+
+	"uniforms" : {
+		"1" : { "type" : "UBO", "name" : "ubo" }
+	},
+
+	"out-attributes" : {
+		"0" : { "type" : "vec3", "name" : "outColor" },
+		"1" : { "type" : "vec2", "name" : "outUV" }
+	}
+}
