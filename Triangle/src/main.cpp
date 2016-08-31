@@ -76,10 +76,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		exit(0);
 		break;
 	case WM_KEYUP:
-		Input::Keyboard::setKeyUp(wParam);
+		IO::Keyboard::setKeyUp(wParam);
 		break;
 	case WM_KEYDOWN:
-		Input::Keyboard::setKeyDown(wParam);
+		IO::Keyboard::setKeyDown(wParam);
 		break;
 	case WM_MOUSEMOVE:
 		POINT cursor;
@@ -90,8 +90,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		middle.x = 640;
 		middle.y = 360;
 
-		Input::Mouse::setX(cursor.x);
-		Input::Mouse::setY(cursor.y);
+		IO::Mouse::setX(cursor.x);
+		IO::Mouse::setY(cursor.y);
 
 		ClientToScreen(hWnd, &middle);
 		SetCursorPos(middle.x, middle.y);

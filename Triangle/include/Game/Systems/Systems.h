@@ -1,3 +1,3 @@
-#include "Systems\ExitSystem.h"
-#include "Systems\InputSystem.h"
-#include "Systems\MovementSystem.h"
+#include "Exit.h"
+#include "Input.h"
+#include "Movement2D.h"

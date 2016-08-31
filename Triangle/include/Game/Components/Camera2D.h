@@ -4,7 +4,7 @@
 
 namespace Components
 {
-	class Camera : public Component
+	class Camera2D : public Component
 	{
 	public:
 		// The dimensions of this camera.

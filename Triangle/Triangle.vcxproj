@@ -141,16 +141,20 @@
     <ClCompile Include="src\Modules\IO\Logging.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Game\Components\Components.h" />
     <ClInclude Include="include\Game\Components\Camera.h" />
     <ClInclude Include="include\Game\Components\Input.h" />
     <ClInclude Include="include\Game\Components\Orientation3D.h" />
+    <ClInclude Include="include\Game\Components\Position2D.h" />
     <ClInclude Include="include\Game\Components\Position3D.h" />
+    <ClInclude Include="include\Game\Components\Velocity2D.h" />
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
     <ClInclude Include="include\Game\GameConfig.h" />
     <ClInclude Include="include\Game\GameGraphics.h" />
-    <ClInclude Include="include\Game\Systems\ExitSystem.h" />
-    <ClInclude Include="include\Game\Systems\InputSystem.h" />
-    <ClInclude Include="include\Game\Systems\MovementSystem.h" />
+    <ClInclude Include="include\Game\Systems\Movement2D.h" />
+    <ClInclude Include="include\Game\Systems\Systems.h" />
+    <ClInclude Include="include\Game\Systems\Exit.h" />
+    <ClInclude Include="include\Game\Systems\Input.h" />
     <ClInclude Include="include\Modules\AssetManager\AssetManager.h" />
     <ClInclude Include="include\Modules\ECS\Component.h" />
     <ClInclude Include="include\Modules\ECS\ECS.h" />

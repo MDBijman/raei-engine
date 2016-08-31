@@ -1,7 +1,7 @@
 #pragma once
 #include <unordered_map>
 
-namespace Input
+namespace IO
 {
 	namespace Keyboard
 	{

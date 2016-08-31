@@ -17,5 +17,5 @@ struct type_index<T, Tail, Ts...> : std::integral_constant<std::size_t, 1 + type
 template<typename T>
 struct type_index<T>
 {
-	static_assert(sizeof(T) == 0, "Type not found.");
+	static_assert(sizeof(T) == 0, "Type not found. Check your Config.");
 };

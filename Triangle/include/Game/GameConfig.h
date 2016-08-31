@@ -6,14 +6,15 @@
 
 using MyComponentList = ComponentList<
 	// Transform components
-	Components::Position3D, Components::Velocity3D, Components::Orientation3D,
-	Components::Camera,
+	Components::Position2D,
+	Components::Velocity2D,
+	Components::Camera2D,
 	Components::Input
 >;
 
 using MyFilterList = FilterList<
-	Filter<Components::Position3D, Components::Velocity3D>, // Movement System
-	Filter<Components::Input, Components::Velocity3D, Components::Orientation3D> // Input System
+	Filter<Components::Position2D>, // Movement System
+	Filter<Components::Input, Components::Position2D, Components::Velocity2D> // Input System
 >;
 
 using MyECSManager = ECSManager<MyComponentList, MyFilterList>;

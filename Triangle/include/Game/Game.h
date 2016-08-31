@@ -20,13 +20,13 @@ public:
 	{
 		auto e = ecs.createEntity();
 		ecs.createComponent<Components::Position2D>(e);
-		ecs.createComponent<Components::Velocity3D>(e, 1.0f, 0.0f, 3.0f);
-		ecs.createComponent<Components::Orientation3D>(e);
+		ecs.createComponent<Components::Velocity2D>(e);
 		ecs.createComponent<Components::Input>(e);
+		ecs.createComponent<Components::Texture>(e);
 
-		ecs.addSystem<Systems::MovementSystem>();
-		ecs.addSystem<Systems::ExitSystem>();
-		ecs.addSystem<Systems::InputSystem>();
+		ecs.addSystem<Systems::Movement2D>();
+		ecs.addSystem<Systems::Exit>();
+		ecs.addSystem<Systems::Input>();
 	}
 
 	void run()
@@ -40,7 +40,7 @@ public:
 
 			/////
 
-			Input::Polling::update();
+			IO::Polling::update();
 			ecs.updateSystems(t.dt());
 			graphics.render();
 

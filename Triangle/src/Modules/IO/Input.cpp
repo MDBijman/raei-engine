@@ -1,7 +1,7 @@
 #include "Modules\IO\Input.h"
 #include <Windows.h>
 
-namespace Input
+namespace IO
 {
 	namespace Keyboard
 	{

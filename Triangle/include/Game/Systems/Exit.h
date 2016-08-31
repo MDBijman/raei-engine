@@ -8,13 +8,13 @@
 
 namespace Systems
 {
-	class ExitSystem : public MySystem
+	class Exit : public MySystem
 	{
 	public:
 		virtual void update(MyECSManager& ecs, double dt)
 		{
-			auto status = Input::Keyboard::getKeyStatus(VK_ESCAPE);
-			if (status == Input::Keyboard::KeyStatus::DOWN)
+			auto status = IO::Keyboard::getKeyStatus(VK_ESCAPE);
+			if (status == IO::Keyboard::KeyStatus::DOWN)
 			{
 				exit(0);
 			}

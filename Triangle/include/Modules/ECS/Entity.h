@@ -19,9 +19,6 @@ private:
 
 	/*
 		Returns true if this entity has a component of each type.
-	*/
-
-	/*
 		Base case
 	*/
 	template<class ComponentType>
@@ -31,6 +28,7 @@ private:
 	}
 
 	/*
+		Returns true if this entity has a component of each type.
 		Recursive case
 	*/
 	template<class ComponentType, class SecondType, class... ComponentTypes>
