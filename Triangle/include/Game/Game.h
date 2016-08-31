@@ -4,16 +4,10 @@
 #include "Modules\ECS\ECS.h"
 #include "Modules\AssetManager\AssetManager.h"
 #include "Modules\Time\Timer.h"
-#include "Modules\Lisp\AST.h"
-
 #include "GameGraphics.h"
 #include "GameConfig.h"
-#include "Systems\MovementSystem.h"
-#include "Systems\ExitSystem.h"
-#include "Systems\InputSystem.h"
-
-#include <chrono>
-#include <fstream>
+#include "Components\Components.h"
+#include "Systems\Systems.h"
 
 class Game
 {
@@ -25,7 +19,7 @@ public:
 		gameState(GameState::PAUSED)
 	{
 		auto e = ecs.createEntity();
-		ecs.createComponent<Components::Position3D>(e);
+		ecs.createComponent<Components::Position2D>(e);
 		ecs.createComponent<Components::Velocity3D>(e, 1.0f, 0.0f, 3.0f);
 		ecs.createComponent<Components::Orientation3D>(e);
 		ecs.createComponent<Components::Input>(e);
@@ -33,8 +27,6 @@ public:
 		ecs.addSystem<Systems::MovementSystem>();
 		ecs.addSystem<Systems::ExitSystem>();
 		ecs.addSystem<Systems::InputSystem>();
-
-		
 	}
 
 	void run()

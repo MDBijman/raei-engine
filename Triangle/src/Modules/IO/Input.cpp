@@ -1,5 +1,4 @@
 #include "Modules\IO\Input.h"
-#include "Modules\IO\Logging.h"
 #include <Windows.h>
 
 namespace Input
@@ -65,7 +64,6 @@ namespace Input
 				exit(0);
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-			Logging::log("Output");
 		}
 	}
 }

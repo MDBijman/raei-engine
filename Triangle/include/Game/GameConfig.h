@@ -1,10 +1,6 @@
 #pragma once
+#include "Components\Components.h"
 #include "Modules\ECS\ECS.h"
-#include "Components\Position3D.h"
-#include "Components\Velocity3D.h"
-#include "Components\Camera.h"
-#include "Components\Input.h"
-#include "Components\Orientation3D.h"
 #include "Modules\AssetManager\AssetManager.h"
 #include "Modules\Graphics\Data\Textures\Texture.h"
 

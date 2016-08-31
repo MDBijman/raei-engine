@@ -1,0 +1,6 @@
+#include "Components\Camera.h"
+#include "Components\Input.h"
+#include "Components\Position2D.h"
+#include "Components\Orientation3D.h"
+#include "Components\Position3D.h"
+#include "Components\Velocity3D.h"
