@@ -21,7 +21,7 @@ public:
 		std::transform(a.begin(), a.end(), std::back_inserter(attachments), [](VulkanPipelineColorBlendAttachmentState& s) {
 			return s.vk;
 		});
-		vk.attachmentCount = attachments.size();
+		vk.attachmentCount = static_cast<uint32_t>(attachments.size());
 		vk.pAttachments = attachments.data();
 		return *this;
 	}

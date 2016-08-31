@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <iostream>
 #include "Game\Game.h"
-#include "Modules\Input\Input.h"
+#include "Modules\IO\Input.h"
 
 HWND window;
 
@@ -108,7 +108,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 
 	AllocConsole();
 	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	DWORD cCharsWritten;
 	freopen("CONOUT$", "w", stdout);
 
 	Game game(hInstance, window);

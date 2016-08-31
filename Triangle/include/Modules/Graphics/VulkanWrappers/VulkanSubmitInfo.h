@@ -13,21 +13,21 @@ public:
 	
 	VulkanSubmitInfo& setWaitSemaphores(std::vector<VkSemaphore>& semaphores)
 	{
-		vkInfo.waitSemaphoreCount = semaphores.size();
+		vkInfo.waitSemaphoreCount = static_cast<uint32_t>(semaphores.size());
 		vkInfo.pWaitSemaphores = semaphores.data();
 		return *this;
 	}	
 	
 	VulkanSubmitInfo& setSignalSemaphores(std::vector<VkSemaphore>& semaphores)
 	{
-		vkInfo.signalSemaphoreCount = semaphores.size();
+		vkInfo.signalSemaphoreCount = static_cast<uint32_t>(semaphores.size());
 		vkInfo.pSignalSemaphores = semaphores.data();
 		return *this;
 	}	
 	
 	VulkanSubmitInfo& setCommandBuffers(std::vector<VkCommandBuffer>& buffers)
 	{
-		vkInfo.commandBufferCount = buffers.size();
+		vkInfo.commandBufferCount = static_cast<uint32_t>(buffers.size());
 		vkInfo.pCommandBuffers = buffers.data();
 		return *this;
 	}	

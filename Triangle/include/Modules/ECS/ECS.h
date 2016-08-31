@@ -2,4 +2,3 @@
 #include "Entity.h"
 #include "Component.h"
 #include "System.h"
-#include "TypeIndex.h"

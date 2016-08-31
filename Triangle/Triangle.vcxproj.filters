@@ -107,6 +107,9 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Modules\Logging\Logging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h">
@@ -123,9 +126,6 @@
     </ClInclude>
     <ClInclude Include="include\Modules\Importers\Shader.h">
       <Filter>Header Files\Libraries\Importers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Input\Input.h">
-      <Filter>Header Files\Libraries\Input</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Math\Matrices.h">
       <Filter>Header Files\Libraries\Math</Filter>
@@ -150,12 +150,6 @@
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\UniformMVP.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Textures\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\Camera.h">
-      <Filter>Header Files\Graphics\Logic</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Logic\Drawable.h">
       <Filter>Header Files\Graphics\Logic</Filter>
@@ -343,13 +337,7 @@
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanWriteDescriptorSet.h">
       <Filter>Header Files\Graphics\VulkanWrappers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\AssetManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\GameGraphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\InputPoller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\MovementSystem.h">
@@ -357,6 +345,75 @@
     </ClInclude>
     <ClInclude Include="include\Game\Components\Position3D.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Velocity3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\InputSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\ExitSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Orientation3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\GetInstanceProcAddr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\ECS\Component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\ECS\ECS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\ECS\ECSManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\ECS\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\ECS\System.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\AssetManager\AssetManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\GameConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\TemplateUtils\TypeIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Time\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Lisp\AST.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Data\Textures\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\IO\Input.h">
+      <Filter>Header Files\Libraries\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\IO\Logging.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Importers\JSON.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Logic\Camera.h">
+      <Filter>Header Files\Graphics\Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -372,5 +429,6 @@
     <None Include="res\bad_car.obj">
       <Filter>Resources</Filter>
     </None>
+    <None Include="res\test.lisp" />
   </ItemGroup>
 </Project>

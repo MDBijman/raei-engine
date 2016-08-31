@@ -14,7 +14,7 @@ public:
 	VulkanDescriptorPoolCreateInfo& setPoolSizes(std::vector<VkDescriptorPoolSize>& poolSizes)
 	{
 		vkInfo.pPoolSizes = poolSizes.data();
-		vkInfo.poolSizeCount = poolSizes.size();
+		vkInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
 		return *this;
 	}
 

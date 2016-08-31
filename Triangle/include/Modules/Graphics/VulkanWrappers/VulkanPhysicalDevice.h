@@ -35,16 +35,17 @@ public:
 			}
 			requirements.memoryTypeBits >>= 1;
 		}
+		return -1;
 	}
 
-	VkPhysicalDeviceMemoryProperties& memoryProperties()
+	VkPhysicalDeviceMemoryProperties memoryProperties()
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(vkPhysicalDevice, &memProperties);
 		return memProperties;
 	}
 
-	VkFormatProperties& formatProperties(VkFormat format)
+	VkFormatProperties formatProperties(VkFormat format)
 	{
 		VkFormatProperties formProperties;
 		vkGetPhysicalDeviceFormatProperties(vkPhysicalDevice, format, &formProperties);

@@ -2,7 +2,7 @@
 #include "Entity.h"
 #include "Component.h"
 #include "System.h"
-#include "TypeIndex.h"
+#include "Modules\TemplateUtils\TypeIndex.h"
 
 #include <tuple>
 #include <vector>
@@ -47,6 +47,8 @@ template<class... A, class... B>
 class ECSManager<ComponentList<A...>, FilterList<B...>>
 {
 public:
+	ECSManager() {}
+
 	~ECSManager()
 	{
 		for (auto system : systems)
@@ -69,28 +71,27 @@ public:
 	*/
 
 	/*
-		Creates a new component of type ComponentType, sets its parent, and adds it to the vector of components of that type.
+		Returns ComponentType of the given entity.
 	*/
 	template<class ComponentType>
-	void addComponent(uint32_t entityId)
+	ComponentType& getComponent(uint32_t e)
+	{
+		constexpr auto index = type_index<ComponentType, A...>::value;
+		return std::get<index>(components).at(e);
+	}
+
+	/*
+		Creates a new component of type ComponentType, sets its parent, and adds it to the vector of components of that type.
+	*/
+	template<class ComponentType, class... Args>
+	void createComponent(uint32_t entityId, Args... args)
 	{
 		// We can only create components that derive from Component class
 		static_assert(std::is_base_of<Component, ComponentType>::value, "Can only create components that inherit from Component class.");
 
 		// Create a new component and set its parent to the given entity
-		ComponentType component;
-		component.parent = entityId;
-
-		// Index of ComponentType in the list of component types
-		constexpr size_t index = type_index<ComponentType, A...>::value;
-
-		// Add the component to the vector of components of that type
-		std::get<index>(components).push_back(component);
-
-		// Add the component type to the bitfield of the entity
-		entities.at(entityId).addComponent<ComponentType>();
-
-		updateFilters<B...>(entityId);
+		ComponentType component = ComponentType(args...);
+		addComponent(entityId, component);
 	}
 
 	/*
@@ -109,7 +110,7 @@ public:
 		constexpr size_t index = type_index<ComponentType, A...>::value;
 
 		// Add the component to the vector of components of that type
-		std::get<index>(components).push_back(c);
+		std::get<index>(components).insert(std::make_pair(entityId, c));
 
 		// Add the component type to the bitfield of the entity
 		entities.at(entityId).addComponent<ComponentType>();
@@ -136,7 +137,7 @@ public:
 	/*
 		Adds the given system to this manager.
 	*/
-	void addSystem(System* s)
+	void addSystem(System<ComponentList<A...>, FilterList<B...>>* s)
 	{
 		systems.push_back(s);
 	}
@@ -147,15 +148,16 @@ public:
 	template<class SystemType>
 	void addSystem()
 	{
+		static_assert(std::is_base_of<System<ComponentList<A...>, FilterList<B...>>, SystemType>::value, "Can only create systems that inherit from System class.");
 		systems.push_back(new SystemType());
 	}
 
 	/*
 		Updates every system of this manager.
 	*/
-	void updateSystems(float dt)
+	void updateSystems(double dt)
 	{
-		for (System* s : systems)
+		for (auto& s : systems)
 			s->update(*this, dt);
 	}
 
@@ -212,14 +214,14 @@ private:
 	// Tuple for each filter type
 	std::tuple<B...> filters;
 
-	// Tuple of vectors for each component type
-	std::tuple<std::vector<A>...> components;
+	// Tuple of maps for each component type
+	std::tuple<std::unordered_map<uint32_t, A>...> components;
 
 	// Map of entity ids to entities
 	std::unordered_map<uint32_t, Entity<A...>> entities;
 
 	// Vector of systems
-	std::vector<System*> systems;
+	std::vector<System<ComponentList<A...>, FilterList<B...>>*> systems;
 private:
 	uint32_t entityCount = 0;
 };

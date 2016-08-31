@@ -1,4 +1,5 @@
 #pragma once
+#include "GetInstanceProcAddr.h"
 #include <vulkan\vulkan.h>
 #include <iostream>
 
@@ -16,16 +17,6 @@ namespace Validation {
 		std::cout << pLayerPrefix << ": " << pMessage << std::endl;
 		return VK_FALSE;
 	}
-}
-
-// Macro to get a procedure address based on a vulkan instance
-#define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                        \
-{                                                                       \
-    fp##entrypoint = (PFN_vk##entrypoint) vkGetInstanceProcAddr(inst, "vk"#entrypoint); \
-    if (fp##entrypoint == NULL)                                         \
-	{																    \
-        std::cout << "err" << std::endl;                                                        \
-    }                                                                   \
 }
 
 class ValidationFunctions 

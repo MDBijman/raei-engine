@@ -1,5 +1,5 @@
 #pragma once
-#include "TypeIndex.h"
+#include "Modules\TemplateUtils\TypeIndex.h"
 
 #include <stdint.h>
 #include <bitset>

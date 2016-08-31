@@ -86,7 +86,7 @@ public:
 		std::transform(info.begin(), info.end(), std::back_inserter(shaderStageInfo), [](VulkanPipelineShaderStageCreateInfo& a) {
 			return a.vk;
 		});
-		vkInfo.stageCount = shaderStageInfo.size();
+		vkInfo.stageCount = static_cast<uint32_t>(shaderStageInfo.size());
 		vkInfo.pStages = shaderStageInfo.data();
 		return *this;
 	}

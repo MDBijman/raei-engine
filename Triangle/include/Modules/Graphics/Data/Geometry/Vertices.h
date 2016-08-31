@@ -37,7 +37,7 @@ namespace Graphics
 
 				VulkanBufferCreateInfo bufInfo;
 				bufInfo
-					.setSize(vertices.size() * sizeof(Vertex))
+					.setSize(static_cast<uint32_t>(vertices.size()) * sizeof(Vertex))
 					.setUsage(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
 					.setFlags(0);
 

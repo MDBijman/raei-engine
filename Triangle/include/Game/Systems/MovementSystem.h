@@ -1,17 +1,24 @@
 #pragma once
-#include "ecs\ECS.h"
+#include "Modules\ECS\ECS.h"
 #include "Game\Components\Position3D.h"
-#include <iostream>
+#include "Game\Components\Velocity3D.h"
+#include "Game\GameConfig.h"
 
-class MovementSystem : public System
+namespace Systems
 {
-public:
-	template<class CT, class FT>
-	virtual void update(ECSManager<CT, FT> ecs, float dt)
+	class MovementSystem : public MySystem
 	{
-		
-
-		std::cout << "ECM" << std::endl;
-	}
-};
-
+	public:
+		virtual void update(MyECSManager& ecs, double dt)
+		{
+			using namespace Components;
+			auto entities = ecs.filterEntities<Filter<Position3D, Velocity3D>>();
+			for (auto& entity : entities)
+			{
+				auto& pos = ecs.getComponent<Position3D>(entity);
+				auto& vel = ecs.getComponent<Velocity3D>(entity);
+				pos.pos += vel.vel;
+			}
+		}
+	};
+}

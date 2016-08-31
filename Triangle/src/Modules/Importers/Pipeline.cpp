@@ -3,13 +3,13 @@
 #include "Modules\Graphics\VulkanWrappers\VulkanWrappers.h"
 #include "Modules\Graphics\Logic\Pipeline.h"
 #include "Modules\Importers\Shader.h"
+#include "Modules\Importers\JSON.h"
 
 #include <fstream>
 #include <sstream>
 #include <assert.h>
 #include <memory>
 #include <vector>
-#include <json\JSON.h>
 
 namespace Importers
 {

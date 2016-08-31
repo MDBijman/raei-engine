@@ -1,88 +1,69 @@
 #pragma once
-#include "Modules\Graphics\Logic\Camera.h"
-#include "Modules\Graphics\Logic\Drawable.h"
-#include "Modules\Graphics\Logic\Renderer.h"
-#include "Modules\Input\Input.h"
-#include "ecs\ECS.h"
-#include "GameGraphics.h"
-#include "AssetManager.h"
-#include "InputPoller.h"
+#include "Modules\Graphics\Graphics.h"
+#include "Modules\IO\Input.h"
+#include "Modules\ECS\ECS.h"
+#include "Modules\AssetManager\AssetManager.h"
+#include "Modules\Time\Timer.h"
+#include "Modules\Lisp\AST.h"
 
+#include "GameGraphics.h"
+#include "GameConfig.h"
 #include "Systems\MovementSystem.h"
+#include "Systems\ExitSystem.h"
+#include "Systems\InputSystem.h"
 
 #include <chrono>
-#include <windows.h>
-#include <iostream>
+#include <fstream>
 
 class Game
 {
 public:
 	Game(HINSTANCE hInstance, HWND window) :
-		graphics(hInstance, window),
+		//graphics(hInstance, window),
 		assets(),
 		ecs(),
 		gameState(GameState::PAUSED)
 	{
 		auto e = ecs.createEntity();
-		ecs.addComponent<Position3D>(e);
+		ecs.createComponent<Components::Position3D>(e);
+		ecs.createComponent<Components::Velocity3D>(e, 1.0f, 0.0f, 3.0f);
+		ecs.createComponent<Components::Orientation3D>(e);
+		ecs.createComponent<Components::Input>(e);
 
-		ecs.addSystem<MovementSystem>();
+		ecs.addSystem<Systems::MovementSystem>();
+		ecs.addSystem<Systems::ExitSystem>();
+		ecs.addSystem<Systems::InputSystem>();
+
+		
 	}
 
 	void run()
 	{
 		gameState = GameState::RUNNING;
 
+		Time::Timer t;
 		while (true)
 		{
-			auto startTime = std::chrono::high_resolution_clock::now();
-
-			// Escape button
-			if (Input::Keyboard::getKeyStatus(VK_ESCAPE) == Input::Keyboard::KeyStatus::DOWN)
-				exit(0);
-			// Move forward or backward
-			if (Input::Keyboard::getKeyStatus('W') == Input::Keyboard::KeyStatus::DOWN)
-				graphics.camera.forward(3.0f, dt);
-			if (Input::Keyboard::getKeyStatus('S') == Input::Keyboard::KeyStatus::DOWN)
-				graphics.camera.backward(3.0f, dt);
-			// Move left or right
-			if (Input::Keyboard::getKeyStatus('A') == Input::Keyboard::KeyStatus::DOWN)
-				graphics.camera.left(3.0f, dt);
-			if (Input::Keyboard::getKeyStatus('D') == Input::Keyboard::KeyStatus::DOWN)
-				graphics.camera.right(3.0f, dt);
-
-			graphics.camera.rotate(Input::Mouse::getDX() * rotationSpeed * 20.0f, -Input::Mouse::getDY() * rotationSpeed * 20.0f, dt);
+			t.start();
 
 			/////
 
-			input.update();
-			ecs.updateSystems(dt);
-			graphics.render();
+			Input::Polling::update();
+			ecs.updateSystems(t.dt());
+			//graphics.render();
 
 			////
 
-			auto endTime = std::chrono::high_resolution_clock::now();
-			auto difference = std::chrono::duration<double, std::milli>(endTime - startTime).count();
-			dt = difference / 1000;
+			t.end();
 		}
 
 		gameState = GameState::FINISHED;
 	}
 
 private:
-	InputPoller input;
-	AssetManager assets;
-	GameGraphics graphics;
-
-	using CList = ComponentList<
-		Position3D
-	>;
-
-	using FList = FilterList <
-		Filter<Position3D>
-	>;
-
-	ECSManager<CList, FList> ecs;
+	MyAssetManager assets;
+	MyECSManager ecs;
+	//GameGraphics graphics;
 
 	enum GameState
 	{

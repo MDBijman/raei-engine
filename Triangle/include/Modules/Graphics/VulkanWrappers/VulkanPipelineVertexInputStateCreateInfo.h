@@ -25,7 +25,7 @@ public:
 		std::transform(b.begin(), b.end(), std::back_inserter(bindings), [](VulkanVertexInputBindingDescription& a) {
 			return a.vk;
 		});
-		vk.vertexBindingDescriptionCount = bindings.size();
+		vk.vertexBindingDescriptionCount = static_cast<uint32_t>(bindings.size());
 		vk.pVertexBindingDescriptions = bindings.data();
 		return *this;
 	}
@@ -36,7 +36,7 @@ public:
 		std::transform(a.begin(), a.end(), std::back_inserter(attributes), [](VulkanVertexInputAttributeDescription& a) {
 			return a.vk;
 		});
-		vk.vertexAttributeDescriptionCount = attributes.size();
+		vk.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributes.size());
 		vk.pVertexAttributeDescriptions = attributes.data();
 		return *this;
 	}

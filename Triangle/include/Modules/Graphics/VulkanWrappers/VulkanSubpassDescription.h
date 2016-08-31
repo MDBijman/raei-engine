@@ -29,7 +29,7 @@ public:
 		std::transform(references.begin(), references.end(), std::back_inserter(inputAttachments), [](VulkanAttachmentReference& r) { 
 			return r.vkReference; 
 		});
-		vk.inputAttachmentCount = inputAttachments.size();
+		vk.inputAttachmentCount = static_cast<uint32_t>(inputAttachments.size());
 		vk.pInputAttachments = inputAttachments.data();
 		return *this;
 	}
@@ -40,7 +40,7 @@ public:
 		std::transform(references.begin(), references.end(), std::back_inserter(colorAttachments), [](VulkanAttachmentReference& r) { 
 			return r.vkReference; 
 		});
-		vk.colorAttachmentCount = colorAttachments.size();
+		vk.colorAttachmentCount = static_cast<uint32_t>(colorAttachments.size());
 		vk.pColorAttachments = colorAttachments.data();
 		return *this;
 	}
@@ -65,7 +65,7 @@ public:
 	VulkanSubpassDescription& setPreserveAttachments(std::vector<uint32_t> attachments)
 	{
 		preserveAttachments = preserveAttachments;
-		vk.preserveAttachmentCount = preserveAttachments.size();
+		vk.preserveAttachmentCount = static_cast<uint32_t>(preserveAttachments.size());
 		vk.pPreserveAttachments = preserveAttachments.data();
 		return *this;
 	}

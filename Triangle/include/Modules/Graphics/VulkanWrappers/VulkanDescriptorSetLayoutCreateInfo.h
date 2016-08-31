@@ -14,7 +14,7 @@ public:
 	VulkanDescriptorSetLayoutCreateInfo& setBindings(std::vector<VkDescriptorSetLayoutBinding>& bindings)
 	{
 		vkInfo.pBindings = bindings.data();
-		vkInfo.bindingCount = bindings.size();
+		vkInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 		return *this;
 	}
 

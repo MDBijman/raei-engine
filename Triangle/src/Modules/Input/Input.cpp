@@ -1,10 +1,12 @@
-#include "Modules\Input\Input.h"
+#include "Modules\IO\Input.h"
+#include "Modules\IO\Logging.h"
+#include <Windows.h>
 
 namespace Input
 {
 	namespace Keyboard
 	{
-		void setKeyDown(int keycode)
+		void setKeyDown(uint64_t keycode)
 		{
 			if (keys.find(keycode) == keys.end())
 				keys.insert(std::make_pair(keycode, KeyStatus::DOWN));
@@ -12,7 +14,7 @@ namespace Input
 				keys.at(keycode) = KeyStatus::DOWN;
 		}
 
-		void setKeyUp(int keycode)
+		void setKeyUp(uint64_t keycode)
 		{
 			if (keys.find(keycode) == keys.end())
 				keys.insert(std::make_pair(keycode, KeyStatus::UP));
@@ -20,7 +22,7 @@ namespace Input
 				keys.at(keycode) = KeyStatus::UP;
 		}
 
-		KeyStatus getKeyStatus(int keycode)
+		KeyStatus getKeyStatus(uint64_t keycode)
 		{
 			if (keys.find(keycode) == keys.end())
 				return KeyStatus::UNKNOWN;
@@ -30,24 +32,39 @@ namespace Input
 
 	namespace Mouse
 	{
-		void setX(float val)
+		void setX(uint32_t val)
 		{
 			x = val;
+			dx = x - 640;
 		}
 
-		void setY(float val)
+		void setY(uint32_t val)
 		{
 			y = val;
+			dy = y - 360;
 		}
 
-		float getDX()
+		uint32_t getDX()
 		{
-			return x - 640;
+			return dx;
 		}
 
-		float getDY()
+		uint32_t getDY()
 		{
-			return y - 360;
+			return dy;
+		}
+	}
+
+	namespace Polling
+	{
+		void update()
+		{
+			MSG msg;
+			PeekMessage(&msg, NULL, 0, 0, PM_REMOVE);
+			if (msg.message == WM_QUIT)
+				exit(0);
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 	}
 }

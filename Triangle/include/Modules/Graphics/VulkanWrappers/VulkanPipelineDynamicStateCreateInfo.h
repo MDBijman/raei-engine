@@ -23,7 +23,7 @@ public:
 			return s.vk;
 		});
 		vk.pDynamicStates = states.data();
-		vk.dynamicStateCount = states.size();
+		vk.dynamicStateCount = static_cast<uint32_t>(states.size());
 		return *this;
 	}
 

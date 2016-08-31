@@ -101,9 +101,9 @@ namespace Importers
 					m->vertices.getData().push_back(Vertex(temp_vertices.at(values[6]), temp_uvs.at(values[7]), temp_normals.at(values[8])));
 
 					// TODO per vertex normals
-					m->indices.getData().push_back(m->vertices.getData().size() - 3);
-					m->indices.getData().push_back(m->vertices.getData().size() - 2);
-					m->indices.getData().push_back(m->vertices.getData().size() - 1);
+					m->indices.getData().push_back(static_cast<uint32_t>(m->vertices.getData().size() - 3));
+					m->indices.getData().push_back(static_cast<uint32_t>(m->vertices.getData().size() - 2));
+					m->indices.getData().push_back(static_cast<uint32_t>(m->vertices.getData().size() - 1));
 					continue;
 				}
 			}

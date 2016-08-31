@@ -223,7 +223,7 @@ namespace JSON
 			{
 				throw std::domain_error("Wrong type");
 			}
-			int res = data.array->size() - 1;
+			int res = static_cast<int>(data.array->size() - 1);
 			while (static_cast<int>(data.array->size()) - 1 < index)
 			{
 				data.array->push_back(JSON());
@@ -262,6 +262,8 @@ namespace JSON
 				return JSON(true);
 			else if (content.compare("false") == 0)
 				return JSON(false);
+
+			throw std::runtime_error("Invalid boolean value in JSON file.");
 		}
 
 		static JSON parseString(std::string content)

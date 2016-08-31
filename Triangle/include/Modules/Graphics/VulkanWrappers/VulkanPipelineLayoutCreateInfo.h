@@ -22,7 +22,7 @@ public:
 			return r.vk;
 		});
 		vk.pSetLayouts = layouts.data();
-		vk.setLayoutCount = layouts.size();
+		vk.setLayoutCount = static_cast<uint32_t>(layouts.size());
 		return *this;
 	}
 
@@ -31,7 +31,7 @@ public:
 		layouts.clear();
 		layouts.push_back(l.vk);
 		vk.pSetLayouts = layouts.data();
-		vk.setLayoutCount = layouts.size();
+		vk.setLayoutCount = static_cast<uint32_t>(layouts.size());
 		return *this;
 	}
 

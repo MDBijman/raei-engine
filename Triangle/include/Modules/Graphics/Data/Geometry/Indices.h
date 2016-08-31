@@ -23,7 +23,7 @@ namespace Graphics
 			{
 				VulkanBufferCreateInfo indexBufferInfo;
 				indexBufferInfo
-					.setSize(indices.size() * sizeof(uint32_t))
+					.setSize(static_cast<uint32_t>(indices.size()) * sizeof(uint32_t))
 					.setUsage(VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
 					.setFlags(0);
 
@@ -44,7 +44,7 @@ namespace Graphics
 				memcpy(data, indices.data(), indices.size() * sizeof(uint32_t));
 				device.unmapMemory(mem);
 				device.bindBufferMemory(buf, mem);
-				count = indices.size();
+				count = static_cast<uint32_t>(indices.size());
 			}
 
 			VkBuffer& getBuffer()

@@ -94,7 +94,7 @@ public:
 		for(VulkanCommandBuffer b : buffer) 
 			raw_buffer.push_back(b.vkBuffer);
 
-		vkFreeCommandBuffers(vkDevice, pool, buffer.size(), raw_buffer.data());
+		vkFreeCommandBuffers(vkDevice, pool, static_cast<uint32_t>(buffer.size()), raw_buffer.data());
 	}
 
 	void freeCommandBuffer(VkCommandPool& pool, VulkanCommandBuffer& buffer)
@@ -117,7 +117,7 @@ public:
 		return mem;
 	}
 
-	void* mapMemory(VkDeviceMemory& memory, int size)
+	void* mapMemory(VkDeviceMemory& memory, VkDeviceSize size)
 	{
 		void* data;
 		VkResult error = vkMapMemory(vkDevice, memory, 0, size, 0, &data);
@@ -236,7 +236,7 @@ public:
 
 	void updateDescriptorSet(std::vector<VkWriteDescriptorSet>& set)
 	{
-		vkUpdateDescriptorSets(vkDevice, set.size(), set.data(), 0, NULL);
+		vkUpdateDescriptorSets(vkDevice, static_cast<uint32_t>(set.size()), set.data(), 0, NULL);
 	}
 
 	VkSemaphore createSemaphore(VkSemaphoreCreateInfo& semaphoreCreateInfo)

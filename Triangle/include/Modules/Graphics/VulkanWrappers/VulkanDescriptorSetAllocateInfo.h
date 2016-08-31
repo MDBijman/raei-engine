@@ -27,7 +27,7 @@ public:
 			return sl.vk;
 		});
 		vk.pSetLayouts = layouts.data();
-		vk.descriptorSetCount = layouts.size();
+		vk.descriptorSetCount = static_cast<uint32_t>(layouts.size());
 		return *this;
 	}
 
@@ -36,7 +36,7 @@ public:
 		layouts.clear();
 		layouts.push_back(l.vk);
 		vk.pSetLayouts = layouts.data();
-		vk.descriptorSetCount = layouts.size();
+		vk.descriptorSetCount = static_cast<uint32_t>(layouts.size());
 		return *this;
 	}
 

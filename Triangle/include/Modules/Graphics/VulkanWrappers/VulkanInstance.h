@@ -44,9 +44,9 @@ public:
 		VulkanInstanceCreateInfo instanceCreateInfo;
 		instanceCreateInfo
 			.setApplicationInfo(applicationInfo.vkInfo)
-			.setExtensionCount(extensions.size())
+			.setExtensionCount(static_cast<uint32_t>(extensions.size()))
 			.setExtensions(extensions.data())
-			.setLayerCount(layers.size())
+			.setLayerCount(static_cast<uint32_t>(layers.size()))
 			.setLayers(layers.data());
 
 		VkResult err = vkCreateInstance(&instanceCreateInfo.vkInfo, nullptr, &vkInstance);

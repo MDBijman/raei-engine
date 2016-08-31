@@ -75,7 +75,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+      <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(SolutionDir)external\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -98,10 +102,12 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+      <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>$(SolutionDir)external\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -112,10 +118,13 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+      <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
+      <AdditionalOptions>/D "VK_USE_PLATFORM_WIN32_KHR" /D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>$(SolutionDir)external\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -129,25 +138,42 @@
     <ClCompile Include="src\Modules\Importers\Pipeline.cpp" />
     <ClCompile Include="src\Modules\Importers\Shader.cpp" />
     <ClCompile Include="src\Modules\Input\Input.cpp" />
+    <ClCompile Include="src\Modules\Logging\Logging.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Game\AssetManager.h" />
+    <ClInclude Include="include\Game\Components\Camera.h" />
+    <ClInclude Include="include\Game\Components\Input.h" />
+    <ClInclude Include="include\Game\Components\Orientation3D.h" />
     <ClInclude Include="include\Game\Components\Position3D.h" />
+    <ClInclude Include="include\Game\Components\Velocity3D.h" />
+    <ClInclude Include="include\Game\GameConfig.h" />
     <ClInclude Include="include\Game\GameGraphics.h" />
-    <ClInclude Include="include\Game\InputPoller.h" />
+    <ClInclude Include="include\Game\Systems\ExitSystem.h" />
+    <ClInclude Include="include\Game\Systems\InputSystem.h" />
     <ClInclude Include="include\Game\Systems\MovementSystem.h" />
+    <ClInclude Include="include\Modules\AssetManager\AssetManager.h" />
+    <ClInclude Include="include\Modules\ECS\Component.h" />
+    <ClInclude Include="include\Modules\ECS\ECS.h" />
+    <ClInclude Include="include\Modules\ECS\ECSManager.h" />
+    <ClInclude Include="include\Modules\ECS\Entity.h" />
+    <ClInclude Include="include\Modules\ECS\System.h" />
+    <ClInclude Include="include\Modules\Lisp\AST.h" />
+    <ClInclude Include="include\Modules\IO\Logging.h" />
+    <ClInclude Include="include\Modules\TemplateUtils\TypeIndex.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Geometry\GPUBuffer.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Geometry\Indices.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Geometry\Mesh.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Geometry\Vertices.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\UniformMVP.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Textures\Texture.h" />
+    <ClInclude Include="include\Modules\Graphics\Graphics.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Camera.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Drawable.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Pipeline.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Renderer.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Shader.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Uniform.h" />
+    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\GetInstanceProcAddr.h" />
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDescriptorSetLayout.h" />
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDynamicState.h" />
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineLayout.h" />
@@ -211,14 +237,17 @@
     <ClInclude Include="include\Modules\Importers\Obj.h" />
     <ClInclude Include="include\Modules\Importers\Pipeline.h" />
     <ClInclude Include="include\Modules\Importers\Shader.h" />
-    <ClInclude Include="include\Modules\Input\Input.h" />
+    <ClInclude Include="include\Modules\IO\Input.h" />
+    <ClInclude Include="include\Modules\Importers\JSON.h" />
     <ClInclude Include="include\Modules\Math\Matrices.h" />
     <ClInclude Include="include\Game\Game.h" />
+    <ClInclude Include="include\Modules\Time\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\game.json" />
     <None Include="res\default-pipeline.json" />
     <None Include="res\mesh-shader-metadata.json" />
+    <None Include="res\test.lisp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bad_car.obj">

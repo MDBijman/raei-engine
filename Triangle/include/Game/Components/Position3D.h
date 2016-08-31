@@ -1,8 +1,15 @@
 #pragma once
-#include "ecs\Component.h"
+#include "Modules\ECS\ECS.h"
 
-class Position3D : public Component
+namespace Components
 {
-public:
-	float x, y, z;
-};
+	class Position3D : public Component
+	{
+	public:
+		Position3D() {}
+		Position3D(float x, float y, float z) : pos(x, y, z) {}
+		Position3D(glm::vec3 v) : pos(v) {}
+
+		glm::vec3 pos;
+	};
+}

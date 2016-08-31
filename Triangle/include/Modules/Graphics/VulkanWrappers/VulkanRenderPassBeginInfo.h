@@ -27,7 +27,7 @@ public:
 	
 	VulkanRenderPassBeginInfo& setClearValues(std::vector<VkClearValue>& values)
 	{
-		vkInfo.clearValueCount = values.size();
+		vkInfo.clearValueCount = static_cast<uint32_t>(values.size());
 		vkInfo.pClearValues = values.data();
 		return *this;
 	}

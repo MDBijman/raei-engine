@@ -5,8 +5,8 @@
 #include "Modules\Importers\Pipeline.h"
 #include "Modules\Importers\Shader.h"
 #include "Modules\Math\Matrices.h"
+#include "Modules\Importers\JSON.h"
 
-#include <json\JSON.h>
 #include <sstream>
 #include <fstream>
 #include <glm\glm.hpp>
@@ -238,8 +238,8 @@ namespace Graphics
 		renderArea
 			.setX(0)
 			.setY(0)
-			.setWidth(camera.getDimensions().x)
-			.setHeight(camera.getDimensions().y);
+			.setWidth(static_cast<uint32_t>(camera.getDimensions().x))
+			.setHeight(static_cast<uint32_t>(camera.getDimensions().y));
 
 		VulkanRenderPassBeginInfo renderPassBeginInfo;
 		renderPassBeginInfo
@@ -257,12 +257,18 @@ namespace Graphics
 			// Update dynamic viewport state
 			VulkanViewport viewport;
 			viewport
-				.setWidth(camera.getDimensions().x).setHeight(camera.getDimensions().y)
-				.setMinDepth(0.0f).setMaxDepth(1.0f);
+				.setWidth(camera.getDimensions().x)
+				.setHeight(camera.getDimensions().y)
+				.setMinDepth(0.0f)
+				.setMaxDepth(1.0f);
 
 			// Update dynamic scissor state
 			VulkanRectangle2D scissor;
-			scissor.setWidth(camera.getDimensions().x).setHeight(camera.getDimensions().y).setX(0).setY(0);
+			scissor
+				.setWidth(static_cast<uint32_t>(camera.getDimensions().x))
+				.setHeight(static_cast<uint32_t>(camera.getDimensions().y))
+				.setX(0)
+				.setY(0);
 
 			// Add a present memory barrier to the end of the command buffer
 			// This will transform the frame buffer color attachment to a

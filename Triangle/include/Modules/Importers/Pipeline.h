@@ -1,11 +1,11 @@
 #pragma once
 #include "Modules\Graphics\VulkanWrappers\VulkanWrappers.h"
 #include "Modules\Graphics\Logic\Pipeline.h"
+#include "Modules\Importers\JSON.h"
 
 #include <string>
 #include <vector>
 #include <vulkan\vulkan.h>
-#include <json\JSON.h>
 
 namespace Importers
 {

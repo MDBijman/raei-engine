@@ -40,7 +40,7 @@ namespace Graphics
 
 			width = (uint32_t)tex2D[0].dimensions().x;
 			height = (uint32_t)tex2D[0].dimensions().y;
-			mipLevels = tex2D.levels();
+			mipLevels = static_cast<uint32_t>(tex2D.levels());
 
 			// Get device properites for the requested texture format
 			VkFormatProperties formatProperties;
@@ -191,7 +191,7 @@ namespace Graphics
 					stagingBuffer,
 					image,
 					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					bufferCopyRegions.size(),
+					static_cast<uint32_t>(bufferCopyRegions.size()),
 					bufferCopyRegions.data()
 				);
 
