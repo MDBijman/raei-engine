@@ -137,8 +137,8 @@
     <ClCompile Include="src\Modules\Importers\Obj.cpp" />
     <ClCompile Include="src\Modules\Importers\Pipeline.cpp" />
     <ClCompile Include="src\Modules\Importers\Shader.cpp" />
-    <ClCompile Include="src\Modules\Input\Input.cpp" />
-    <ClCompile Include="src\Modules\Logging\Logging.cpp" />
+    <ClCompile Include="src\Modules\IO\Input.cpp" />
+    <ClCompile Include="src\Modules\IO\Logging.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Game\Components\Camera.h" />

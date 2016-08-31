@@ -19,7 +19,7 @@ class Game
 {
 public:
 	Game(HINSTANCE hInstance, HWND window) :
-		//graphics(hInstance, window),
+		graphics(hInstance, window),
 		assets(),
 		ecs(),
 		gameState(GameState::PAUSED)
@@ -50,7 +50,7 @@ public:
 
 			Input::Polling::update();
 			ecs.updateSystems(t.dt());
-			//graphics.render();
+			graphics.render();
 
 			////
 
@@ -63,7 +63,7 @@ public:
 private:
 	MyAssetManager assets;
 	MyECSManager ecs;
-	//GameGraphics graphics;
+	GameGraphics graphics;
 
 	enum GameState
 	{

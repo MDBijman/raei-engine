@@ -86,9 +86,6 @@
     <ClCompile Include="src\Modules\Importers\Shader.cpp">
       <Filter>Source Files\Libraries\Importers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modules\Input\Input.cpp">
-      <Filter>Source Files\Libraries\Input</Filter>
-    </ClCompile>
     <ClCompile Include="src\Modules\Graphics\Data\Shaders\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -107,7 +104,10 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modules\Logging\Logging.cpp">
+    <ClCompile Include="src\Modules\IO\Input.cpp">
+      <Filter>Source Files\Libraries\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modules\IO\Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

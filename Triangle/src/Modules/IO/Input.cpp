@@ -65,6 +65,7 @@ namespace Input
 				exit(0);
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+			Logging::log("Output");
 		}
 	}
 }
