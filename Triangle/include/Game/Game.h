@@ -27,6 +27,7 @@ public:
 		ecs.addSystem<Systems::Movement2D>();
 		ecs.addSystem<Systems::Exit>();
 		ecs.addSystem<Systems::Input>();
+		ecs.addSystem<Systems::GraphicsInterface>();
 	}
 
 	void run()

@@ -8,13 +8,25 @@ using MyComponentList = ComponentList<
 	// Transform components
 	Components::Position2D,
 	Components::Velocity2D,
+
+	// Graphics components
 	Components::Camera2D,
+	Components::Texture,
+	Components::Mesh,
+
+	// Other components
 	Components::Input
 >;
 
 using MyFilterList = FilterList<
-	Filter<Components::Position2D>, // Movement System
-	Filter<Components::Input, Components::Position2D, Components::Velocity2D> // Input System
+	// Movement
+	Filter<Components::Position2D>,
+
+	// Input
+	Filter<Components::Input, Components::Position2D, Components::Velocity2D>,
+
+	// GraphicsInterface
+	Filter<Components::Texture, Components::Mesh>
 >;
 
 using MyECSManager = ECSManager<MyComponentList, MyFilterList>;

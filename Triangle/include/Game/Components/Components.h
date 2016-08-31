@@ -6,3 +6,4 @@
 #include "Position3D.h"
 #include "Velocity3D.h"
 #include "Texture.h"
+#include "Mesh.h"

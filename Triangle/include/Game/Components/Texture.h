@@ -4,9 +4,10 @@
 
 namespace Components
 {
-	class Texture : public Component, public Graphics::Data::Texture
+	class Texture : public Component
 	{
 	public:
 
+		Graphics::Data::Texture texture;
 	};
 }
