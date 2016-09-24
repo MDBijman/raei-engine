@@ -16,7 +16,7 @@ public:
 		assets(),
 		ecs(),
 		graphics(hInstance, window),
-		gameState(GameState::PAUSED)
+		gameState(PAUSED)
 	{
 		auto cameraEntity = ecs.createEntity();
 		auto& camera = ecs.createComponent<Components::Camera2D>(cameraEntity, glm::vec2(1280, 720), 60.0f, 0.1f, 256.f);
@@ -30,7 +30,7 @@ public:
 
 			auto& m = ecs.createComponent<Components::Mesh>(e, "bad_car.obj", *graphics.renderer->device, *graphics.renderer->physicalDevice);
 
-			auto& ms = ecs.createComponent<Components::MeshShader>(e, *graphics.renderer->device, *graphics.renderer->physicalDevice);
+			auto& ms = ecs.createComponent<Components::MeshShader>(e, *graphics.renderer->device, *graphics.renderer->physicalDevice, texture.texture);
 			auto& p = ecs.createComponent<Components::Pipeline>(e, "./res/shaders/default-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, *graphics.renderer->device, m.mesh.vertices.vi, texture.texture, ms);
 			ecs.createComponent<Components::CameraID>(e, uint32_t(1));
 
@@ -47,7 +47,7 @@ public:
 
 	void run()
 	{
-		gameState = GameState::RUNNING;
+		gameState = RUNNING;
 
 		Time::Timer t;
 		while(true)

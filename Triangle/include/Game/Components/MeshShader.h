@@ -5,10 +5,18 @@
 
 namespace Components
 {
+	/**
+	 * \brief MeshShader provides an implementation for the mesh fragment and vertex shaders.
+	 */
 	class MeshShader : public Component, public Graphics::Data::Shader
 	{
 	public:
-		MeshShader(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice)
+		/**
+		 * \brief Creates a new MeshShader with the required uniform data objects, descriptor set, descriptor set layout, and descriptor pool.
+		 * \param device The VulkanDevice to make vulkan objects with.
+		 * \param physicalDevice The VulkanPhysicalDevice to make vulkan objects.
+		 */
+		MeshShader(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, Graphics::Data::Texture& texture)
 		{
 			VkMemoryRequirements memReqs;
 
@@ -36,8 +44,17 @@ namespace Components
 			uniformDataVS.descriptor.range = sizeof(uboVS);
 
 			createDescriptorSetLayout(device);
+
+			prepareDescriptorPool(device);
+
+			updateDescriptorSet(device, texture);
 		}
 
+		/**
+		 * \brief Updates the uniform buffers for this shader.
+		 * \param camera The camera to calculate the model view projection matrix from.
+		 * \param device The VulkanDevice to map and unmap memory from.
+		 */
 		void updateUniformBuffers(Camera& camera, VulkanDevice& device)
 		{
 			// Update matrices
@@ -58,10 +75,9 @@ namespace Components
 
 	private:
 		/**
-		* Creates a descriptor set layout with a uniform buffer and an image sample.
-		*
-		* @param device The VulkanDevice to create the layout with.
-		*/
+		 * \brief Creates a descriptor set layout with a uniform buffer and an image sample.
+		 * \param device The VulkanDevice to create the layout with.
+		 */
 		void createDescriptorSetLayout(VulkanDevice& device)
 		{
 			std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings(2);
@@ -89,11 +105,76 @@ namespace Components
 		}
 
 		/**
-		*
-		*/
-		void initializeUniformDataVS()
+		 * \brief Creates the descriptor pool needed to allocate descriptor sets.
+		 * \param device The VulkanDevice to create the pool with.
+		 */
+		void prepareDescriptorPool(VulkanDevice& device)
 		{
+			// We need to tell the API the number of max. requested descriptors per type
+			VulkanDescriptorPoolSize typeCounts;
 
+			std::vector<VkDescriptorPoolSize> poolSize
+			{
+				VulkanDescriptorPoolSize().setType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER).setDescriptorCount(1).vkPoolSize,
+				VulkanDescriptorPoolSize().setType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER).setDescriptorCount(1).vkPoolSize
+			};
+
+			// Create the global descriptor pool
+			// All descriptors used in this example are allocated from this pool
+			VulkanDescriptorPoolCreateInfo descriptorPoolInfo;
+			descriptorPoolInfo
+				.setPoolSizes(poolSize)
+				// Set the max. number of sets that can be requested
+				// Requesting descriptors beyond maxSets will result in an error
+				.setMaxSets(1);
+
+			descriptorPool = device.createDescriptorPool(descriptorPoolInfo.vkInfo);
+		}
+
+		/**
+		 * \brief Updates the descriptor set to use the data from the given texture and this shader.
+		 * \param device The VulkanDevice to allocate from.
+		 * \param texture The texture to bind to the descriptor set.
+		 */
+		void updateDescriptorSet(VulkanDevice& device, Graphics::Data::Texture& texture)
+		{
+			// Update descriptor sets determining the shader binding points
+			// For every binding point used in a shader there needs to be one
+			// descriptor set matching that binding point
+
+			VulkanDescriptorSetAllocateInfo allocInfo;
+			allocInfo
+				.setDescriptorPool(descriptorPool)
+				.setSetLayouts(descriptorSetLayout);
+			device.allocateDescriptorSet(allocInfo, descriptorSet);
+
+			std::vector<VkWriteDescriptorSet> descriptorSets(2);
+
+			// Binding 0: Uniform buffer
+
+			descriptorSets[0] = VulkanWriteDescriptorSet()
+				.setDstSet(descriptorSet)
+				.setDescriptorCount(1)
+				.setDescriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+				.setBufferInfo(uniformDataVS.descriptor)
+				.setDstBinding(0)
+				.vkDescriptorSet;
+
+			VkDescriptorImageInfo texDescriptor;
+			texDescriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+			texDescriptor.sampler = texture.sampler;
+			texDescriptor.imageView = texture.view;
+
+			// Binding 1: Image sampler
+			descriptorSets[1] = VulkanWriteDescriptorSet()
+				.setDstSet(descriptorSet)
+				.setDescriptorCount(1)
+				.setDescriptorType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
+				.setImageInfo(texDescriptor)
+				.setDstBinding(1)
+				.vkDescriptorSet;
+
+			device.updateDescriptorSet(descriptorSets);
 		}
 	};
 }
