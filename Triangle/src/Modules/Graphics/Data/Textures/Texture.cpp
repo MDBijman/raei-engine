@@ -1,4 +1,5 @@
-#include "Modules\Graphics\Data\Textures\Texture.h"
+#include "Modules/Graphics/Data/Textures/Texture.h"
+#include <gli/gli.hpp>
 
 namespace Graphics
 {
@@ -38,8 +39,8 @@ namespace Graphics
 			gli::texture2D tex2D(gli::load(filename));
 			assert(!tex2D.empty());
 
-			width = (uint32_t)tex2D[0].dimensions().x;
-			height = (uint32_t)tex2D[0].dimensions().y;
+			width = static_cast<uint32_t>(tex2D[0].dimensions().x);
+			height = static_cast<uint32_t>(tex2D[0].dimensions().y);
 			mipLevels = static_cast<uint32_t>(tex2D.levels());
 
 			// Get device properites for the requested texture format

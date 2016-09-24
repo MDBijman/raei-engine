@@ -1,12 +1,11 @@
 #pragma once
-#include <vulkan\vulkan.h>
-#include <string>
+#include <vulkan/vulkan.h>
 
 class VulkanSubpassDependency 
 {
 public:
 	VulkanSubpassDependency() {}
-	VulkanSubpassDependency(VkSubpassDependency dep) : vk(dep) {}
+	explicit VulkanSubpassDependency(VkSubpassDependency dep) : vk(dep) {}
 
 	VkSubpassDependency vk;
 };

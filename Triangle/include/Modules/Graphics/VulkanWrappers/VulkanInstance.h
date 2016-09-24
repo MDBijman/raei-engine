@@ -6,19 +6,14 @@
 
 #include <memory>
 #include <vector>
-#include <string>
 #include <assert.h>
-#include <algorithm>
-#include <iterator>
 #include <iostream>
-#include <vulkan\vulkan.h>
-
-
+#include <vulkan/vulkan.h>
 
 class VulkanInstance
 {
 public:
-	VulkanInstance(std::string name) 
+	explicit VulkanInstance(std::string name) 
 	{
 		// Set some info about our application
 		VulkanApplicationInfo applicationInfo;
@@ -80,7 +75,7 @@ public:
 		assert(!err);
 	}
 
-	std::unique_ptr<std::vector<VulkanPhysicalDevice>> getPhysicalDevices()
+	std::unique_ptr<std::vector<VulkanPhysicalDevice>> getPhysicalDevices() const
 	{
 		uint32_t deviceCount;
 		vkEnumeratePhysicalDevices(vkInstance, &deviceCount, NULL);

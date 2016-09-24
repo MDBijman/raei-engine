@@ -129,23 +129,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Modules\Graphics\Data\Shaders\Shader.cpp" />
-    <ClCompile Include="src\Modules\Graphics\Logic\Drawable.cpp" />
     <ClCompile Include="src\Modules\Graphics\Logic\Pipeline.cpp" />
     <ClCompile Include="src\Modules\Graphics\Logic\Renderer.cpp" />
     <ClCompile Include="src\Modules\Graphics\Data\Textures\Texture.cpp" />
     <ClCompile Include="src\Modules\Importers\Obj.cpp" />
-    <ClCompile Include="src\Modules\Importers\Pipeline.cpp" />
+    <ClCompile Include="src\Modules\Importers\PipelineImporter.cpp" />
     <ClCompile Include="src\Modules\Importers\Shader.cpp" />
     <ClCompile Include="src\Modules\IO\Input.cpp" />
     <ClCompile Include="src\Modules\IO\Logging.cpp" />
+    <ClCompile Include="src\Modules\Math\Matrices.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Game\Components\CameraID.h" />
+    <ClInclude Include="include\Game\Components\CommandBuffers.h" />
     <ClInclude Include="include\Game\Components\Components.h" />
     <ClInclude Include="include\Game\Components\Camera2D.h" />
     <ClInclude Include="include\Game\Components\Input.h" />
     <ClInclude Include="include\Game\Components\Mesh.h" />
+    <ClInclude Include="include\Game\Components\MeshShader.h" />
     <ClInclude Include="include\Game\Components\Orientation3D.h" />
+    <ClInclude Include="include\Game\Components\Pipeline.h" />
     <ClInclude Include="include\Game\Components\Position2D.h" />
     <ClInclude Include="include\Game\Components\Position3D.h" />
     <ClInclude Include="include\Game\Components\Texture.h" />
@@ -175,7 +178,6 @@
     <ClInclude Include="include\Modules\Graphics\Data\Textures\Texture.h" />
     <ClInclude Include="include\Modules\Graphics\Graphics.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Camera.h" />
-    <ClInclude Include="include\Modules\Graphics\Logic\Drawable.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Pipeline.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Renderer.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Shader.h" />
@@ -242,7 +244,7 @@
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanWrappers.h" />
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanWriteDescriptorSet.h" />
     <ClInclude Include="include\Modules\Importers\Obj.h" />
-    <ClInclude Include="include\Modules\Importers\Pipeline.h" />
+    <ClInclude Include="include\Modules\Importers\PipelineImporter.h" />
     <ClInclude Include="include\Modules\Importers\Shader.h" />
     <ClInclude Include="include\Modules\IO\Input.h" />
     <ClInclude Include="include\Modules\Importers\JSON.h" />
@@ -251,14 +253,34 @@
     <ClInclude Include="include\Modules\Time\Timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\fonts\font.fnt" />
     <None Include="res\game.json" />
     <None Include="res\default-pipeline.json" />
     <None Include="res\mesh-shader-metadata.json" />
+    <None Include="res\models\bad_car.mtl" />
+    <None Include="res\shaders\default-pipeline.json" />
+    <None Include="res\shaders\game.json" />
+    <None Include="res\shaders\mesh.frag" />
+    <None Include="res\shaders\mesh.frag.spv" />
+    <None Include="res\shaders\mesh.vert" />
+    <None Include="res\shaders\mesh.vert.spv" />
+    <None Include="res\shaders\spirv-mesh.bat" />
     <None Include="res\test.lisp" />
+    <None Include="res\textures\tree.pdn" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bad_car.obj">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\textures\tree-uv.png" />
+    <Image Include="res\textures\tree.dds" />
+    <Image Include="res\textures\tree.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\models\bad_car.obj">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

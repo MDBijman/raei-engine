@@ -1,12 +1,10 @@
 #pragma once
-#include "Modules\Graphics\VulkanWrappers\VulkanWrappers.h"
-#include "Modules\Graphics\Logic\Drawable.h"
+#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
 
-#include <math.h>
 #include <vector>
 #include <chrono>
 #include <memory>
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 
 namespace Graphics
 {
@@ -25,9 +23,8 @@ namespace Graphics
 		Renderer(WindowsContext context);
 
 		void prepare();
-		void submit(Drawable& c);
+		void submit(VkCommandBuffer& buffer) const;
 		void present();
-		void render(std::vector<Drawable> d);
 
 		std::shared_ptr<VulkanInstance> instance;
 		std::shared_ptr<VulkanPhysicalDevice> physicalDevice;
@@ -43,6 +40,8 @@ namespace Graphics
 		VkPipelineCache            pipelineCache;
 		std::vector<VkFramebuffer> frameBuffers;
 
+		uint32_t getCurrentBuffer() const;
+
 	private:
 		struct
 		{
@@ -53,8 +52,8 @@ namespace Graphics
 
 		const glm::vec2 SCREEN_DIMENSIONS;
 
-		void submitPrePresentBarrier(VkImage image);
-		void submitPostPresentBarrier(VkImage image);
+		void submitPrePresentBarrier(VkImage image) const;
+		void submitPostPresentBarrier(VkImage image) const;
 
 		void prepareDepthStencil(uint32_t width, uint32_t height);
 		void prepareRenderPass();

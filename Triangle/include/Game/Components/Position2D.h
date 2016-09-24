@@ -1,6 +1,6 @@
 #pragma once
-#include "Modules\ECS\ECS.h"
-#include <glm\glm.hpp>
+#include "Modules/ECS/ECS.h"
+#include <glm/glm.hpp>
 
 namespace Components
 {
@@ -9,7 +9,7 @@ namespace Components
 	public:
 		Position2D() {}
 		Position2D(float x, float y) : pos(x, y) {}
-		Position2D(glm::vec2 v) : pos(v) {}
+		explicit Position2D(glm::vec2 v) : pos(v) {}
 
 		glm::vec2 pos;
 	};

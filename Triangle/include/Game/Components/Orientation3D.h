@@ -1,6 +1,6 @@
 #pragma once
-#include "Modules\ECS\ECS.h"
-#include <glm\glm.hpp>
+#include "Modules/ECS/ECS.h"
+#include <glm/glm.hpp>
 
 namespace Components
 {

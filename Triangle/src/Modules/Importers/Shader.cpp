@@ -1,4 +1,6 @@
-#include "Modules\Importers\Shader.h"
+#include "Modules/Importers/Shader.h"
+#include <cstdio>
+#include <cassert>
 
 namespace Importers
 {
@@ -24,7 +26,7 @@ namespace Importers
 
 			*psize = size;
 
-			return (char*)shader_code;
+			return static_cast<char*>(shader_code);
 		}
 
 		VkShaderModule load(const char *fileName, VkDevice device)

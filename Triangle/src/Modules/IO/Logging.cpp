@@ -1,4 +1,4 @@
-#include "Modules\IO\Logging.h"
+#include "Modules/IO/Logging.h"
 #include <iostream>
 
 namespace Logging

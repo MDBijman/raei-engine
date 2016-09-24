@@ -1,8 +1,5 @@
 #pragma once
-#include "Modules\Graphics\Data\Geometry\Mesh.h"
-
-#include <vector>
-#include <fstream>
+#include "Modules/Graphics/Data/Geometry/Mesh.h"
 
 namespace Importers
 {

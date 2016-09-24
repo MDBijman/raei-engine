@@ -1,16 +1,11 @@
 #pragma once
-#include "Modules\ECS\Component.h"
-#include <glm\glm.hpp>
+#include "Modules/ECS/Component.h"
+#include "Modules/Graphics/Graphics.h"
 
 namespace Components
 {
-	class Camera2D : public Component
+	class Camera2D : public Component, public Camera
 	{
-	public:
-		// The dimensions of this camera.
-		glm::vec2 dimensions;
-
-		// Field of view, near plane, and far plane of this camera 
-		float fov, nearPlane, farPlane;
+		using Camera::Camera;
 	};
 }

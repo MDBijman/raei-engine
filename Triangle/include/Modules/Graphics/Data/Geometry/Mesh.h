@@ -1,8 +1,6 @@
 #pragma once
-#include "Modules\Graphics\Data\Geometry\Vertices.h"
-#include "Modules\Graphics\Data\Geometry\Indices.h"
-
-#include <vector>
+#include "Modules/Graphics/Data/Geometry/Vertices.h"
+#include "Modules/Graphics/Data/Geometry/Indices.h"
 
 namespace Graphics
 {

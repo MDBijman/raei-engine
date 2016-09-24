@@ -1,11 +1,11 @@
 #pragma once
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 
 class VulkanClearValue
 {
 public:
 	VulkanClearValue() {}
-	VulkanClearValue(VkClearValue vulkanValue) : vkValue(vulkanValue) {}
+	explicit VulkanClearValue(VkClearValue vulkanValue) : vkValue(vulkanValue) {}
 
 	VulkanClearValue& setColor(VkClearColorValue color)
 	{

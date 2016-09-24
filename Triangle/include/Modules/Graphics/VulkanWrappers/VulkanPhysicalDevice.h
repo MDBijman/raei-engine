@@ -1,15 +1,15 @@
 #pragma once
 #include <assert.h>
 #include <vector>
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include <memory>
 
 class VulkanPhysicalDevice 
 {
 public:
-	VulkanPhysicalDevice(VkPhysicalDevice d) : vkPhysicalDevice(d) {}
+	explicit VulkanPhysicalDevice(VkPhysicalDevice d) : vkPhysicalDevice(d) {}
 
-	std::unique_ptr<std::vector<VkQueueFamilyProperties>> queueFamilyProperties()
+	std::unique_ptr<std::vector<VkQueueFamilyProperties>> queueFamilyProperties() const
 	{
 		uint32_t queueCount;
 		vkGetPhysicalDeviceQueueFamilyProperties(vkPhysicalDevice, &queueCount, NULL);
@@ -22,7 +22,7 @@ public:
 		return queueProperties;
 	}
 
-	uint32_t getMemoryPropertyIndex(VkMemoryPropertyFlagBits flag, VkMemoryRequirements requirements)
+	uint32_t getMemoryPropertyIndex(VkMemoryPropertyFlagBits flag, VkMemoryRequirements requirements) const
 	{
 		for (uint32_t i = 0; i < 32; i++)
 		{
@@ -38,14 +38,14 @@ public:
 		return -1;
 	}
 
-	VkPhysicalDeviceMemoryProperties memoryProperties()
+	VkPhysicalDeviceMemoryProperties memoryProperties() const
 	{
 		VkPhysicalDeviceMemoryProperties memProperties;
 		vkGetPhysicalDeviceMemoryProperties(vkPhysicalDevice, &memProperties);
 		return memProperties;
 	}
 
-	VkFormatProperties formatProperties(VkFormat format)
+	VkFormatProperties formatProperties(VkFormat format) const
 	{
 		VkFormatProperties formProperties;
 		vkGetPhysicalDeviceFormatProperties(vkPhysicalDevice, format, &formProperties);

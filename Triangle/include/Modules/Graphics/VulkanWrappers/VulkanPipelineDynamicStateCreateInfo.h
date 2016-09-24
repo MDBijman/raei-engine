@@ -1,10 +1,9 @@
 #pragma once
-#include "VulkanWrappers.h"
-
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include "VulkanDynamicState.h"
 
 class VulkanPipelineDynamicStateCreateInfo
 {

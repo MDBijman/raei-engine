@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 
 class VulkanApplicationInfo
 {

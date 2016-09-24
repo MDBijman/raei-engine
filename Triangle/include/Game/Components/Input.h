@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules\ECS\ECS.h"
+#include "Modules/ECS/ECS.h"
 
 namespace Components
 {

@@ -1,6 +1,6 @@
-#include "Modules\Graphics\Logic\Renderer.h"
+#include "Modules/Graphics/Logic/Renderer.h"
 
-#include "Modules\Graphics\VulkanWrappers\VulkanWrappers.h"
+#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
 
 #include <vector>
 
@@ -20,7 +20,7 @@ namespace Graphics
 		}
 		assert(graphicsQueueIndex < queueProperties->size());
 
-		device = std::make_unique<VulkanDevice>(physicalDevice->vkPhysicalDevice, graphicsQueueIndex);
+		device = std::make_unique<VulkanDevice>(*physicalDevice, graphicsQueueIndex);
 		swapchain = std::make_unique<VulkanSwapChain>(instance->vkInstance, physicalDevice->vkPhysicalDevice, device->vkDevice);
 		queue = std::make_unique<VulkanQueue>(device->queueAt(graphicsQueueIndex));
 
@@ -86,28 +86,20 @@ namespace Graphics
 		renderComplete = device->createSemaphore(semaphoreCreateInfo.vkInfo);
 	}
 
-	void Renderer::render(std::vector<Drawable> d)
-	{
-		prepare();
-		for (auto it = d.begin(); it != d.end(); ++it)
-			submit(*it);
-		present();
-	}
-
 	void Renderer::prepare()
 	{
 		swapchain->acquireNextImage(presentComplete, &currentBuffer);
 		submitPostPresentBarrier(swapchain->buffers[currentBuffer].image);
 	}
 
-	void Renderer::submit(Drawable& c)
+	void Renderer::submit(VkCommandBuffer& buffer) const
 	{
 		// The submit info structure contains a list of
 		// command buffers and semaphores to be submitted to a queue
 		// If you want to submit multiple command buffers, pass an array
 		VulkanSubmitInfo submitInfo;
 		VkPipelineStageFlags submitPipelineStages = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-		std::vector<VkCommandBuffer> commandBuffers{ c.getCommandBuffers()[currentBuffer].vkBuffer };
+		std::vector<VkCommandBuffer> commandBuffers{ buffer };
 		std::vector<VkSemaphore> wait{ presentComplete };
 		std::vector<VkSemaphore> signal{ renderComplete };
 		submitInfo.setCommandBuffers(commandBuffers)
@@ -129,7 +121,7 @@ namespace Graphics
 		assert(!err);
 	}
 
-	void Renderer::submitPostPresentBarrier(VkImage image)
+	void Renderer::submitPostPresentBarrier(VkImage image) const
 	{
 		VkCommandBufferBeginInfo cmdBufInfo = {};
 		cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -308,7 +300,12 @@ namespace Graphics
 		}
 	}
 
-	void Renderer::submitPrePresentBarrier(VkImage image)
+	uint32_t Renderer::getCurrentBuffer() const
+	{
+		return currentBuffer;
+	}
+
+	void Renderer::submitPrePresentBarrier(VkImage image) const
 	{
 		VkCommandBufferBeginInfo cmdBufInfo = {};
 		cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

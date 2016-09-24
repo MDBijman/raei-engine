@@ -1,4 +1,5 @@
 #include "Camera2D.h"
+#include "CameraID.h"
 #include "Input.h"
 #include "Position2D.h"
 #include "Velocity2D.h"
@@ -7,3 +8,6 @@
 #include "Velocity3D.h"
 #include "Texture.h"
 #include "Mesh.h"
+#include "Pipeline.h"
+#include "CommandBuffers.h"
+#include "MeshShader.h"

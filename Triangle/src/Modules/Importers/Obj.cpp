@@ -1,6 +1,7 @@
-#include "Modules\Importers\Obj.h"
+#include "Modules/Importers/Obj.h"
 
 #include <sstream>
+#include <fstream>
 
 namespace Importers
 {
@@ -15,22 +16,25 @@ namespace Importers
 			std::vector<glm::vec2> temp_uvs = { glm::vec2(0, 0) };
 			std::vector<glm::vec3> temp_normals = { glm::vec3(0, 0, 0) };
 
-			if (!file.is_open()) throw new std::runtime_error("file not open");
+			if(!file.is_open())
+				throw std::runtime_error("file not open");
 
 			std::stringstream fileStream;
 			fileStream << file.rdbuf();
 
 			std::string line;
-			while (std::getline(fileStream, line)) {
+			while(std::getline(fileStream, line))
+			{
 
 				// Vertex position
-				if (line[0] == 'v' && line[1] == ' ') {
+				if(line[0] == 'v' && line[1] == ' ')
+				{
 					float values[3];
 
 					std::stringstream lineWithoutIdentifier(line.substr(2));
 					std::string vertex;
 					int index = 0;
-					while (std::getline(lineWithoutIdentifier, vertex, ' '))
+					while(std::getline(lineWithoutIdentifier, vertex, ' '))
 					{
 						values[index] = stof(vertex);
 						index++;
@@ -41,13 +45,14 @@ namespace Importers
 				}
 
 				// Vertex normal
-				if (line[0] == 'v' && line[1] == 'n') {
+				if(line[0] == 'v' && line[1] == 'n')
+				{
 					float values[3];
 
 					std::stringstream lineWithoutIdentifier(line.substr(3));
 					std::string normal;
 					int index = 0;
-					while (std::getline(lineWithoutIdentifier, normal, ' '))
+					while(std::getline(lineWithoutIdentifier, normal, ' '))
 					{
 						values[index] = stof(normal);
 						index++;
@@ -58,13 +63,14 @@ namespace Importers
 				}
 
 				// Vertex texture
-				if (line[0] == 'v' && line[1] == 't') {
+				if(line[0] == 'v' && line[1] == 't')
+				{
 					float values[2];
 
 					std::stringstream lineWithoutIdentifier(line.substr(3));
 					std::string uv;
 					int index = 0;
-					while (std::getline(lineWithoutIdentifier, uv, ' '))
+					while(std::getline(lineWithoutIdentifier, uv, ' '))
 					{
 						values[index] = stof(uv);
 						index++;
@@ -75,20 +81,21 @@ namespace Importers
 				}
 
 				// Face
-				if (line[0] == 'f') {
+				if(line[0] == 'f')
+				{
 					int values[9];
 
 					std::stringstream lineWithoutIdentifier(line.substr(2));
 
 					int index = 0;
 					std::string vertex;
-					while (std::getline(lineWithoutIdentifier, vertex, ' '))
+					while(std::getline(lineWithoutIdentifier, vertex, ' '))
 					{
 						std::stringstream segment(vertex);
 						std::string attribute;
-						while (std::getline(segment, attribute, '/'))
+						while(std::getline(segment, attribute, '/'))
 						{
-							if (attribute.length() > 0)
+							if(attribute.length() > 0)
 								values[index] = stoi(attribute);
 							else
 								values[index] = 0;
@@ -104,7 +111,6 @@ namespace Importers
 					m->indices.getData().push_back(static_cast<uint32_t>(m->vertices.getData().size() - 3));
 					m->indices.getData().push_back(static_cast<uint32_t>(m->vertices.getData().size() - 2));
 					m->indices.getData().push_back(static_cast<uint32_t>(m->vertices.getData().size() - 1));
-					continue;
 				}
 			}
 

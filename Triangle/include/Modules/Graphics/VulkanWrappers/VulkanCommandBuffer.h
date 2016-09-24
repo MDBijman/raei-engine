@@ -1,6 +1,6 @@
 #pragma once
 #include <assert.h>
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 
 #define VERTEX_BUFFER_BIND_ID 0
 
@@ -18,7 +18,7 @@ public:
 		return *this;
 	}
 
-	void end()
+	void end() const
 	{
 		VkResult error = vkEndCommandBuffer(vkBuffer);
 		assert(!error);

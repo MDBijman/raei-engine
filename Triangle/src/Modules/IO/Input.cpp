@@ -1,4 +1,4 @@
-#include "Modules\IO\Input.h"
+#include "Modules/IO/Input.h"
 #include <Windows.h>
 
 namespace IO

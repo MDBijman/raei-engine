@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <iostream>
-#include "Game\Game.h"
-#include "Modules\IO\Input.h"
+#include "Game/Game.h"
+#include "Modules/IO/Input.h"
 
 HWND window;
 
@@ -74,7 +74,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CLOSE:
 		exit(0);
-		break;
 	case WM_KEYUP:
 		IO::Keyboard::setKeyUp(wParam);
 		break;
@@ -96,6 +95,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		ClientToScreen(hWnd, &middle);
 		SetCursorPos(middle.x, middle.y);
 		break;
+	default: break;
 	}
 
 	return (DefWindowProc(hWnd, uMsg, wParam, lParam));
@@ -107,7 +107,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLin
 	createWindowsContext(hInstance, WndProc, "triangle", 1280, 720);
 
 	AllocConsole();
-	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	//HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 	freopen("CONOUT$", "w", stdout);
 
 	Game game(hInstance, window);

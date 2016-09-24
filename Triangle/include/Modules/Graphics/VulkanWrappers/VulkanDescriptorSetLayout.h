@@ -1,11 +1,12 @@
 #pragma once
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 
 class VulkanDescriptorSetLayout
 {
 public:
-	VulkanDescriptorSetLayout() {}
-	VulkanDescriptorSetLayout(VkDescriptorSetLayout vkl) : vk(vkl) {}
+	VulkanDescriptorSetLayout(): vk(nullptr) {}
+
+	explicit VulkanDescriptorSetLayout(VkDescriptorSetLayout vkl) : vk(vkl) {}
 
 	VkDescriptorSetLayout vk;
 };

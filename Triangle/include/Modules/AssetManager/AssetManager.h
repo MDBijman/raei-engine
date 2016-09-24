@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules\TemplateUtils\TypeIndex.h"
+#include "Modules/TemplateUtils/TypeIndex.h"
 
 #include <tuple>
 #include <unordered_map>

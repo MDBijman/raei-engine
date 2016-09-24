@@ -1,6 +1,15 @@
 #pragma once
-#include "VulkanWrappers.h"
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
+#include "VulkanPipelineLayout.h"
+#include "VulkanPipelineVertexInputStateCreateInfo.h"
+#include "VulkanPipelineInputAssemblyStateCreateInfo.h"
+#include "VulkanPipelineRasterizationStateCreateInfo.h"
+#include "VulkanPipelineColorBlendStateCreateInfo.h"
+#include "VulkanPipelineMultisampleStateCreateInfo.h"
+#include "VulkanPipelineViewportStateCreateInfo.h"
+#include "VulkanPipelineDepthStencilStateCreateInfo.h"
+#include "VulkanPipelineShaderStageCreateInfo.h"
+#include "VulkanPipelineDynamicStateCreateInfo.h"
 
 class VulkanGraphicsPipelineCreateInfo
 {

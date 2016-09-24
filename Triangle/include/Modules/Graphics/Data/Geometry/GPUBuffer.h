@@ -7,6 +7,10 @@ namespace Graphics
 		class GPUBuffer
 		{
 		public:
+			virtual ~GPUBuffer()
+			{
+			}
+
 			/*
 				Uploads the data of this buffer to the GPU.
 			*/

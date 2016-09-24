@@ -1,8 +1,8 @@
 #pragma once
-#include "Components\Components.h"
-#include "Modules\ECS\ECS.h"
-#include "Modules\AssetManager\AssetManager.h"
-#include "Modules\Graphics\Data\Textures\Texture.h"
+#include "Components/Components.h"
+#include "Modules/ECS/ECS.h"
+#include "Modules/AssetManager/AssetManager.h"
+#include "Modules/Graphics/Data/Textures/Texture.h"
 
 using MyComponentList = ComponentList<
 	// Transform components
@@ -13,10 +13,16 @@ using MyComponentList = ComponentList<
 	Components::Camera2D,
 	Components::Texture,
 	Components::Mesh,
+	Components::CameraID,
+	Components::Pipeline,
+	Components::CommandBuffers,
+	Components::MeshShader,
 
 	// Other components
 	Components::Input
 >;
+
+using GraphicsFilter = Filter<Components::Texture, Components::Mesh, Components::CameraID, Components::CommandBuffers, Components::Pipeline, Components::MeshShader>;
 
 using MyFilterList = FilterList<
 	// Movement
@@ -25,8 +31,10 @@ using MyFilterList = FilterList<
 	// Input
 	Filter<Components::Input, Components::Position2D, Components::Velocity2D>,
 
-	// GraphicsInterface
-	Filter<Components::Texture, Components::Mesh>
+	GraphicsFilter,
+
+	// Camera Finding
+	Filter<Components::Camera2D>
 >;
 
 using MyECSManager = ECSManager<MyComponentList, MyFilterList>;

@@ -1,9 +1,8 @@
 #pragma once
-#include "VulkanWrappers.h"
-
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include <algorithm>
 #include <iterator>
+#include "VulkanDescriptorSetLayout.h"
 
 class VulkanDescriptorSetAllocateInfo
 {

@@ -1,9 +1,9 @@
 #pragma once
-#include "Modules\Graphics\VulkanWrappers\VulkanWrappers.h"
-#include "Modules\Graphics\Data\Geometry\GPUBuffer.h"
+#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
+#include "Modules/Graphics/Data/Geometry/GPUBuffer.h"
 
 #include <vector>
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 
 struct Vertex
 {
@@ -30,7 +30,7 @@ namespace Graphics
 				return vertices;
 			}
 
-			void upload(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice)
+			void upload(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice) override
 			{
 				VkMemoryRequirements memReqs;
 				void *data;

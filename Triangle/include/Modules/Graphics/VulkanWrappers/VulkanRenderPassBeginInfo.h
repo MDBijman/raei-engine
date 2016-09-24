@@ -1,7 +1,7 @@
 #pragma once
 #include "VulkanWrappers.h"
 
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include <vector>
 
 class VulkanRenderPassBeginInfo

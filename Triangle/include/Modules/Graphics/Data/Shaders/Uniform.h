@@ -1,10 +1,16 @@
 #pragma once
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 
-class Uniform
+namespace Graphics
 {
-public:
-	VkBuffer buffer;
-	VkDeviceMemory memory;
-	VkDescriptorBufferInfo descriptor;
-};
+	namespace Data
+	{
+		class Uniform
+		{
+		public:
+			VkBuffer buffer;
+			VkDeviceMemory memory;
+			VkDescriptorBufferInfo descriptor;
+		};
+	}
+}

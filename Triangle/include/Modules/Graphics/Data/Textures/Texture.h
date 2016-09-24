@@ -1,9 +1,7 @@
 #pragma once
-#include "Modules\Graphics\VulkanWrappers\VulkanWrappers.h"
+#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
 
-#include <vulkan\vulkan.h>
-#include <assert.h>
-#include <gli\gli.hpp>
+#include <vulkan/vulkan.h>
 
 namespace Graphics
 {
@@ -21,7 +19,7 @@ namespace Graphics
 			uint32_t mipLevels;
 
 			// Get appropriate memory type index for a memory allocation
-			uint32_t getMemoryType(uint32_t typeBits, VkFlags properties, VkPhysicalDeviceMemoryProperties deviceMemoryProperties);
+			static uint32_t getMemoryType(uint32_t typeBits, VkFlags properties, VkPhysicalDeviceMemoryProperties deviceMemoryProperties);
 
 			void load(const char* filename, VkFormat format, VulkanPhysicalDevice& physicalDevice, VulkanDevice& device, VkCommandPool& pool, VulkanQueue& queue);
 		};

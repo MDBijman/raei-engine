@@ -1,6 +1,6 @@
 #pragma once
-#include "Modules\Graphics\VulkanWrappers\VulkanWrappers.h"
-#include "Modules\Graphics\Data\Geometry\GPUBuffer.h"
+#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
+#include "Modules/Graphics/Data/Geometry/GPUBuffer.h"
 
 namespace Graphics
 {
@@ -19,7 +19,7 @@ namespace Graphics
 				return this->indices;
 			}
 
-			void upload(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice)
+			void upload(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice) override
 			{
 				VulkanBufferCreateInfo indexBufferInfo;
 				indexBufferInfo

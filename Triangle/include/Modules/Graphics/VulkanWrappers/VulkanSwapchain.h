@@ -1,13 +1,9 @@
 #pragma once
 #include <stdlib.h>
-#include <string>
-#include <fstream>
 #include <assert.h>
 #include <stdio.h>
 #include <vector>
 #include <windows.h>
-#include <fcntl.h>
-#include <io.h>
 
 #include <vulkan/vulkan.h>
 #include "SurfaceExtensions.h"

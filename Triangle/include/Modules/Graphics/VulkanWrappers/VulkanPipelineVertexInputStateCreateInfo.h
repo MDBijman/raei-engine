@@ -1,9 +1,8 @@
 #pragma once
-#include "VulkanPipelineVertexInputStateCreateInfo.h"
 #include "VulkanVertexInputAttributeDescription.h"
 #include "VulkanVertexInputBindingDescription.h"
 
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include <algorithm>
 #include <iterator>
 
@@ -17,7 +16,7 @@ public:
 		vk.flags = 0;
 	}
 
-	VulkanPipelineVertexInputStateCreateInfo(VkPipelineVertexInputStateCreateInfo info) : vk(info) {}
+	explicit VulkanPipelineVertexInputStateCreateInfo(VkPipelineVertexInputStateCreateInfo info) : vk(info) {}
 
 	VulkanPipelineVertexInputStateCreateInfo& setVertexBindingDescriptions(std::vector<VulkanVertexInputBindingDescription> b)
 	{

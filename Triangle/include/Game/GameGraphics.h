@@ -1,7 +1,6 @@
 #pragma once
-#include "Modules\Graphics\Logic\Renderer.h"
-#include "Modules\Graphics\Logic\Drawable.h"
-#include "Modules\Graphics\Logic\Camera.h"
+#include "Modules/Graphics/Logic/Renderer.h"
+#include "Components/Components.h"
 
 #include <vector>
 
@@ -11,28 +10,26 @@ public:
 	GameGraphics(HINSTANCE hInstance, HWND window)
 	{
 		Graphics::WindowsContext context = {
-				hInstance, window, "triangle", 1280, 720
+			hInstance, window, "triangle", 1280, 720
 		};
 		renderer = new Graphics::Renderer(context);
-		camera = Camera(glm::vec2(1280, 720), 60.0f, .1f, 256.0f);
-
-		auto& device = *renderer->device;
-		auto& physicalDevice = *renderer->physicalDevice;
-		auto& queue = *renderer->queue;
-		auto& swapchain = *renderer->swapchain;
-
-		drawable.push_back(Graphics::Drawable(camera, device, physicalDevice, renderer->cmdPool, queue, renderer->renderPass, renderer->pipelineCache, renderer->frameBuffers, swapchain));
 	}
 
-	void render()
+	void prepare() const
 	{
-		for (auto it = drawable.begin(); it != drawable.end(); ++it)
-			(*it).updateUniformBuffers(camera, *renderer->device);
-		renderer->render(drawable);
+		renderer->prepare();
 	}
 
-	Camera camera;
-private:
+	void render(Components::CommandBuffers& buffers, Components::MeshShader& shader, Components::Camera2D& camera) const
+	{
+		shader.updateUniformBuffers(camera, *renderer->device);
+		renderer->submit(buffers.commandBuffers[renderer->getCurrentBuffer()].vkBuffer);
+	}
+
+	void present() const
+	{
+		renderer->present();
+	}
+
 	Graphics::Renderer* renderer;
-	std::vector<Graphics::Drawable> drawable;
 };

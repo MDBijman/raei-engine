@@ -80,20 +80,11 @@
     <ClCompile Include="src\Modules\Importers\Obj.cpp">
       <Filter>Source Files\Libraries\Importers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modules\Importers\Pipeline.cpp">
-      <Filter>Source Files\Libraries\Importers</Filter>
-    </ClCompile>
     <ClCompile Include="src\Modules\Importers\Shader.cpp">
       <Filter>Source Files\Libraries\Importers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modules\Graphics\Data\Shaders\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Modules\Graphics\Data\Textures\Texture.cpp">
       <Filter>Source Files\Graphics\Data\Textures</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Modules\Graphics\Logic\Drawable.cpp">
-      <Filter>Source Files\Graphics\Logic</Filter>
     </ClCompile>
     <ClCompile Include="src\Modules\Graphics\Logic\Pipeline.cpp">
       <Filter>Source Files\Graphics\Logic</Filter>
@@ -110,6 +101,12 @@
     <ClCompile Include="src\Modules\IO\Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Modules\Math\Matrices.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modules\Importers\PipelineImporter.cpp">
+      <Filter>Source Files\Libraries\Importers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h">
@@ -119,9 +116,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Importers\Obj.h">
-      <Filter>Header Files\Libraries\Importers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Importers\Pipeline.h">
       <Filter>Header Files\Libraries\Importers</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Importers\Shader.h">
@@ -150,9 +144,6 @@
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\UniformMVP.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\Drawable.h">
-      <Filter>Header Files\Graphics\Logic</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Logic\Pipeline.h">
       <Filter>Header Files\Graphics\Logic</Filter>
@@ -436,6 +427,21 @@
     <ClInclude Include="include\Game\Components\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Game\Components\CameraID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Pipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\CommandBuffers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\MeshShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Importers\PipelineImporter.h">
+      <Filter>Header Files\Libraries\Importers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\game.json">
@@ -451,5 +457,23 @@
       <Filter>Resources</Filter>
     </None>
     <None Include="res\test.lisp" />
+    <None Include="res\textures\tree.pdn" />
+    <None Include="res\shaders\spirv-mesh.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="res\shaders\default-pipeline.json" />
+    <None Include="res\shaders\game.json" />
+    <None Include="res\shaders\mesh.frag" />
+    <None Include="res\shaders\mesh.frag.spv" />
+    <None Include="res\shaders\mesh.vert" />
+    <None Include="res\shaders\mesh.vert.spv" />
+    <None Include="res\models\bad_car.mtl" />
+    <None Include="res\fonts\font.fnt" />
+    <None Include="res\models\bad_car.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\textures\tree.dds" />
+    <Image Include="res\textures\tree.png" />
+    <Image Include="res\textures\tree-uv.png" />
   </ItemGroup>
 </Project>

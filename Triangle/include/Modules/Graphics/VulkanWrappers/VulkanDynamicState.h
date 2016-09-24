@@ -1,12 +1,11 @@
 #pragma once
-#include <vulkan\vulkan.h>
-#include <vector>
+#include <vulkan/vulkan.h>
 
 class VulkanDynamicState 
 {
 public:
-	VulkanDynamicState() {}
-	VulkanDynamicState(VkDynamicState s) : vk(s) {}
+	VulkanDynamicState() : vk() {}
+	explicit VulkanDynamicState(VkDynamicState s) : vk(s) {}
 
 	VkDynamicState vk;
 };

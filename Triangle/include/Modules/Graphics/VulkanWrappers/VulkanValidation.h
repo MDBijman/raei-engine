@@ -1,6 +1,6 @@
 #pragma once
 #include "GetInstanceProcAddr.h"
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include <iostream>
 
 namespace Validation {

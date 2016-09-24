@@ -1,15 +1,9 @@
-#include "Modules\Graphics\Logic\Pipeline.h"
-#include <vulkan\vulkan.h>
+#include "Modules/Graphics/Logic/Pipeline.h"
+#include <vulkan/vulkan.h>
 
 namespace Graphics
 {
-	Pipeline::Pipeline()
+	Pipeline::Pipeline(VkPipeline pipeline, VulkanPipelineLayout pipelineLayout) : vk(pipeline), layout(pipelineLayout)
 	{
-		vk = VK_NULL_HANDLE;
-	}
-
-	Pipeline::Pipeline(VkPipeline pipeline) : vk(pipeline)
-	{
-
 	}
 }

@@ -1,10 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include <string>
-#include <iostream>
 #include <map>
-#include <memory>
 #include <sstream>
 
 
@@ -31,13 +28,19 @@ namespace JSON
 			int number;
 			bool boolean;
 
-			~data_t() {}
+			~data_t()
+			{}
 			data_t() = default;
-			data_t(std::map<std::string, JSON>* obj) : object(obj) {}
-			data_t(std::vector<JSON>* a) : array(a) {}
-			data_t(std::string* str) : string(str) {}
-			data_t(int numb) : number(numb) {}
-			data_t(bool b) : boolean(b) {}
+			data_t(std::map<std::string, JSON>* obj) : object(obj)
+			{}
+			data_t(std::vector<JSON>* a) : array(a)
+			{}
+			data_t(std::string* str) : string(str)
+			{}
+			data_t(int numb) : number(numb)
+			{}
+			data_t(bool b) : boolean(b)
+			{}
 		};
 
 		data_t data = {};
@@ -53,66 +56,74 @@ namespace JSON
 			Constructors
 		*/
 
-		JSON() : type(types::null) {}
+		JSON() : type(types::null)
+		{}
 
-		JSON(const std::string& value) : type(types::string), data(new std::string(value)) {}
+		JSON(const std::string& value) : data(new std::string(value)), type(types::string)
+		{}
 
-		JSON(const char* value) : type(types::string), data(new std::string(value)) {}
+		JSON(const char* value) : data(new std::string(value)), type(types::string)
+		{}
 
-		JSON(const std::map<std::string, JSON>& value) : type(types::object), data(new std::map<std::string, JSON>(value)) {}
+		JSON(const std::map<std::string, JSON>& value) : data(new std::map<std::string, JSON>(value)), type(types::object)
+		{}
 
-		JSON(const std::vector<JSON>& value) : type(types::array), data(new std::vector<JSON>(value)) {}
+		JSON(const std::vector<JSON>& value) : data(new std::vector<JSON>(value)), type(types::array)
+		{}
 
-		JSON(int value) : type(types::number), data(value) {}
+		JSON(int value) : data(value), type(types::number)
+		{}
 
-		JSON(bool value) : type(types::boolean), data(value) {}
+		JSON(bool value) : data(value), type(types::boolean)
+		{}
 
 		JSON(const JSON& value) : type(value.type)
 		{
-			switch (type)
+			switch(type)
 			{
-			case types::array:
+			case array:
 				data = value.data.array;
 				break;
-			case types::boolean:
+			case boolean:
 				data = value.data.boolean;
 				break;
-			case types::number:
+			case number:
 				data = value.data.number;
 				break;
-			case types::object:
+			case object:
 				data = value.data.object;
 				break;
-			case types::string:
+			case string:
 				data = value.data.string;
 				break;
+			default: break;
 			}
 		}
 
 		JSON(std::initializer_list<JSON> list)
 		{
 			bool isObject = true;
-			for (const auto& elem : list)
+			for(const auto& elem : list)
 			{
-				if (!elem.isArray() || !elem[0].isString() || elem.size() != 2)
+				if(!elem.isArray() || !elem[0].isString() || elem.size() != 2)
 				{
 					isObject = false;
 					break;
 				}
 			}
 
-			if (isObject)
+			if(isObject)
 			{
-				type = types::object;
+				type = object;
 				data.object = new std::map<std::string, JSON>();
-				for (auto& elem : list)
+				for(auto& elem : list)
 				{
 					data.object->emplace(*elem[0].data.string, elem[1]);
 				}
 			}
 			else
 			{
-				type = types::array;
+				type = array;
 				data.array = new std::vector<JSON>(list);
 			}
 		}
@@ -123,20 +134,16 @@ namespace JSON
 
 		size_t size() const
 		{
-			switch (type)
+			switch(type)
 			{
-			case types::null:
+			case null:
 				return 0;
-				break;
-			case types::object:
+			case object:
 				return data.object->size();
-				break;
-			case types::array:
+			case array:
 				return data.array->size();
-				break;
 			default:
 				return 1;
-				break;
 			}
 		}
 
@@ -144,38 +151,56 @@ namespace JSON
 			Type information
 		*/
 
-		bool isObject() const { return type == types::object; }
-		bool isArray() const { return type == types::array; }
-		bool isString() const { return type == types::string; }
-		bool isNumber() const { return type == types::number; }
-		bool isBoolean() const { return type == types::boolean; }
-		bool isNull() const { return type == types::null; }
+		bool isObject() const
+		{
+			return type == object;
+		}
+		bool isArray() const
+		{
+			return type == array;
+		}
+		bool isString() const
+		{
+			return type == string;
+		}
+		bool isNumber() const
+		{
+			return type == number;
+		}
+		bool isBoolean() const
+		{
+			return type == boolean;
+		}
+		bool isNull() const
+		{
+			return type == null;
+		}
 
 		/*
 			Implicit conversion operators
 		*/
 
-		operator std::map<std::string, JSON>&()
+		operator std::map<std::string, JSON>&() const
 		{
 			return *data.object;
 		}
 
-		operator std::vector<JSON>&()
+		operator std::vector<JSON>&() const
 		{
 			return *data.array;
 		}
 
-		operator std::string&()
+		operator std::string&() const
 		{
 			return *data.string;
 		}
 
-		operator int()
+		operator int() const
 		{
 			return data.number;
 		}
 
-		operator bool()
+		operator bool() const
 		{
 			return data.boolean;
 		}
@@ -186,13 +211,13 @@ namespace JSON
 
 		JSON& operator [](const std::string& name)
 		{
-			if (type == types::null)
+			if(type == null)
 			{
-				type = types::object;
+				type = object;
 				data.object = new std::map<std::string, JSON>();
 			}
 
-			if (data.object->find(name) == data.object->end())
+			if(data.object->find(name) == data.object->end())
 				data.object->insert({ name, JSON() });
 
 			return data.object->at(name);
@@ -200,13 +225,13 @@ namespace JSON
 
 		JSON& operator [](const char* name)
 		{
-			if (type == types::null)
+			if(type == null)
 			{
-				type = types::object;
+				type = object;
 				data.object = new std::map<std::string, JSON>();
 			}
 
-			if (data.object->find(name) == data.object->end())
+			if(data.object->find(name) == data.object->end())
 				data.object->insert({ name, JSON() });
 
 			return data.object->at(name);
@@ -214,17 +239,17 @@ namespace JSON
 
 		JSON& operator [](int index)
 		{
-			if (type == types::null)
+			if(type == null)
 			{
-				type = types::array;
+				type = array;
 				data.array = new std::vector<JSON>();
 			}
-			else if (type != types::array)
+			else if(type != array)
 			{
 				throw std::domain_error("Wrong type");
 			}
-			int res = static_cast<int>(data.array->size() - 1);
-			while (static_cast<int>(data.array->size()) - 1 < index)
+
+			while(static_cast<int>(data.array->size()) - 1 < index)
 			{
 				data.array->push_back(JSON());
 			}
@@ -257,10 +282,11 @@ namespace JSON
 			return JSON(numb);
 		}
 
-		static JSON parseBoolean(std::string content) {
-			if (content.compare("true") == 0)
+		static JSON parseBoolean(std::string content)
+		{
+			if(content.compare("true") == 0)
 				return JSON(true);
-			else if (content.compare("false") == 0)
+			else if(content.compare("false") == 0)
 				return JSON(false);
 
 			throw std::runtime_error("Invalid boolean value in JSON file.");
@@ -282,9 +308,9 @@ namespace JSON
 			std::vector<uint32_t> seperators = findCommaSeperators(content);
 			std::vector<std::string> components = splitAt(seperators, content);
 
-			for (int i = 0; i < components.size(); i++)
+			for(int i = 0; i < components.size(); i++)
 			{
-				 json[i] = parseAny(components[i]);
+				json[i] = parseAny(components[i]);
 			}
 			return json;
 		}
@@ -299,7 +325,7 @@ namespace JSON
 			std::vector<uint32_t> seperators = findCommaSeperators(content);
 			std::vector<std::string> components = splitAt(seperators, content);
 
-			for (std::string component : components)
+			for(std::string component : components)
 			{
 				// Erase first "
 				component.erase(0, 1);
@@ -314,7 +340,7 @@ namespace JSON
 
 		static JSON parseAny(std::string content)
 		{
-			switch (content.at(0))
+			switch(content.at(0))
 			{
 			case '{': // Nested Object
 				return parseObject(content);
@@ -336,7 +362,7 @@ namespace JSON
 			std::vector<std::string> components;
 
 			uint32_t prevLoc = -1;
-			for (uint32_t loc : seperators)
+			for(uint32_t loc : seperators)
 			{
 				components.push_back(content.substr(prevLoc + 1, loc - prevLoc - 1));
 				prevLoc = loc;
@@ -354,18 +380,18 @@ namespace JSON
 			bool inString = false;
 
 			const char* text = content.c_str();
-			for (uint32_t location = 0; location < content.length(); location++)
+			for(uint32_t location = 0; location < content.length(); location++)
 			{
-				if (inString && text[location] != '"')
+				if(inString && text[location] != '"')
 					continue;
 
-				switch (text[location])
+				switch(text[location])
 				{
 				case '"':
 					inString = !inString;
 					break;
 				case ',':
-					if (bracketDepth == 0 && arrayDepth == 0)
+					if(bracketDepth == 0 && arrayDepth == 0)
 						locations.push_back(location);
 					break;
 				case '{':
@@ -380,6 +406,7 @@ namespace JSON
 				case ']':
 					arrayDepth--;
 					break;
+				default: break;
 				}
 			}
 

@@ -1,8 +1,7 @@
 #pragma once
-#include "VulkanPipelineLayoutCreateInfo.h"
 #include "VulkanDescriptorSetLayout.h"
 
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 #include <vector>
 
 class VulkanPipelineLayoutCreateInfo
