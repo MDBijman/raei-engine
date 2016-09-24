@@ -44,9 +44,9 @@
 	},
 
 	"shader-stages" : {
-		"vertex" : "./res/shaders/mesh.vert.spv",
+		"vertex" : "./res/shaders/compiled/mesh.vert.spv",
 		"vertex-metadata" : "./res/shaders/mesh-vert.json",
-		"fragment" : "./res/shaders/mesh.frag.spv",
-		"fragment-metadata" : "mesh-frag.json"
+		"fragment" : "./res/shaders/compiled/mesh.frag.spv",
+		"fragment-metadata" : "./res/shaders/mesh-frag.json"
 	}
 }
