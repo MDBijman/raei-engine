@@ -4,7 +4,6 @@
 
 #include <vulkan/vulkan.h>
 #include <algorithm>
-#include <iterator>
 
 class VulkanPipelineVertexInputStateCreateInfo
 {
@@ -21,8 +20,8 @@ public:
 	VulkanPipelineVertexInputStateCreateInfo& setVertexBindingDescriptions(std::vector<VulkanVertexInputBindingDescription> b)
 	{
 		bindings.clear();
-		std::transform(b.begin(), b.end(), std::back_inserter(bindings), [](VulkanVertexInputBindingDescription& a) {
-			return a.vk;
+		std::for_each(b.begin(), b.end(), [&](VulkanVertexInputBindingDescription a) {
+			bindings.push_back(a.vk);
 		});
 		vk.vertexBindingDescriptionCount = static_cast<uint32_t>(bindings.size());
 		vk.pVertexBindingDescriptions = bindings.data();
@@ -32,8 +31,8 @@ public:
 	VulkanPipelineVertexInputStateCreateInfo& setVertexAttributeDescriptions(std::vector<VulkanVertexInputAttributeDescription> a)
 	{
 		attributes.clear();
-		std::transform(a.begin(), a.end(), std::back_inserter(attributes), [](VulkanVertexInputAttributeDescription& a) {
-			return a.vk;
+		std::for_each(a.begin(), a.end(), [&](VulkanVertexInputAttributeDescription a) {
+			attributes.push_back(a.vk);
 		});
 		vk.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributes.size());
 		vk.pVertexAttributeDescriptions = attributes.data();

@@ -4,7 +4,7 @@
 class VulkanDescriptorSetLayout
 {
 public:
-	VulkanDescriptorSetLayout(): vk(nullptr) {}
+	VulkanDescriptorSetLayout(): vk(VK_NULL_HANDLE) {}
 
 	explicit VulkanDescriptorSetLayout(VkDescriptorSetLayout vkl) : vk(vkl) {}
 

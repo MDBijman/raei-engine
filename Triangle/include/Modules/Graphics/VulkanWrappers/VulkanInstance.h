@@ -1,98 +1,81 @@
 #pragma once
 #include "VulkanValidation.h"
-#include "VulkanApplicationInfo.h"
-#include "VulkanInstanceCreateInfo.h"
-#include "VulkanPhysicalDevice.h"
 
-#include <memory>
 #include <vector>
-#include <assert.h>
 #include <iostream>
 #include <vulkan/vulkan.h>
 
 class VulkanInstance
 {
 public:
-	explicit VulkanInstance(std::string name) 
+	explicit VulkanInstance(std::string name)
 	{
+		uint32_t layerCount = 0;
+		std::vector<vk::LayerProperties> layerPropertyList = vk::enumerateInstanceLayerProperties();
+		std::cout << "Instance Layers: \n";
+		for(auto &i : layerPropertyList)
+		{
+			std::cout << "  " << i.layerName << "\t\t | " << i.description << std::endl;
+		}
+		std::cout << std::endl;
+
 		// Set some info about our application
-		VulkanApplicationInfo applicationInfo;
+		/*VulkanApplicationInfo applicationInfo;
 		applicationInfo
 			.setApplicationName(name)
 			.setEngineName(name)
-			.setApiVersion(VK_MAKE_VERSION(1, 0, 13));
+			.setEngineVersion(1)
+			.setApiVersion(VK_MAKE_VERSION(1, 0, 21));
+*/
 
-		// Extensions we want
+// Extensions we want
 		std::vector<const char*> extensions = {
-			VK_KHR_SURFACE_EXTENSION_NAME,
-			VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
-			VK_EXT_DEBUG_REPORT_EXTENSION_NAME
+			"VK_KHR_surface",
+			"VK_KHR_win32_surface",
+			"VK_EXT_debug_report"
 		};
-
 
 		// Layers we want
 		std::vector<const char*> layers = {
-			"VK_LAYER_LUNARG_standard_validation"
+			"VK_LAYER_LUNARG_standard_validation",
 		};
 
 		// Set some info about the instance to be created
-		VulkanInstanceCreateInfo instanceCreateInfo;
+/*		VulkanInstanceCreateInfo instanceCreateInfo;
 		instanceCreateInfo
 			.setApplicationInfo(applicationInfo.vkInfo)
 			.setExtensionCount(static_cast<uint32_t>(extensions.size()))
 			.setExtensions(extensions.data())
 			.setLayerCount(static_cast<uint32_t>(layers.size()))
-			.setLayers(layers.data());
+			.setLayers(layers.data());*/
 
-		VkResult err = vkCreateInstance(&instanceCreateInfo.vkInfo, nullptr, &vkInstance);
-		assert(!err);
+		vk::ApplicationInfo applicationInfo = vk::ApplicationInfo()
+			.setPApplicationName(name.c_str())
+			.setPEngineName(name.c_str())
+			.setEngineVersion(1);
 
-		{
-			uint32_t layerCount = 0;
-			vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-			std::vector<VkLayerProperties> layerPropertyList(layerCount);
-			vkEnumerateInstanceLayerProperties(&layerCount, layerPropertyList.data());
-			std::cout << "Instance Layers: \n";
-			for (auto &i : layerPropertyList)
-			{
-				std::cout << "  " << i.layerName << "\t\t | " << i.description << std::endl;
-			}
-			std::cout << std::endl;
-		}
+		vk::InstanceCreateInfo instanceCreateInfo = vk::InstanceCreateInfo()
+			.setPApplicationInfo(applicationInfo)
+			.setEnabledExtensionCount(extensions.size())
+			.setPpEnabledExtensionNames(extensions.data())
+			.setEnabledLayerCount(layers.size())
+			.setPpEnabledLayerNames(layers.data());
 
-		ValidationFunctions functions(vkInstance);
-		/* Setup callback creation information */
-		VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
-		callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-		callbackCreateInfo.pNext = nullptr;
-		callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-		callbackCreateInfo.pfnCallback = &Validation::ValidationDebugCallback;
-		callbackCreateInfo.pUserData = nullptr;
+		instance = vk::createInstance(instanceCreateInfo);
 
-		/* Register the callback */
-		VkDebugReportCallbackEXT callback;
-		err = functions.fpCreateDebugReportCallbackEXT(vkInstance, &callbackCreateInfo, nullptr, &callback);
-		assert(!err);
+		vk::DebugReportCallbackCreateInfoEXT callbackCreateInfo = vk::DebugReportCallbackCreateInfoEXT()
+			.setFlags(vk::DebugReportFlagBitsEXT::eError | vk::DebugReportFlagBitsEXT::eWarning | vk::DebugReportFlagBitsEXT::ePerformanceWarning)
+			.setPfnCallback(Validation::messageCallback());
+
+		vk::createDebugReportCallbackEXT(callbackCreateInfo);
 	}
 
-	std::unique_ptr<std::vector<VulkanPhysicalDevice>> getPhysicalDevices() const
+	std::vector<vk::PhysicalDevice> getPhysicalDevices() const
 	{
-		uint32_t deviceCount;
-		vkEnumeratePhysicalDevices(vkInstance, &deviceCount, NULL);
-
-		std::vector<VkPhysicalDevice> vkPhysicalDevices;
-		vkPhysicalDevices.resize(deviceCount);
-		vkEnumeratePhysicalDevices(vkInstance, &deviceCount, vkPhysicalDevices.data());
-
-		// Create wrapped objects
-		std::unique_ptr<std::vector<VulkanPhysicalDevice>> physicalDevices = std::make_unique<std::vector<VulkanPhysicalDevice>>();
-		for (VkPhysicalDevice pd : vkPhysicalDevices) 
-			physicalDevices->push_back(VulkanPhysicalDevice(pd));
-
-		return physicalDevices;
+		return instance.enumeratePhysicalDevices();
 	}
 
-	VkInstance vkInstance;
+	vk::Instance instance;
 
 
 };
