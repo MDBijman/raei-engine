@@ -1,13 +1,14 @@
 #pragma once
-#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
 #include "Modules/Graphics/Data/Geometry/GPUBuffer.h"
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <vulkan/vulkan.hpp>
 
 struct Vertex
 {
-	Vertex(glm::vec3 pos, glm::vec2 uv, glm::vec3 normal) : pos(pos), uv(uv), normal(normal) {}
+	Vertex(glm::vec3 pos, glm::vec2 uv, glm::vec3 normal) : pos(pos), uv(uv), normal(normal)
+	{}
 	glm::vec3 pos;
 	glm::vec2 uv;
 	glm::vec3 normal;
@@ -24,52 +25,67 @@ namespace Graphics
 			{
 				this->vertices = vertices;
 			}
-			
+
 			std::vector<Vertex>& getData()
 			{
 				return vertices;
 			}
 
-			void upload(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice) override
+			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) override
 			{
-				VkMemoryRequirements memReqs;
+				vk::MemoryRequirements memReqs;
 				void *data;
 
-				VulkanBufferCreateInfo bufInfo;
+				vk::BufferCreateInfo bufInfo;
 				bufInfo
 					.setSize(static_cast<uint32_t>(vertices.size()) * sizeof(Vertex))
-					.setUsage(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
-					.setFlags(0);
+					.setUsage(vk::BufferUsageFlagBits::eVertexBuffer);
 
 				//	Copy data to VRAM
 				buf = device.createBuffer(bufInfo);
 				memReqs = device.getBufferMemoryRequirements(buf);
 
-				VulkanMemoryAllocateInfo memAlloc;
+				uint32_t memoryTypeIndex = -1;
+
+				auto properties = physicalDevice.getMemoryProperties();
+				for(uint32_t i = 0; i < 32; i++)
+				{
+					if(memReqs.memoryTypeBits & 1)
+					{
+						if(properties.memoryTypes[i].propertyFlags & vk::MemoryPropertyFlagBits::eHostVisible)
+						{
+							memoryTypeIndex = i;
+							break;
+						}
+					}
+					memReqs.memoryTypeBits >>= 1;
+				}
+
+				vk::MemoryAllocateInfo memAlloc;
 				memAlloc
 					.setAllocationSize(memReqs.size)
-					.setMemoryTypeIndex(physicalDevice.getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
+					.setMemoryTypeIndex(memoryTypeIndex);
 
 				memReqs.memoryTypeBits = 1;
-				mem = device.allocateMemory(memAlloc.vkInfo);
-				data = device.mapMemory(mem, memAlloc.vkInfo.allocationSize);
+				mem = device.allocateMemory(memAlloc);
+				data = device.mapMemory(mem, 0, memAlloc.allocationSize);
 				memcpy(data, vertices.data(), vertices.size() * sizeof(Vertex));
 				device.unmapMemory(mem);
-				device.bindBufferMemory(buf, mem);
+				device.bindBufferMemory(buf, mem, 0);
 			}
 
-			VkBuffer& getBuffer()
+			vk::Buffer& getBuffer()
 			{
 				return buf;
 			}
 
-			VulkanPipelineVertexInputStateCreateInfo vi;
+			vk::PipelineVertexInputStateCreateInfo vi;
 
 		private:
 			std::vector<Vertex> vertices;
 
-			VkBuffer buf;
-			VkDeviceMemory mem;
+			vk::Buffer buf;
+			vk::DeviceMemory mem;
 		};
 	}
 

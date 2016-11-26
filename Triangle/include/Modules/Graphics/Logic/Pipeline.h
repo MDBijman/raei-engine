@@ -1,7 +1,5 @@
 #pragma once
-#include <vulkan/vulkan.h>
-
-#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
+#include <vulkan/vulkan.hpp>
 
 namespace Graphics
 {
@@ -9,9 +7,21 @@ namespace Graphics
 	{
 	public:
 		Pipeline() : vk(VK_NULL_HANDLE) {}
-		Pipeline(VkPipeline pipeline, VulkanPipelineLayout pipelineLayout);
+		Pipeline(vk::Pipeline pipeline, vk::PipelineLayout pipelineLayout);
 
-		VkPipeline vk;
-		VulkanPipelineLayout layout;
+		vk::Pipeline vk;
+
+		vk::PipelineLayout layout;
+
+		std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachmentStates;
+		std::vector<vk::DynamicState> dynamicStates;
+		vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+		vk::PipelineRasterizationStateCreateInfo rasterizationInfo;
+		vk::PipelineColorBlendStateCreateInfo colorBlendInfo;
+		vk::PipelineViewportStateCreateInfo viewportInfo;
+		vk::PipelineDynamicStateCreateInfo dynamicStateInfo;
+		vk::PipelineDepthStencilStateCreateInfo depthStencilInfo;
+		vk::PipelineMultisampleStateCreateInfo multisampleInfo;
+		std::vector<vk::PipelineShaderStageCreateInfo> shaderStagesInfo;
 	};
 }

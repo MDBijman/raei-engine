@@ -1,14 +1,17 @@
 #pragma once
-#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
-
 #include <vector>
 #include <chrono>
 #include <memory>
-#include <glm/glm.hpp>
+#include <windows.h>
+#include <vulkan/vulkan.hpp>
+#include <glm/detail/type_vec2.hpp>
+
+#include "Modules/Graphics/Logic/Swapchain.h"
+#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
 
 namespace Graphics
 {
-	struct WindowsContext 
+	struct WindowsContext
 	{
 		HINSTANCE hInstance;
 		HWND window;
@@ -23,49 +26,49 @@ namespace Graphics
 		Renderer(WindowsContext context);
 
 		void prepare();
-		void submit(VkCommandBuffer& buffer) const;
-		void present();
+		void submit(vk::CommandBuffer& buffer) const;
+		void present() const;
 
-		std::shared_ptr<VulkanInstance> instance;
-		std::shared_ptr<VulkanPhysicalDevice> physicalDevice;
-		std::shared_ptr<VulkanDevice>         device;
-		std::shared_ptr<VulkanSwapChain>      swapchain;
-		std::shared_ptr<VulkanQueue>          queue;
+		std::shared_ptr<VulkanContext> context;
+		std::shared_ptr<VulkanSwapChain> swapchain;
+		std::shared_ptr<vk::Queue> queue;
 
-		VkFormat depthFormat;
-		VkFormat colorformat = VK_FORMAT_B8G8R8A8_UNORM;
+		vk::Format depthFormat;
+		vk::Format colorformat = vk::Format::eB8G8R8A8Unorm;
 
-		VkCommandPool              cmdPool;
-		VulkanRenderPass           renderPass;
-		VkPipelineCache            pipelineCache;
-		std::vector<VkFramebuffer> frameBuffers;
+		vk::CommandPool                cmdPool;
+		vk::RenderPass                 renderPass;
+
+		vk::PipelineCache              pipelineCache;
+		std::vector<vk::Framebuffer>   frameBuffers;
 
 		uint32_t getCurrentBuffer() const;
 
 	private:
 		struct
 		{
-			VkImage image;
-			VkDeviceMemory mem;
-			VkImageView view;
+			vk::Image        image;
+			vk::DeviceMemory mem;
+			vk::ImageView    view;
 		} depthStencil;
 
 		const glm::vec2 SCREEN_DIMENSIONS;
 
-		void submitPrePresentBarrier(VkImage image) const;
-		void submitPostPresentBarrier(VkImage image) const;
+		void submitPrePresentBarrier(vk::Image image) const;
+		void submitPostPresentBarrier(vk::Image image) const;
 
 		void prepareDepthStencil(uint32_t width, uint32_t height);
 		void prepareRenderPass();
 		void preparePipelineCache();
 		void prepareFramebuffers(uint32_t width, uint32_t height);
+		uint32_t getMemoryPropertyIndex(vk::MemoryPropertyFlags flag, vk::MemoryRequirements requirements) const;
 
 		uint32_t currentBuffer = 0;
 
-		VkSemaphore          presentComplete;
-		VkSemaphore          renderComplete;
+		vk::Semaphore          presentComplete;
+		vk::Semaphore          renderComplete;
 
-		VulkanCommandBuffer  postPresentCmdBuffer;
-		VulkanCommandBuffer  prePresentCmdBuffer;
+		vk::CommandBuffer      postPresentCmdBuffer;
+		vk::CommandBuffer      prePresentCmdBuffer;
 	};
 }

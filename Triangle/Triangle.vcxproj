@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -27,26 +27,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -95,7 +95,7 @@
       <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)external\vulkan-lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)external\vulkan-lib\vulkan-1.lib;$(SolutionDir)external\glfw\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -137,6 +137,7 @@
     <ClCompile Include="src\Modules\Graphics\Logic\Pipeline.cpp" />
     <ClCompile Include="src\Modules\Graphics\Logic\Renderer.cpp" />
     <ClCompile Include="src\Modules\Graphics\Data\Textures\Texture.cpp" />
+    <ClCompile Include="src\Modules\Graphics\VulkanWrappers\VulkanDebug.cpp" />
     <ClCompile Include="src\Modules\Importers\Obj.cpp" />
     <ClCompile Include="src\Modules\Importers\PipelineImporter.cpp" />
     <ClCompile Include="src\Modules\Importers\Shader.cpp" />
@@ -172,6 +173,8 @@
     <ClInclude Include="include\Modules\ECS\ECSManager.h" />
     <ClInclude Include="include\Modules\ECS\Entity.h" />
     <ClInclude Include="include\Modules\ECS\System.h" />
+    <ClInclude Include="include\Modules\Graphics\Logic\Swapchain.h" />
+    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDebug.h" />
     <ClInclude Include="include\Modules\Lisp\AST.h" />
     <ClInclude Include="include\Modules\IO\Logging.h" />
     <ClInclude Include="include\Modules\TemplateUtils\TypeIndex.h" />
@@ -187,67 +190,8 @@
     <ClInclude Include="include\Modules\Graphics\Logic\Renderer.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Shader.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Uniform.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\GetInstanceProcAddr.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDescriptorSetLayout.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDynamicState.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineLayout.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineVertexInputStateCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanRenderPass.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanSampleMask.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanSubpassDependency.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanVertexInputAttributeDescription.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanVertexInputBindingDescription.h" />
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\SurfaceExtensions.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\SwapchainExtensions.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanApplicationInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanAttachmentDescription.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanAttachmentReference.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanBufferCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanClearValue.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanCommandBuffer.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanCommandBufferAllocateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanCommandBufferBeginInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanCommandPoolCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDescriptorPoolCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDescriptorPoolSize.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDescriptorSetAllocateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDescriptorSetLayoutBinding.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDescriptorSetLayoutCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDevice.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanFramebufferCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanGraphicsPipelineCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanImageCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanImageMemoryBarrier.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanImageSubresourceRange.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanImageViewCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanInstance.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanInstanceCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanMemoryAllocateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPhysicalDevice.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineCacheCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineColorBlendAttachmentState.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineColorBlendStateCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineDepthStencilStateCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineDynamicStateCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineInputAssemblyStateCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineLayoutCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineMultisampleStateCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineRasterizationStateCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineShaderStageCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanPipelineViewportStateCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanQueue.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanRectangle2D.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanRenderPassBeginInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanRenderPassCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanSemaphoreCreateInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanSubmitInfo.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanSubpassDescription.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanSwapchain.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanValidation.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanViewport.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanWrappers.h" />
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanWriteDescriptorSet.h" />
+    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanContext.h" />
     <ClInclude Include="include\Modules\Importers\Obj.h" />
     <ClInclude Include="include\Modules\Importers\PipelineImporter.h" />
     <ClInclude Include="include\Modules\Importers\Shader.h" />

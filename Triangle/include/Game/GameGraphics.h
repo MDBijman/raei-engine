@@ -22,8 +22,8 @@ public:
 
 	void render(Components::CommandBuffers& buffers, Components::MeshShader& shader, Components::Camera2D& camera) const
 	{
-		shader.updateUniformBuffers(camera, *renderer->device);
-		renderer->submit(buffers.commandBuffers[renderer->getCurrentBuffer()].vkBuffer);
+		shader.updateUniformBuffers(camera, renderer->context->device);
+		renderer->submit(buffers.commandBuffers->at(renderer->getCurrentBuffer()));
 	}
 
 	void present() const

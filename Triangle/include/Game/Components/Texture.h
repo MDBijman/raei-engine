@@ -7,9 +7,9 @@ namespace Components
 	class Texture : public Component
 	{
 	public:
-		Texture(const std::string& name, VulkanDevice& device, VulkanPhysicalDevice& physicalDevice, VkCommandPool& cmdPool, VulkanQueue& queue)
+		Texture(const std::string& name, vk::Device& device, vk::PhysicalDevice& physicalDevice, vk::CommandPool& cmdPool, vk::Queue& queue)
 		{
-			texture.load(("./res/textures/" + name).c_str(), VK_FORMAT_BC3_UNORM_BLOCK, physicalDevice, device, cmdPool, queue);
+			texture.load(("./res/textures/" + name).c_str(), vk::Format::eBc3UnormBlock, physicalDevice, device, cmdPool, queue);
 		}
 
 		Graphics::Data::Texture texture;

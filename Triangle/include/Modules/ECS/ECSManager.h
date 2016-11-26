@@ -80,24 +80,10 @@ public:
 	}
 
 	/*
-		Creates a new component of type ComponentType, sets its parent, and adds it to the vector of components of that type.
-	*/
-	template<class ComponentType, class... Args>
-	ComponentType& createComponent(uint32_t entityId, Args... args)
-	{
-		// We can only create components that derive from Component class
-		static_assert(std::is_base_of<Component, ComponentType>::value, "Can only create components that inherit from Component class.");
-
-		// Create a new component and set its parent to the given entity
-		ComponentType component{ args... };
-		return addComponent(entityId, component);
-	}
-
-	/*
 		Sets the parent of the given component and adds it to the vector of components of that type.
 	*/
 	template<class ComponentType>
-	ComponentType& addComponent(uint32_t entityId, ComponentType c)
+	ComponentType& addComponent(uint32_t entityId, ComponentType&& c)
 	{
 		// We can only create components that derive from Component class
 		static_assert(std::is_base_of<Component, ComponentType>::value, "Can only create components that inherit from Component class.");
@@ -109,7 +95,7 @@ public:
 		constexpr size_t index = type_index<ComponentType, A...>::value;
 
 		// Add the component to the vector of components of that type
-		std::get<index>(components).insert(std::make_pair(entityId, c));
+		std::get<index>(components).insert(std::make_pair(entityId, std::move(c)));
 
 		// Add the component type to the bitfield of the entity
 		entities.at(entityId).template addComponent<ComponentType>();
@@ -223,6 +209,6 @@ private:
 
 	// Vector of systems
 	std::vector<System<ComponentList<A...>, FilterList<B...>>*> systems;
-private:
+
 	uint32_t entityCount = 0;
 };

@@ -9,79 +9,76 @@ namespace Components
 	class Pipeline : public Component
 	{
 	public:
-		Pipeline(const std::string& location, VulkanRenderPass& renderpass, VkPipelineCache& cache, VulkanDevice& device, VulkanPipelineVertexInputStateCreateInfo& vi, Graphics::Data::Texture& texture, Components::MeshShader& shader)
+		Pipeline(const std::string& location, vk::RenderPass& renderpass, vk::PipelineCache& cache, vk::Device& device, vk::PipelineVertexInputStateCreateInfo& vi, Graphics::Data::Texture& texture, MeshShader& shader)
 		{
-	
-
 			// Create the pipeline layout that is used to generate the rendering pipelines that
 			// are based on this descriptor set layout
 			// In a more complex scenario you would have different pipeline layouts for different
 			// descriptor set layouts that could be reused
-			VulkanPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
+			vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 			pipelineLayoutCreateInfo
-				.setSetLayouts(shader.descriptorSetLayout);
+				.setPSetLayouts(&shader.descriptorSetLayout)
+				.setSetLayoutCount(1);
+			vk::PipelineLayout layout = device.createPipelineLayout(pipelineLayoutCreateInfo);
 
-
-			VulkanPipelineLayout layout(device.createPipelineLayout(pipelineLayoutCreateInfo.vk));
 			pipeline = Importers::Pipeline::load(location, layout, vi, renderpass, cache, device);
 
 			// We need to tell the API the number of max. requested descriptors per type
-			std::vector<VkDescriptorPoolSize> poolSize
-			{
-				VulkanDescriptorPoolSize().setType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER).setDescriptorCount(1).vkPoolSize,
-				VulkanDescriptorPoolSize().setType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER).setDescriptorCount(1).vkPoolSize
-			};
+			poolSizes.push_back(vk::DescriptorPoolSize().setType(vk::DescriptorType::eUniformBuffer).setDescriptorCount(1));
+			poolSizes.push_back(vk::DescriptorPoolSize().setType(vk::DescriptorType::eCombinedImageSampler).setDescriptorCount(1));
 
 			// Create the global descriptor pool
 			// All descriptors used in this example are allocated from this pool
-			VulkanDescriptorPoolCreateInfo descriptorPoolInfo;
+			vk::DescriptorPoolCreateInfo descriptorPoolInfo;
 			descriptorPoolInfo
-				.setPoolSizes(poolSize)
+				.setPoolSizeCount(2)
+				.setPPoolSizes(poolSizes.data())
 				// Set the max. number of sets that can be requested
 				// Requesting descriptors beyond maxSets will result in an error
 				.setMaxSets(1);
 
-			shader.descriptorPool = device.createDescriptorPool(descriptorPoolInfo.vkInfo);
+			shader.descriptorPool = device.createDescriptorPool(descriptorPoolInfo);
 
 			// Update descriptor sets determining the shader binding points
 			// For every binding point used in a shader there needs to be one
 			// descriptor set matching that binding point
 
-			VulkanDescriptorSetAllocateInfo allocInfo2;
+			vk::DescriptorSetAllocateInfo allocInfo2;
 			allocInfo2
 				.setDescriptorPool(shader.descriptorPool)
-				.setSetLayouts(shader.descriptorSetLayout);
-			device.allocateDescriptorSet(allocInfo2, shader.descriptorSet);
+				.setDescriptorSetCount(1)
+				.setPSetLayouts(&shader.descriptorSetLayout);
+			device.allocateDescriptorSets(&allocInfo2, &shader.descriptorSet);
 
-			std::vector<VkWriteDescriptorSet> descriptorSets(2);
+			descriptorSets.resize(2);
 			// Binding 0: Uniform buffer
-			descriptorSets[0] = VulkanWriteDescriptorSet()
+			descriptorSets[0] = vk::WriteDescriptorSet()
 				.setDstSet(shader.descriptorSet)
 				.setDescriptorCount(1)
-				.setDescriptorType(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
-				.setBufferInfo(shader.uniformDataVS.descriptor)
-				.setDstBinding(0)
-				.vkDescriptorSet;
+				.setDescriptorType(vk::DescriptorType::eUniformBuffer)
+				.setPBufferInfo(&shader.uniformDataVS.descriptor)
+				.setDstBinding(0);
 
-			VkDescriptorImageInfo texDescriptor;
-			texDescriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+			vk::DescriptorImageInfo texDescriptor;
+			texDescriptor.imageLayout = vk::ImageLayout::eGeneral;
 			texDescriptor.sampler = texture.sampler;
 			texDescriptor.imageView = texture.view;
 
 			// Binding 1: Image sampler
-			descriptorSets[1] = VulkanWriteDescriptorSet()
+			descriptorSets[1] = vk::WriteDescriptorSet()
 				.setDstSet(shader.descriptorSet)
 				.setDescriptorCount(1)
-				.setDescriptorType(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER)
-				.setImageInfo(texDescriptor)
-				.setDstBinding(1)
-				.vkDescriptorSet;
+				.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+				.setPImageInfo(&texDescriptor)
+				.setDstBinding(1);
 
-			device.updateDescriptorSet(descriptorSets);
-
+			device.updateDescriptorSets(descriptorSets, nullptr);
 		}
 
 		Graphics::Pipeline pipeline;
+
+		std::vector<vk::WriteDescriptorSet> descriptorSets;
+		std::vector<vk::DescriptorPoolSize> poolSizes;
 	};
 }
 

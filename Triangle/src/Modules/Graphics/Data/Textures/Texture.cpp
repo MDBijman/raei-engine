@@ -7,11 +7,11 @@ namespace Graphics
 	{
 		uint32_t Texture::getMemoryType(uint32_t typeBits, VkFlags properties, VkPhysicalDeviceMemoryProperties deviceMemoryProperties)
 		{
-			for (uint32_t i = 0; i < 32; i++)
+			for(uint32_t i = 0; i < 32; i++)
 			{
-				if ((typeBits & 1) == 1)
+				if((typeBits & 1) == 1)
 				{
-					if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+					if((deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
 					{
 						return i;
 					}
@@ -22,19 +22,17 @@ namespace Graphics
 			return 0;
 		}
 
-		void Texture::load(const char* filename, VkFormat format, VulkanPhysicalDevice& physicalDevice, VulkanDevice& device, VkCommandPool& pool, VulkanQueue& queue)
+		void Texture::load(const char* filename, vk::Format format, vk::PhysicalDevice& physicalDevice, vk::Device& device, vk::CommandPool& pool, vk::Queue& queue)
 		{
 			// Create command buffer for submitting image barriers
 			// and converting tilings
-			VkCommandBuffer cmdBuffer;
-			VkCommandBufferAllocateInfo cmdBufInfo = {};
-			cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			vk::CommandBuffer cmdBuffer;
+			vk::CommandBufferAllocateInfo cmdBufInfo = {};
 			cmdBufInfo.commandPool = pool;
-			cmdBufInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			cmdBufInfo.level = vk::CommandBufferLevel::ePrimary;
 			cmdBufInfo.commandBufferCount = 1;
 
-			VkResult err = vkAllocateCommandBuffers(device.vkDevice, &cmdBufInfo, &cmdBuffer);
-			assert(!err);
+			cmdBuffer = device.allocateCommandBuffers(cmdBufInfo).at(0);
 
 			gli::texture2D tex2D(gli::load(filename));
 			assert(!tex2D.empty());
@@ -45,70 +43,60 @@ namespace Graphics
 
 			// Get device properites for the requested texture format
 			VkFormatProperties formatProperties;
-			vkGetPhysicalDeviceFormatProperties(physicalDevice.vkPhysicalDevice, format, &formatProperties);
+			formatProperties = physicalDevice.getFormatProperties(format);
 
 			// Only use linear tiling if requested (and supported by the device)
 			// Support for linear tiling is mostly limited, so prefer to use
 			// optimal tiling instead
 			// On most implementations linear tiling will only support a very
 			// limited amount of formats and features (mip maps, cubemaps, arrays, etc.)
-			VkBool32 useStaging = !false;
+			vk::Bool32 useStaging = !false;
 
-			VkMemoryAllocateInfo memAllocInfo = {};
-			memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-			memAllocInfo.pNext = NULL;
-			memAllocInfo.allocationSize = 0;
-			memAllocInfo.memoryTypeIndex = 0;
-			VkMemoryRequirements memReqs;
+			vk::MemoryAllocateInfo memAllocInfo = {};
+			vk::MemoryRequirements memReqs;
 
 			// Use a separate command buffer for texture loading
-			VkCommandBufferBeginInfo cmdBufferBeginInfo = {};
-			cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			cmdBufferBeginInfo.pNext = NULL;
-			vkBeginCommandBuffer(cmdBuffer, &cmdBufferBeginInfo);
+			vk::CommandBufferBeginInfo cmdBufferBeginInfo = {};
+			cmdBuffer.begin(cmdBufferBeginInfo);
 
-			if (useStaging)
+			if(useStaging)
 			{
 				// Create a host-visible staging buffer that contains the raw image data
-				VkBuffer stagingBuffer;
-				VkDeviceMemory stagingMemory;
+				vk::Buffer stagingBuffer;
+				vk::DeviceMemory stagingMemory;
 
-				VkBufferCreateInfo bufCreateInfo = {};
-				bufCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+				vk::BufferCreateInfo bufCreateInfo = {};
 				bufCreateInfo.size = tex2D.size();
 				// This buffer is used as a transfer source for the buffer copy
-				bufCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-				bufCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+				bufCreateInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
+				bufCreateInfo.sharingMode = vk::SharingMode::eExclusive;
 
-				VkResult err = vkCreateBuffer(device.vkDevice, &bufCreateInfo, nullptr, &stagingBuffer);
+				stagingBuffer = device.createBuffer(bufCreateInfo);
 
 				// Get memory requirements for the staging buffer (alignment, memory type bits)
-				vkGetBufferMemoryRequirements(device.vkDevice, stagingBuffer, &memReqs);
+				memReqs = device.getBufferMemoryRequirements(stagingBuffer);
 
 				memAllocInfo.allocationSize = memReqs.size;
 				// Get memory type index for a host visible buffer
-				memAllocInfo.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, physicalDevice.memoryProperties());
+				memAllocInfo.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, physicalDevice.getMemoryProperties());
 
-				err = (vkAllocateMemory(device.vkDevice, &memAllocInfo, nullptr, &stagingMemory));
-				assert(!err);
-				err = (vkBindBufferMemory(device.vkDevice, stagingBuffer, stagingMemory, 0));
-				assert(!err);
+				stagingMemory = device.allocateMemory(memAllocInfo);
+				device.bindBufferMemory(stagingBuffer, stagingMemory, 0);
 
 				// Copy texture data into staging buffer
 				uint8_t *data;
-				err = (vkMapMemory(device.vkDevice, stagingMemory, 0, memReqs.size, 0, (void **)&data));
-				assert(!err);
+				data = reinterpret_cast<uint8_t*>(device.mapMemory(stagingMemory, 0, memReqs.size));
 				memcpy(data, tex2D.data(), tex2D.size());
-				vkUnmapMemory(device.vkDevice, stagingMemory);
+				device.unmapMemory(stagingMemory);
 
 				// Setup buffer copy regions for each mip level
-				std::vector<VkBufferImageCopy> bufferCopyRegions;
+				std::vector<vk::BufferImageCopy> bufferCopyRegions;
 				uint32_t offset = 0;
 
-				for (uint32_t i = 0; i < mipLevels; i++)
+				for(uint32_t i = 0; i < mipLevels; i++)
 				{
-					VkBufferImageCopy bufferCopyRegion = {};
-					bufferCopyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+					vk::BufferImageCopy bufferCopyRegion = {};
+					bufferCopyRegion.imageSubresource.aspectMask = vk::ImageAspectFlagBits::eColor;
 					bufferCopyRegion.imageSubresource.mipLevel = i;
 					bufferCopyRegion.imageSubresource.baseArrayLayer = 0;
 					bufferCopyRegion.imageSubresource.layerCount = 1;
@@ -123,135 +111,98 @@ namespace Graphics
 				}
 
 				// Create optimal tiled target image
-				VkImageCreateInfo imageCreateInfo = {};
-				imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-				imageCreateInfo.pNext = NULL;
-				imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+				vk::ImageCreateInfo imageCreateInfo = {};
+				imageCreateInfo.imageType = vk::ImageType::e2D;
 				imageCreateInfo.format = format;
 				imageCreateInfo.mipLevels = mipLevels;
 				imageCreateInfo.arrayLayers = 1;
-				imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-				imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-				imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
-				imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-				imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
-				imageCreateInfo.extent = { width, height, 1 };
-				imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+				imageCreateInfo.samples = vk::SampleCountFlagBits::e1;
+				imageCreateInfo.tiling = vk::ImageTiling::eOptimal;
+				imageCreateInfo.usage = vk::ImageUsageFlagBits::eSampled;
+				imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
+				imageCreateInfo.initialLayout = vk::ImageLayout::ePreinitialized;
+				imageCreateInfo.extent = vk::Extent3D(width, height, 1);
+				imageCreateInfo.usage = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
 
-				err = (vkCreateImage(device.vkDevice, &imageCreateInfo, nullptr, &image));
-				assert(!err);
+				image = device.createImage(imageCreateInfo);
 
-				vkGetImageMemoryRequirements(device.vkDevice, image, &memReqs);
+				memReqs = device.getImageMemoryRequirements(image);
 
 				memAllocInfo.allocationSize = memReqs.size;
 
-				memAllocInfo.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, physicalDevice.memoryProperties());
-				err = (vkAllocateMemory(device.vkDevice, &memAllocInfo, nullptr, &deviceMemory));
-				err = (vkBindImageMemory(device.vkDevice, image, deviceMemory, 0));
+				memAllocInfo.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, physicalDevice.getMemoryProperties());
+				deviceMemory = device.allocateMemory(memAllocInfo);
+				device.bindImageMemory(image, deviceMemory, 0);
 
-				VkImageSubresourceRange subresourceRange = {};
-				subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				subresourceRange.baseMipLevel = 0;
-				subresourceRange.levelCount = mipLevels;
-				subresourceRange.layerCount = 1;
-
+				vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
+					.setAspectMask(vk::ImageAspectFlagBits::eColor)
+					.setLevelCount(mipLevels)
+					.setLayerCount(1);
+					
 				// Image barrier for optimal image (target)
 				// Optimal image will be used as destination for the copy
 				// Create an image barrier object
-				VkImageMemoryBarrier imageMemoryBarrier = {};
-				imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				imageMemoryBarrier.pNext = NULL;
+				vk::ImageMemoryBarrier imageMemoryBarrier = {};
 				// Some default values
 				imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 				imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-				imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
-				imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				imageMemoryBarrier.oldLayout = vk::ImageLayout::ePreinitialized;
+				imageMemoryBarrier.newLayout = vk::ImageLayout::eTransferDstOptimal;
 				imageMemoryBarrier.image = image;
 				imageMemoryBarrier.subresourceRange = subresourceRange;
-				imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-				imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+				imageMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
+				imageMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
 
 				// Put barrier on top
-				VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-				VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+				vk::PipelineStageFlags srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+				vk::PipelineStageFlags destStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
 
 				// Put barrier inside setup command buffer
-				vkCmdPipelineBarrier(
-					cmdBuffer,
-					srcStageFlags,
-					destStageFlags,
-					0,
-					0, nullptr,
-					0, nullptr,
-					1, &imageMemoryBarrier);
+				cmdBuffer.pipelineBarrier(srcStageFlags, destStageFlags, vk::DependencyFlags(), nullptr, nullptr, imageMemoryBarrier);
 
 
 				// Copy mip levels from staging buffer
-				vkCmdCopyBufferToImage(
-					cmdBuffer,
-					stagingBuffer,
-					image,
-					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					static_cast<uint32_t>(bufferCopyRegions.size()),
-					bufferCopyRegions.data()
-				);
+				cmdBuffer.copyBufferToImage(stagingBuffer, image, vk::ImageLayout::eTransferDstOptimal, bufferCopyRegions);
 
 				// Change texture image layout to shader read after all mip levels have been copied
-				imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
 				// Create an image barrier object
-				VkImageMemoryBarrier imageMemoryBarrier2 = {};
-				imageMemoryBarrier2.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				imageMemoryBarrier2.pNext = NULL;
+				vk::ImageMemoryBarrier imageMemoryBarrier2 = {};
 				// Some default values
 				imageMemoryBarrier2.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 				imageMemoryBarrier2.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-				imageMemoryBarrier2.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+				imageMemoryBarrier2.oldLayout = vk::ImageLayout::eTransferDstOptimal;
 				imageMemoryBarrier2.newLayout = imageLayout;
 				imageMemoryBarrier2.image = image;
 				imageMemoryBarrier2.subresourceRange = subresourceRange;
-				imageMemoryBarrier2.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-				imageMemoryBarrier2.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+				imageMemoryBarrier2.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+				imageMemoryBarrier2.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 				// Put barrier on top
-				VkPipelineStageFlags srcStageFlags2 = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-				VkPipelineStageFlags destStageFlags2 = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+				vk::PipelineStageFlags srcStageFlags2 = vk::PipelineStageFlagBits::eTopOfPipe;
+				vk::PipelineStageFlags destStageFlags2 = vk::PipelineStageFlagBits::eTopOfPipe;
 
 				// Put barrier inside setup command buffer
-				vkCmdPipelineBarrier(
-					cmdBuffer,
-					srcStageFlags2,
-					destStageFlags2,
-					0,
-					0, nullptr,
-					0, nullptr,
-					1, &imageMemoryBarrier2);
+				cmdBuffer.pipelineBarrier(srcStageFlags2, destStageFlags2, vk::DependencyFlags(), nullptr, nullptr, imageMemoryBarrier2);
 				// Submit command buffer containing copy and image layout commands
-				err = (vkEndCommandBuffer(cmdBuffer));
-				assert(!err);
+				cmdBuffer.end();
 
 				// Create a fence to make sure that the copies have finished before continuing
-				VkFence copyFence;
-				VkFenceCreateInfo fenceCreateInfo = {};
-				fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-				fenceCreateInfo.flags = 0;
-				err = (vkCreateFence(device.vkDevice, &fenceCreateInfo, nullptr, &copyFence));
-				assert(!err);
+				vk::Fence copyFence;
+				vk::FenceCreateInfo fenceCreateInfo = {};
+				copyFence = device.createFence(fenceCreateInfo);
 
-				VkSubmitInfo submitInfo = {};
-				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-				submitInfo.pNext = NULL;
+				vk::SubmitInfo submitInfo = {};
 				submitInfo.commandBufferCount = 1;
 				submitInfo.pCommandBuffers = &cmdBuffer;
+				queue.submit(submitInfo, copyFence);
+				device.waitForFences(copyFence, VK_TRUE, 1000000000000);
 
-				err = (vkQueueSubmit(queue, 1, &submitInfo, copyFence));
-
-				err = (vkWaitForFences(device.vkDevice, 1, &copyFence, VK_TRUE, 100000000000));
-
-				vkDestroyFence(device.vkDevice, copyFence, nullptr);
+				device.destroyFence(copyFence);
 
 				// Clean up staging resources
-				vkFreeMemory(device.vkDevice, stagingMemory, nullptr);
-				vkDestroyBuffer(device.vkDevice, stagingBuffer, nullptr);
+				device.freeMemory(stagingMemory);
+				device.destroyBuffer(stagingBuffer);
 			}
 			else
 			{
@@ -262,154 +213,125 @@ namespace Graphics
 				// Check if this support is supported for linear tiling
 				assert(formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT);
 
-				VkImage mappableImage;
-				VkDeviceMemory mappableMemory;
+				vk::Image mappableImage;
+				vk::DeviceMemory mappableMemory;
 
-				VkImageCreateInfo imageCreateInfo = {};
-				imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-				imageCreateInfo.pNext = NULL;
-				imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+				vk::ImageCreateInfo imageCreateInfo = {};
+				imageCreateInfo.imageType = vk::ImageType::e2D;
 				imageCreateInfo.format = format;
-				imageCreateInfo.extent = { width, height, 1 };
+				imageCreateInfo.extent = vk::Extent3D(width, height, 1);
 				imageCreateInfo.mipLevels = 1;
 				imageCreateInfo.arrayLayers = 1;
-				imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-				imageCreateInfo.tiling = VK_IMAGE_TILING_LINEAR;
-				imageCreateInfo.usage = (useStaging) ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT : VK_IMAGE_USAGE_SAMPLED_BIT;
-				imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-				imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+				imageCreateInfo.samples = vk::SampleCountFlagBits::e1;
+				imageCreateInfo.tiling = vk::ImageTiling::eLinear;
+				imageCreateInfo.usage = (useStaging) ? vk::ImageUsageFlagBits::eTransferSrc : vk::ImageUsageFlagBits::eSampled;
+				imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
+				imageCreateInfo.initialLayout = vk::ImageLayout::ePreinitialized;
 
 				// Load mip map level 0 to linear tiling image
-				err = (vkCreateImage(device.vkDevice, &imageCreateInfo, nullptr, &mappableImage));
-				assert(!err);
+				mappableImage = device.createImage(imageCreateInfo);
 
 				// Get memory requirements for this image 
 				// like size and alignment
-				vkGetImageMemoryRequirements(device.vkDevice, mappableImage, &memReqs);
+				memReqs = device.getImageMemoryRequirements(mappableImage);
 				// Set memory allocation size to required memory size
 				memAllocInfo.allocationSize = memReqs.size;
 
 				// Get memory type that can be mapped to host memory
-				memAllocInfo.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, physicalDevice.memoryProperties());
+				memAllocInfo.memoryTypeIndex = getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, physicalDevice.getMemoryProperties());
 
 				// Allocate host memory
-				err = (vkAllocateMemory(device.vkDevice, &memAllocInfo, nullptr, &mappableMemory));
-				assert(!err);
+				mappableMemory = device.allocateMemory(memAllocInfo);
 
 				// Bind allocated image for use
-				err = (vkBindImageMemory(device.vkDevice, mappableImage, mappableMemory, 0));
-				assert(!err);
+				device.bindImageMemory(mappableImage, mappableMemory, 0);
 
 				// Get sub resource layout
 				// Mip map count, array layer, etc.
-				VkImageSubresource subRes = {};
-				subRes.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				subRes.mipLevel = 0;
-
-				VkSubresourceLayout subResLayout;
+				vk::ImageSubresource subRes = {};
+				vk::SubresourceLayout subResLayout;
 				void *data;
 
 				// Get sub resources layout 
 				// Includes row pitch, size offsets, etc.
-				vkGetImageSubresourceLayout(device.vkDevice, mappableImage, &subRes, &subResLayout);
+				subResLayout = device.getImageSubresourceLayout(mappableImage, subRes);
 
 				// Map image memory
-				err = (vkMapMemory(device.vkDevice, mappableMemory, 0, memReqs.size, 0, &data));
-				assert(!err);
+				data = device.mapMemory(mappableMemory, 0, memReqs.size);
 
 				// Copy image data into memory
 				memcpy(data, tex2D[subRes.mipLevel].data(), tex2D[subRes.mipLevel].size());
 
-				vkUnmapMemory(device.vkDevice, mappableMemory);
+				device.unmapMemory(mappableMemory);
 
 				// Linear tiled images don't need to be staged
 				// and can be directly used as textures
 				image = mappableImage;
 				deviceMemory = mappableMemory;
-				imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
 				// Setup image memory barrier
-				VkImageSubresourceRange subresourceRange = {};
-				subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				vk::ImageSubresourceRange subresourceRange = {};
+				subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
 				subresourceRange.baseMipLevel = 0;
 				subresourceRange.levelCount = 1;
 				subresourceRange.layerCount = 1;
 
 				// Create an image barrier object
-				VkImageMemoryBarrier imageMemoryBarrier = {};
-				imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				imageMemoryBarrier.pNext = NULL;
+				vk::ImageMemoryBarrier imageMemoryBarrier = {};
 				imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 				imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-				imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+				imageMemoryBarrier.oldLayout = vk::ImageLayout::ePreinitialized;
 				imageMemoryBarrier.newLayout = imageLayout;
 				imageMemoryBarrier.image = image;
 				imageMemoryBarrier.subresourceRange = subresourceRange;
-				imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
-				imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+				imageMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eTransferWrite;
+				imageMemoryBarrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
 				// Put barrier on top
-				VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-				VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+				vk::PipelineStageFlags srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+				vk::PipelineStageFlags destStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
 
 				// Put barrier inside setup command buffer
-				vkCmdPipelineBarrier(
-					cmdBuffer,
-					srcStageFlags,
-					destStageFlags,
-					0,
-					0, nullptr,
-					0, nullptr,
-					1, &imageMemoryBarrier);
+				cmdBuffer.pipelineBarrier(srcStageFlags, destStageFlags, vk::DependencyFlags(), nullptr, nullptr, imageMemoryBarrier);
 
 				// Submit command buffer containing copy and image layout commands
-				err = (vkEndCommandBuffer(cmdBuffer));
-				assert(!err);
+				cmdBuffer.end();
 
-				VkFence nullFence = { VK_NULL_HANDLE };
+				vk::Fence nullFence = { VK_NULL_HANDLE };
 
-				VkSubmitInfo submitInfo = {};
-				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-				submitInfo.pNext = NULL;
-				submitInfo.waitSemaphoreCount = 0;
+				vk::SubmitInfo submitInfo = {};
 				submitInfo.commandBufferCount = 1;
 				submitInfo.pCommandBuffers = &cmdBuffer;
 
-				err = (vkQueueSubmit(queue, 1, &submitInfo, nullFence));
-				assert(!err);
-				err = (vkQueueWaitIdle(queue));
-				assert(!err);
+				queue.submit(submitInfo, nullFence);
+				queue.waitIdle();
 			}
 
 			// Create sampler
-			VkSamplerCreateInfo sampler2 = {};
-			sampler2.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-			sampler2.magFilter = VK_FILTER_LINEAR;
-			sampler2.minFilter = VK_FILTER_LINEAR;
-			sampler2.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-			sampler2.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			sampler2.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-			sampler2.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+			vk::SamplerCreateInfo sampler2 = {};
+			sampler2.magFilter = vk::Filter::eLinear;
+			sampler2.minFilter = vk::Filter::eLinear;
+			sampler2.mipmapMode = vk::SamplerMipmapMode::eLinear;
+			sampler2.addressModeU = vk::SamplerAddressMode::eRepeat;
+			sampler2.addressModeV = vk::SamplerAddressMode::eRepeat;
+			sampler2.addressModeW = vk::SamplerAddressMode::eRepeat;
 			sampler2.mipLodBias = 0.0f;
-			sampler2.compareOp = VK_COMPARE_OP_NEVER;
+			sampler2.compareOp = vk::CompareOp::eNever;
 			sampler2.minLod = 0.0f;
 			// Max level-of-detail should match mip level count
-			sampler2.maxLod = (useStaging) ? (float)mipLevels : 0.0f;
+			sampler2.maxLod = (useStaging) ? (float) mipLevels : 0.0f;
 			// Enable anisotropic filtering
 			sampler2.maxAnisotropy = 8;
 			sampler2.anisotropyEnable = VK_TRUE;
-			sampler2.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-			err = (vkCreateSampler(device.vkDevice, &sampler2, nullptr, &sampler));
-			assert(!err);
+			sampler2.borderColor = vk::BorderColor::eFloatOpaqueWhite;
+			sampler = device.createSampler(sampler2);
 
 			// Create image view
 			// Textures are not directly accessed by the shaders and
 			// are abstracted by image views containing additional
 			// information and sub resource ranges
-			VkImageViewCreateInfo view2 = {};
-			view2.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-			view2.pNext = NULL;
-			view2.image = VK_NULL_HANDLE;
-			view2.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			vk::ImageViewCreateInfo view2 = {};
+			view2.viewType = vk::ImageViewType::e2D;
 			view2.format = format;
 			view2.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
 			view2.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
@@ -417,8 +339,7 @@ namespace Graphics
 			// Only set mip map count if optimal tiling is used
 			view2.subresourceRange.levelCount = (useStaging) ? mipLevels : 1;
 			view2.image = image;
-			err = (vkCreateImageView(device.vkDevice, &view2, nullptr, &view));
-			assert(!err);
+			view = device.createImageView(view2);
 		}
 
 

@@ -1,6 +1,5 @@
 #include "Modules/Importers/PipelineImporter.h"
 
-#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
 #include "Modules/Graphics/Logic/Pipeline.h"
 #include "Modules/Importers/Shader.h"
 #include "Modules/Importers/JSON.h"
@@ -14,7 +13,7 @@ namespace Importers
 {
 	namespace Pipeline
 	{
-		Graphics::Pipeline load(const std::string & location, VulkanPipelineLayout & layout, VulkanPipelineVertexInputStateCreateInfo & vi, VulkanRenderPass & rp, VkPipelineCache& cache, VulkanDevice& device)
+		Graphics::Pipeline load(const std::string & location, vk::PipelineLayout & layout, vk::PipelineVertexInputStateCreateInfo & vi, vk::RenderPass & rp, vk::PipelineCache & cache, vk::Device & device)
 		{
 			JSON::JSON json;
 			std::ifstream jsonFile(location);
@@ -25,71 +24,69 @@ namespace Importers
 			jsonContent << jsonFile.rdbuf();
 			json = JSON::Parser::parse(jsonContent.str());
 
-			VulkanGraphicsPipelineCreateInfo pipelineCreateInfo;
-
-			auto inputAssemblyState = parseInputAssemblyState(json["input-assembly"]);
-			auto rasterizationState = parseRasterizationState(json["rasterization"]);
-			auto colorBlendingState = parseBlendAttachmentState(json["color-blending"]);
-			auto viewportState = parseViewportState(json["viewport"]);
-			auto dynamicStates = parseDynamicStates(json["dynamics"]);
-			auto depthAndStencil = parseDepthAndStencilState(json["depth-and-stencil"]);
-			auto multisampling = parseMultisamplingState(json["multisampling"]);
-			auto shaderStages = parseShaderStages(json["shader-stages"], device);
-
-			pipelineCreateInfo
-				.setLayout(layout)
-				.setVertexInputState(vi)
-				.setInputAssemblyState(inputAssemblyState)
-				.setRasterizationState(rasterizationState)
-				.setColorBlendState(colorBlendingState)
-				.setViewportState(viewportState)
-				.setDynamicState(dynamicStates)
-				.setDepthStencilState(depthAndStencil)
-				.setMultisampleState(multisampling)
-				.setStages(shaderStages)
-				.setRenderPass(rp);
-
-			auto pipeline = device.createGraphicsPipelines(cache, pipelineCreateInfo.vkInfo, 1).at(0);
-			Graphics::Pipeline graphicsPipeline{};
+			Graphics::Pipeline graphicsPipeline;
 			graphicsPipeline.layout = layout;
-			graphicsPipeline.vk = pipeline;
+			graphicsPipeline.inputAssemblyInfo = parseInputAssemblyState(json["input-assembly"]);
+			graphicsPipeline.rasterizationInfo = parseRasterizationState(json["rasterization"]);
+			graphicsPipeline.colorBlendInfo = parseBlendAttachmentState(json["color-blending"], graphicsPipeline);
+			graphicsPipeline.viewportInfo = parseViewportState(json["viewport"]);
+			graphicsPipeline.dynamicStateInfo = parseDynamicStates(json["dynamics"], graphicsPipeline);
+			graphicsPipeline.depthStencilInfo = parseDepthAndStencilState(json["depth-and-stencil"]);
+			graphicsPipeline.multisampleInfo = parseMultisamplingState(json["multisampling"]);
+			graphicsPipeline.shaderStagesInfo = parseShaderStages(json["shader-stages"], device);
+
+			vk::GraphicsPipelineCreateInfo pipelineCreateInfo = vk::GraphicsPipelineCreateInfo()
+				.setLayout(layout)
+				.setPVertexInputState(&vi)
+				.setPInputAssemblyState(&graphicsPipeline.inputAssemblyInfo)
+				.setPRasterizationState(&graphicsPipeline.rasterizationInfo)
+				.setPColorBlendState(&graphicsPipeline.colorBlendInfo)
+				.setPViewportState(&graphicsPipeline.viewportInfo)
+				.setPDynamicState(&graphicsPipeline.dynamicStateInfo)
+				.setPDepthStencilState(&graphicsPipeline.depthStencilInfo)
+				.setPMultisampleState(&graphicsPipeline.multisampleInfo)
+				.setStageCount(graphicsPipeline.shaderStagesInfo.size())
+				.setPStages(graphicsPipeline.shaderStagesInfo.data())
+				.setRenderPass(rp);
+			graphicsPipeline.vk = device.createGraphicsPipelines(cache, pipelineCreateInfo).at(0);
+
 			return graphicsPipeline;
 		}
 
-		VulkanPipelineInputAssemblyStateCreateInfo parseInputAssemblyState(JSON::JSON& json)
+		vk::PipelineInputAssemblyStateCreateInfo parseInputAssemblyState(JSON::JSON& json)
 		{
-			VulkanPipelineInputAssemblyStateCreateInfo inputAssemblyState;
+			vk::PipelineInputAssemblyStateCreateInfo inputAssemblyState;
 			{
 				std::string topology = json["topology"];
 				if(topology == "triangle-list")
-					inputAssemblyState.setTopology(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
+					inputAssemblyState.setTopology(vk::PrimitiveTopology::eTriangleList);
 				else
 					assert(!"Invalid topology state");
 			}
 			return inputAssemblyState;
 		}
 
-		VulkanPipelineRasterizationStateCreateInfo parseRasterizationState(JSON::JSON& json)
+		vk::PipelineRasterizationStateCreateInfo parseRasterizationState(JSON::JSON& json)
 		{
-			VulkanPipelineRasterizationStateCreateInfo rasterizationState;
+			vk::PipelineRasterizationStateCreateInfo rasterizationState;
 			{
 				std::string polygonMode = json["polygon-mode"];
 				if(polygonMode == "fill")
-					rasterizationState.setPolygonMode(VK_POLYGON_MODE_FILL);
+					rasterizationState.setPolygonMode(vk::PolygonMode::eFill);
 				else
 					assert(!"Invalid polygon mode state");
 			}
 			{
 				std::string cullMode = json["cull-mode"];
 				if(cullMode == "none")
-					rasterizationState.setCullMode(VK_CULL_MODE_NONE);
+					rasterizationState.setCullMode(vk::CullModeFlagBits::eNone);
 				else
 					assert(!"Invalid cull mode state");
 			}
 			{
 				std::string frontFace = json["front-face"];
 				if(frontFace == "ccw")
-					rasterizationState.setFrontFace(VK_FRONT_FACE_COUNTER_CLOCKWISE);
+					rasterizationState.setFrontFace(vk::FrontFace::eCounterClockwise);
 				else
 					assert(!"Invalid front face state");
 			}
@@ -105,27 +102,29 @@ namespace Importers
 				bool depthBias = json["depth-bias"];
 				rasterizationState.setDepthBiasEnable(depthBias);
 			}
+			rasterizationState.lineWidth = 1.0f;
 			return rasterizationState;
 		}
 
-		VulkanPipelineColorBlendStateCreateInfo parseBlendAttachmentState(JSON::JSON& json)
+		vk::PipelineColorBlendStateCreateInfo parseBlendAttachmentState(JSON::JSON& json, Graphics::Pipeline& pipeline)
 		{
-			VulkanPipelineColorBlendStateCreateInfo info;
-			std::vector<VulkanPipelineColorBlendAttachmentState> colorBlending(1);
+			vk::PipelineColorBlendStateCreateInfo info;
+			pipeline.colorBlendAttachmentStates = std::vector<vk::PipelineColorBlendAttachmentState>(1);
 			{
-				int writeMask = json["color-write-mask"];
+				int value = json["color-write-mask"];
+				vk::ColorComponentFlags writeMask = vk::ColorComponentFlagBits(value);
 				bool blendEnable = json["blending"];
-				colorBlending[0] = VulkanPipelineColorBlendAttachmentState()
+				pipeline.colorBlendAttachmentStates[0] = vk::PipelineColorBlendAttachmentState()
 					.setColorWriteMask(writeMask)
 					.setBlendEnable(blendEnable);
 			}
-			info.setAttachments(colorBlending);
+			info.setAttachmentCount(1).setPAttachments(pipeline.colorBlendAttachmentStates.data());
 			return info;
 		}
 
-		VulkanPipelineViewportStateCreateInfo parseViewportState(JSON::JSON& json)
+		vk::PipelineViewportStateCreateInfo parseViewportState(JSON::JSON& json)
 		{
-			VulkanPipelineViewportStateCreateInfo viewport;
+			vk::PipelineViewportStateCreateInfo viewport;
 			{
 				int viewportCount = json["viewport-count"];
 				int scissorCount = json["scissor-count"];
@@ -134,38 +133,36 @@ namespace Importers
 			return viewport;
 		}
 
-		VulkanPipelineDynamicStateCreateInfo parseDynamicStates(JSON::JSON& json)
+		vk::PipelineDynamicStateCreateInfo parseDynamicStates(JSON::JSON& json, Graphics::Pipeline& pipeline)
 		{
 			std::vector<JSON::JSON> vectorJSON = json;
-			VulkanPipelineDynamicStateCreateInfo dynamicStateCreateInfo;
-			std::vector<VulkanDynamicState> states;
+			vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo;
 			for(const std::string& state : vectorJSON)
 			{
 				if(state == "viewport")
-					states.push_back(VulkanDynamicState(VK_DYNAMIC_STATE_VIEWPORT));
+					pipeline.dynamicStates.push_back(vk::DynamicState(vk::DynamicState::eViewport));
 				if(state == "scissor")
-					states.push_back(VulkanDynamicState(VK_DYNAMIC_STATE_SCISSOR));
+					pipeline.dynamicStates.push_back(vk::DynamicState(vk::DynamicState::eScissor));
 			}
-			dynamicStateCreateInfo.setDynamicStates(states);
+			dynamicStateCreateInfo.setDynamicStateCount(pipeline.dynamicStates.size()).setPDynamicStates(pipeline.dynamicStates.data());
 			return dynamicStateCreateInfo;
 		}
 
-		VulkanPipelineDepthStencilStateCreateInfo parseDepthAndStencilState(JSON::JSON & json)
+		vk::PipelineDepthStencilStateCreateInfo parseDepthAndStencilState(JSON::JSON & json)
 		{
-			VulkanPipelineDepthStencilStateCreateInfo state;
+			vk::PipelineDepthStencilStateCreateInfo state;
 			{
 				bool depthTest = json["depth-test"];
 				state.setDepthTestEnable(depthTest);
 			}
 			{
-
 				bool depthWrite = json["depth-write"];
 				state.setDepthWriteEnable(depthWrite);
 			}
 			{
 				const std::string& depthCompareOp = json["depth-compare-op"];
 				if(depthCompareOp == "less-or-equal")
-					state.setDepthCompareOp(VK_COMPARE_OP_LESS_OR_EQUAL);
+					state.setDepthCompareOp(vk::CompareOp::eLessOrEqual);
 			}
 			{
 				bool depthBounds = json["depth-bound-test"];
@@ -174,17 +171,17 @@ namespace Importers
 			{
 				const std::string& failOp = json["fail-op"];
 				if(failOp == "keep")
-					state.setFailOp(VK_STENCIL_OP_KEEP);
+					state.back.setFailOp(vk::StencilOp::eKeep);
 			}
 			{
 				const std::string& passOp = json["pass-op"];
 				if(passOp == "keep")
-					state.setPassOp(VK_STENCIL_OP_KEEP);
+					state.back.setPassOp(vk::StencilOp::eKeep);
 			}
 			{
 				const std::string& compareOp = json["compare-op"];
 				if(compareOp == "always")
-					state.setCompareOp(VK_COMPARE_OP_ALWAYS);
+					state.back.setCompareOp(vk::CompareOp::eAlways);
 			}
 			{
 				bool stencilTest = json["stencil-test"];
@@ -193,44 +190,44 @@ namespace Importers
 			{
 				const std::string& front = json["front"];
 				if(front == "back")
-					state.setFront(state.vk.back);
+					state.setFront(state.back);
 			}
 			return state;
 		}
 
-		VulkanPipelineMultisampleStateCreateInfo parseMultisamplingState(JSON::JSON & json)
+		vk::PipelineMultisampleStateCreateInfo parseMultisamplingState(JSON::JSON & json)
 		{
-			VulkanPipelineMultisampleStateCreateInfo state;
+			vk::PipelineMultisampleStateCreateInfo state;
 			{
 				const std::string& sampleMask = json["sample-mask"];
 				if(sampleMask == "null")
-					state.setSampleMask(VulkanSampleMask(NULL));
+					state.setPSampleMask(nullptr);
 			}
 			{
 				int rasterizationSamples = json["rasterization-samples"];
 				if(rasterizationSamples == 1)
-					state.setRasterizationSamples(VK_SAMPLE_COUNT_1_BIT);
+					state.setRasterizationSamples(vk::SampleCountFlagBits::e1);
 			}
 			return state;
 		}
 
-		std::vector<VulkanPipelineShaderStageCreateInfo> parseShaderStages(JSON::JSON & json, VulkanDevice& device)
+		std::vector<vk::PipelineShaderStageCreateInfo> parseShaderStages(JSON::JSON & json, vk::Device& device)
 		{
-			std::vector<VulkanPipelineShaderStageCreateInfo> shaderStages(2);
+			std::vector<vk::PipelineShaderStageCreateInfo> shaderStages(2);
 			const std::string& vertexLocation = json["vertex"];
 			const std::string& fragmentLocation = json["fragment"];
 
 			// TODO fix this by loading metadata and retreiving proper info
 			shaderStages[0]
-				.setStage(VK_SHADER_STAGE_VERTEX_BIT)
-				.setModule(Shader::load(vertexLocation.c_str(), device.vkDevice))
-				.setName(std::string("main"));
+				.setStage(vk::ShaderStageFlagBits::eVertex)
+				.setModule(Shader::load(vertexLocation.c_str(), device))
+				.setPName("main");
 
 			// TODO fix this by loading metadata and retreiving proper info
 			shaderStages[1]
-				.setStage(VK_SHADER_STAGE_FRAGMENT_BIT)
-				.setModule(Shader::load(fragmentLocation.c_str(), device.vkDevice))
-				.setName(std::string("main"));
+				.setStage(vk::ShaderStageFlagBits::eFragment)
+				.setModule(Shader::load(fragmentLocation.c_str(), device))
+				.setPName("main");
 
 			return shaderStages;
 		}

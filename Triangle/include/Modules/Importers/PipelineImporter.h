@@ -1,24 +1,22 @@
 #pragma once
-#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
 #include "Modules/Graphics/Logic/Pipeline.h"
 #include "Modules/Importers/JSON.h"
 
 #include <vector>
-#include <vulkan/vulkan.h>
 
 namespace Importers
 {
 	namespace Pipeline 
 	{
-		Graphics::Pipeline load(const std::string& location, VulkanPipelineLayout& layout, VulkanPipelineVertexInputStateCreateInfo& vi, VulkanRenderPass& rp, VkPipelineCache& cache, VulkanDevice& device);
+		Graphics::Pipeline load(const std::string& location, vk::PipelineLayout& layout, vk::PipelineVertexInputStateCreateInfo& vi, vk::RenderPass& rp, vk::PipelineCache& cache, vk::Device& device);
 
-		VulkanPipelineInputAssemblyStateCreateInfo parseInputAssemblyState(JSON::JSON& json);
-		VulkanPipelineRasterizationStateCreateInfo parseRasterizationState(JSON::JSON& json);
-		VulkanPipelineColorBlendStateCreateInfo parseBlendAttachmentState(JSON::JSON& json);
-		VulkanPipelineViewportStateCreateInfo parseViewportState(JSON::JSON& json);
-		VulkanPipelineDynamicStateCreateInfo parseDynamicStates(JSON::JSON& json);
-		VulkanPipelineDepthStencilStateCreateInfo parseDepthAndStencilState(JSON::JSON & json);
-		VulkanPipelineMultisampleStateCreateInfo parseMultisamplingState(JSON::JSON & json);
-		std::vector<VulkanPipelineShaderStageCreateInfo> parseShaderStages(JSON::JSON & json, VulkanDevice& device);
+		vk::PipelineInputAssemblyStateCreateInfo parseInputAssemblyState(JSON::JSON& json);
+		vk::PipelineRasterizationStateCreateInfo parseRasterizationState(JSON::JSON& json);
+		vk::PipelineColorBlendStateCreateInfo parseBlendAttachmentState(JSON::JSON& json, Graphics::Pipeline& pipeline);
+		vk::PipelineViewportStateCreateInfo parseViewportState(JSON::JSON& json);
+		vk::PipelineDynamicStateCreateInfo parseDynamicStates(JSON::JSON& json, Graphics::Pipeline& pipeline);
+		vk::PipelineDepthStencilStateCreateInfo parseDepthAndStencilState(JSON::JSON & json);
+		vk::PipelineMultisampleStateCreateInfo parseMultisamplingState(JSON::JSON & json);
+		std::vector<vk::PipelineShaderStageCreateInfo> parseShaderStages(JSON::JSON & json, vk::Device& device);
 	};
 }

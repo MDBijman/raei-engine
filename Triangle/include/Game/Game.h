@@ -19,23 +19,29 @@ public:
 		gameState(PAUSED)
 	{
 		auto cameraEntity = ecs.createEntity();
-		auto& camera = ecs.createComponent<Components::Camera2D>(cameraEntity, glm::vec2(1280, 720), 60.0f, 0.1f, 256.f);
+		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D{ glm::vec2(1280, 720), 60.0f, 0.1f, 256.f });
 
 		auto e = ecs.createEntity();
 		{
-			ecs.createComponent<Components::Position2D>(e);
-			ecs.createComponent<Components::Velocity2D>(e);
-			ecs.createComponent<Components::Input>(e);
-			auto& texture = ecs.createComponent<Components::Texture>(e, "tree.dds", *graphics.renderer->device, *graphics.renderer->physicalDevice, graphics.renderer->cmdPool, *graphics.renderer->queue);
+			ecs.addComponent(e, Components::Position2D());
+			ecs.addComponent(e, Components::Velocity2D());
+			ecs.addComponent(e, Components::Input());
 
-			auto& m = ecs.createComponent<Components::Mesh>(e, "bad_car.obj", *graphics.renderer->device, *graphics.renderer->physicalDevice);
-
-			auto& ms = ecs.createComponent<Components::MeshShader>(e, *graphics.renderer->device, *graphics.renderer->physicalDevice, texture.texture);
-			auto& p = ecs.createComponent<Components::Pipeline>(e, "./res/shaders/default-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, *graphics.renderer->device, m.mesh.vertices.vi, texture.texture, ms);
-			ecs.createComponent<Components::CameraID>(e, uint32_t(1));
-
-			ecs.createComponent<Components::CommandBuffers>(e, graphics.renderer->cmdPool, *graphics.renderer->swapchain, *graphics.renderer->device, camera, graphics.renderer->renderPass, p.pipeline, graphics.renderer->frameBuffers, ms, m.mesh);
+			auto& texture = ecs.addComponent(e, Components::Texture{ "tree.dds", graphics.renderer->context->device, graphics.renderer->context->physicalDevice, graphics.renderer->cmdPool, *graphics.renderer->queue });
+			auto& m = ecs.addComponent(e, Components::Mesh{ "bad_car.obj", graphics.renderer->context->device, graphics.renderer->context->physicalDevice });
+			auto& ms = ecs.addComponent(e, Components::MeshShader{ *graphics.renderer->context, texture.texture });
+			auto& p = ecs.addComponent(e, Components::Pipeline{ "./res/shaders/default-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, graphics.renderer->context->device, m.mesh->vertices.vi, texture.texture, ms });
+			ecs.addComponent(e, Components::CameraID{ uint32_t(1) });
+			ecs.addComponent(e, Components::CommandBuffers{ graphics.renderer->cmdPool, *graphics.renderer->swapchain, graphics.renderer->context->device, camera, graphics.renderer->renderPass, p.pipeline, graphics.renderer->frameBuffers, ms, m.mesh });
 		}
+		
+		auto sprite = ecs.createEntity();
+		{
+			//ecs.addComponent(e, Components::Position2D());
+			//ecs.addComponent(e, Components::Velocity2D());
+			//auto& texture = ecs.addComponent(e, Components::Texture{"potions.dds", graphics.renderer->context, });
+		}
+
 
 		{
 			ecs.addSystem<Systems::Movement2D>();

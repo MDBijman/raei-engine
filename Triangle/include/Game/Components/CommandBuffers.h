@@ -1,5 +1,4 @@
 #pragma once
-#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
 #include "Modules/ECS/Component.h"
 #include <glm/glm.hpp>
 
@@ -8,38 +7,38 @@ namespace Components
 	class CommandBuffers : public Component
 	{
 	public:
-		CommandBuffers(VkCommandPool& cmdPool, VulkanSwapChain& swapchain, VulkanDevice& device, Camera& camera, VulkanRenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<VkFramebuffer>& framebuffers, Graphics::Data::Shader& shader, Graphics::Data::Mesh& mesh)
+		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, Camera& camera, vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers, Graphics::Data::Shader& shader, Graphics::Data::Mesh* mesh)
 		{
-			VulkanCommandBufferAllocateInfo info;
+			vk::CommandBufferAllocateInfo info;
 			info.setCommandPool(cmdPool)
-				.setCommandBufferLevel(VK_COMMAND_BUFFER_LEVEL_PRIMARY)
-				.setCommandBufferCount(swapchain.imageCount);
+				.setLevel(vk::CommandBufferLevel::ePrimary)
+				.setCommandBufferCount(swapchain.images.size());
 
-			commandBuffers = device.allocateCommandBuffers(info.vkInfo);
+			commandBuffers = new std::vector<vk::CommandBuffer>(device.allocateCommandBuffers(info));
 
-			VulkanCommandBufferBeginInfo cmdBufInfo;
+			vk::CommandBufferBeginInfo cmdBufInfo;
 
-			std::vector<VkClearValue> clearValues(2);
-			clearValues.at(0) = VulkanClearValue()
-				.setColor({ { 0.0f, 0.0f, 0.5f, 1.0f } }).vkValue;
-			clearValues.at(1) = VulkanClearValue()
-				.setDepthStencil({ 1.0f, 0 }).vkValue;
+			auto clearColorValues = std::array<float, 4>{0.0f, 0.0f, 0.5f, 1.0f};
 
-			// TODO create rectangle constructor to make this a single line
-			VulkanRectangle2D renderArea;
+			clearValues = new std::vector<vk::ClearValue>();
+			clearValues->resize(2);
+			clearValues->at(0) = vk::ClearValue()
+				.setColor(vk::ClearColorValue(clearColorValues));
+			clearValues->at(1) = vk::ClearValue()
+				.setDepthStencil({ 1.0f, 0 });
+
+			vk::Rect2D renderArea;
 			renderArea
-				.setX(0)
-				.setY(0)
-				.setWidth(static_cast<uint32_t>(camera.getDimensions().x))
-				.setHeight(static_cast<uint32_t>(camera.getDimensions().y));
+				.setExtent(swapchain.swapchainExtent);
 
-			VulkanRenderPassBeginInfo renderPassBeginInfo;
+			vk::RenderPassBeginInfo renderPassBeginInfo;
 			renderPassBeginInfo
 				.setRenderPass(renderPass)
-				.setRenderArea(renderArea.vkRectangle)
-				.setClearValues(clearValues);
+				.setRenderArea(renderArea)
+				.setClearValueCount(2)
+				.setPClearValues(clearValues->data());
 
-			for(int32_t i = 0; i < commandBuffers.size(); ++i)
+			for(int32_t i = 0; i < commandBuffers->size(); ++i)
 			{
 				// Set target frame buffer, std::vector<VkFramebuffer>& framebuffers
 				renderPassBeginInfo.setFramebuffer(framebuffers.at(i));
@@ -47,7 +46,7 @@ namespace Components
 				// Vulkan object preparation
 
 				// Update dynamic viewport state
-				VulkanViewport viewport;
+				vk::Viewport viewport;
 				viewport
 					.setWidth(camera.getDimensions().x)
 					.setHeight(camera.getDimensions().y)
@@ -55,44 +54,52 @@ namespace Components
 					.setMaxDepth(1.0f);
 
 				// Update dynamic scissor state
-				VulkanRectangle2D scissor;
+				vk::Rect2D scissor;
 				scissor
-					.setWidth(static_cast<uint32_t>(camera.getDimensions().x))
-					.setHeight(static_cast<uint32_t>(camera.getDimensions().y))
-					.setX(0)
-					.setY(0);
+					.setExtent(vk::Extent2D()
+						.setWidth(camera.getDimensions().x)
+						.setHeight(camera.getDimensions().y));
 
 				// Add a present memory barrier to the end of the command buffer
 				// This will transform the frame buffer color attachment to a
 				// new layout for presenting it to the windowing system integration 
-				VulkanImageSubresourceRange subresourceRange;
+				vk::ImageSubresourceRange subresourceRange;
 				subresourceRange
-					.setAspectMask(VK_IMAGE_ASPECT_COLOR_BIT)
+					.setAspectMask(vk::ImageAspectFlagBits::eColor)
 					.setBaseMipLevel(0).setLevelCount(1).setBaseArrayLayer(0).setLayerCount(1);
 
 				// Command chaining
-				VulkanCommandBuffer& buffer = commandBuffers.at(i);
-				buffer
-					.beginCommandBuffer(cmdBufInfo.vkInfo)
-					.beginRenderPass(renderPassBeginInfo.vkInfo, VK_SUBPASS_CONTENTS_INLINE)
-					.setViewport(viewport.vkViewport)
-					.setScissors(scissor.vkRectangle)
-					// Bind descriptor sets describing shader binding points
-					.bindDescriptorSet(pipeline.layout.vk, shader.descriptorSet)
-					// Bind the pipeline with shaders, vertex and index buffers, and draw indexed triangles
-					.bindPipeline(pipeline.vk)
-					.bindVertexBuffers(mesh.vertices.getBuffer())
-					.bindIndexBuffers(mesh.indices.getBuffer())
-					.drawIndexed(mesh.indices.count)
-					.endRenderPass()
-					.end();
+				vk::CommandBuffer& buffer = commandBuffers->at(i);
+				buffer.begin(cmdBufInfo);
+				buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+				buffer.setViewport(0, viewport);
+				buffer.setScissor(0, scissor);
+				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader.descriptorSet, nullptr);
+				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
+				std::array<vk::DeviceSize, 1> offsets = { 0 };
+				buffer.bindVertexBuffers(VERTEX_BUFFER_BIND_ID, mesh->vertices.getBuffer(), offsets);
+				buffer.bindIndexBuffer(mesh->indices.getBuffer(), 0, vk::IndexType::eUint32);
+				buffer.drawIndexed(mesh->indices.count, 1, 0, 0, 1);
+				buffer.endRenderPass();
+				buffer.end();
 
 			}
 
-		};
+		}
 
+		CommandBuffers(CommandBuffers&& other) noexcept
+		{
+			this->clearValues = other.clearValues;
+			other.clearValues = nullptr;
 
-		std::vector<VulkanCommandBuffer> commandBuffers;
+			this->commandBuffers = other.commandBuffers;
+			other.commandBuffers = nullptr;
+		}
+
+		std::vector<vk::CommandBuffer>* commandBuffers;
+
+	private:
+		std::vector<vk::ClearValue>* clearValues;
 	};
 
 }

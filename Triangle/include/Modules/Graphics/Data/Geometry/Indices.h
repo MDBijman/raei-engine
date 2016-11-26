@@ -1,5 +1,4 @@
 #pragma once
-#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
 #include "Modules/Graphics/Data/Geometry/GPUBuffer.h"
 
 namespace Graphics
@@ -19,35 +18,50 @@ namespace Graphics
 				return this->indices;
 			}
 
-			void upload(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice) override
+			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) override
 			{
-				VulkanBufferCreateInfo indexBufferInfo;
+				vk::BufferCreateInfo indexBufferInfo;
 				indexBufferInfo
 					.setSize(static_cast<uint32_t>(indices.size()) * sizeof(uint32_t))
-					.setUsage(VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
-					.setFlags(0);
+					.setUsage(vk::BufferUsageFlagBits::eIndexBuffer);
 
-				VkMemoryRequirements memReqs;
+				vk::MemoryRequirements memReqs;
 				void *data;
 
 				// Copy index data to VRAM
 				buf = device.createBuffer(indexBufferInfo);
 				memReqs = device.getBufferMemoryRequirements(buf);
 
-				VulkanMemoryAllocateInfo memAlloc;
+				uint32_t memoryTypeIndex = -1;
+
+				auto properties = physicalDevice.getMemoryProperties();
+				for(uint32_t i = 0; i < 32; i++)
+				{
+					if(memReqs.memoryTypeBits & 1)
+					{
+						if(properties.memoryTypes[i].propertyFlags & vk::MemoryPropertyFlagBits::eHostVisible)
+						{
+							memoryTypeIndex = i;
+							break;
+						}
+					}
+					memReqs.memoryTypeBits >>= 1;
+				}
+
+				vk::MemoryAllocateInfo memAlloc;
 				memAlloc
 					.setAllocationSize(memReqs.size)
-					.setMemoryTypeIndex(physicalDevice.getMemoryPropertyIndex(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, memReqs));
+					.setMemoryTypeIndex(memoryTypeIndex);
 
-				mem = device.allocateMemory(memAlloc.vkInfo);
-				data = device.mapMemory(mem, indices.size() * sizeof(uint32_t));
+				mem = device.allocateMemory(memAlloc);
+				data = device.mapMemory(mem, 0, indices.size() * sizeof(uint32_t));
 				memcpy(data, indices.data(), indices.size() * sizeof(uint32_t));
 				device.unmapMemory(mem);
-				device.bindBufferMemory(buf, mem);
+				device.bindBufferMemory(buf, mem, 0);
 				count = static_cast<uint32_t>(indices.size());
 			}
 
-			VkBuffer& getBuffer()
+			vk::Buffer& getBuffer()
 			{
 				return buf;
 			}
@@ -57,8 +71,8 @@ namespace Graphics
 		private:
 			std::vector<uint32_t> indices;
 
-			VkBuffer buf;
-			VkDeviceMemory mem;
+			vk::Buffer buf;
+			vk::DeviceMemory mem;
 		};
 	}
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <vulkan/vulkan.hpp>
 
 namespace Graphics
 {
@@ -14,7 +15,7 @@ namespace Graphics
 			/*
 				Uploads the data of this buffer to the GPU.
 			*/
-			virtual void upload(VulkanDevice& device, VulkanPhysicalDevice& physicalDevice) = 0;
+			virtual void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) = 0;
 		};
 	}
 }

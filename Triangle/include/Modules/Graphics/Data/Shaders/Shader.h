@@ -1,6 +1,5 @@
 #pragma once
-#include "Modules/Graphics/VulkanWrappers/VulkanWrappers.h"
-#include "Modules/Graphics/Data/Shaders/Uniform.h"
+#include <vulkan/vulkan.hpp>
 
 namespace Graphics
 {
@@ -9,9 +8,9 @@ namespace Graphics
 		class Shader
 		{
 		public:
-			VkDescriptorSet           descriptorSet;
-			VulkanDescriptorSetLayout descriptorSetLayout;
-			VkDescriptorPool          descriptorPool;
+			vk::DescriptorSet           descriptorSet;
+			vk::DescriptorSetLayout descriptorSetLayout;
+			vk::DescriptorPool          descriptorPool;
 		};
 	}
 }

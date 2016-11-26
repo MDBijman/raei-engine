@@ -1,5 +1,4 @@
 #pragma once
-#include <vulkan/vulkan.h>
 
 namespace Graphics
 {
@@ -8,9 +7,9 @@ namespace Graphics
 		class Uniform
 		{
 		public:
-			VkBuffer buffer;
-			VkDeviceMemory memory;
-			VkDescriptorBufferInfo descriptor;
+			vk::Buffer buffer;
+			vk::DeviceMemory memory;
+			vk::DescriptorBufferInfo descriptor;
 		};
 	}
 }
