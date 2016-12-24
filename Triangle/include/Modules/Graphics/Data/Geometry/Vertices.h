@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/Graphics/Data/Geometry/GPUBuffer.h"
+#include "Modules/Graphics/Data/GPUBuffer.h"
 
 #include <vector>
 #include <glm/glm.hpp>
@@ -78,8 +78,6 @@ namespace Graphics
 			{
 				return buf;
 			}
-
-			vk::PipelineVertexInputStateCreateInfo vi;
 
 		private:
 			std::vector<Vertex> vertices;

@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/Graphics/Data/Geometry/GPUBuffer.h"
+#include "Modules/Graphics/Data/GPUBuffer.h"
 
 namespace Graphics
 {

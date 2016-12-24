@@ -136,7 +136,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Modules\Graphics\Logic\Pipeline.cpp" />
     <ClCompile Include="src\Modules\Graphics\Logic\Renderer.cpp" />
-    <ClCompile Include="src\Modules\Graphics\Data\Textures\Texture.cpp" />
+    <ClCompile Include="src\Modules\Graphics\Data\Shaders\Texture.cpp" />
     <ClCompile Include="src\Modules\Graphics\VulkanWrappers\VulkanDebug.cpp" />
     <ClCompile Include="src\Modules\Importers\Obj.cpp" />
     <ClCompile Include="src\Modules\Importers\PipelineImporter.cpp" />
@@ -151,12 +151,12 @@
     <ClInclude Include="include\Game\Components\Components.h" />
     <ClInclude Include="include\Game\Components\Camera2D.h" />
     <ClInclude Include="include\Game\Components\Input.h" />
-    <ClInclude Include="include\Game\Components\Mesh.h" />
     <ClInclude Include="include\Game\Components\MeshShader.h" />
     <ClInclude Include="include\Game\Components\Orientation3D.h" />
     <ClInclude Include="include\Game\Components\Pipeline.h" />
     <ClInclude Include="include\Game\Components\Position2D.h" />
     <ClInclude Include="include\Game\Components\Position3D.h" />
+    <ClInclude Include="include\Game\Components\SpriteShader.h" />
     <ClInclude Include="include\Game\Components\Texture.h" />
     <ClInclude Include="include\Game\Components\Velocity2D.h" />
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
@@ -173,17 +173,23 @@
     <ClInclude Include="include\Modules\ECS\ECSManager.h" />
     <ClInclude Include="include\Modules\ECS\Entity.h" />
     <ClInclude Include="include\Modules\ECS\System.h" />
+    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Attributes.h" />
+    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Texture.h" />
+    <ClInclude Include="include\Modules\Graphics\Data\Shaders\UniformBuffer.h" />
+    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Uniforms.h" />
+    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Vec2.h" />
+    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Vec3.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Swapchain.h" />
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDebug.h" />
     <ClInclude Include="include\Modules\Lisp\AST.h" />
     <ClInclude Include="include\Modules\IO\Logging.h" />
+    <ClInclude Include="include\Modules\TemplateUtils\TemplatePackSize.h" />
     <ClInclude Include="include\Modules\TemplateUtils\TypeIndex.h" />
-    <ClInclude Include="include\Modules\Graphics\Data\Geometry\GPUBuffer.h" />
+    <ClInclude Include="include\Modules\Graphics\Data\GPUBuffer.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Geometry\Indices.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Geometry\Mesh.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Geometry\Vertices.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\UniformMVP.h" />
-    <ClInclude Include="include\Modules\Graphics\Data\Textures\Texture.h" />
     <ClInclude Include="include\Modules\Graphics\Graphics.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Camera.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Pipeline.h" />
@@ -199,23 +205,23 @@
     <ClInclude Include="include\Modules\Importers\JSON.h" />
     <ClInclude Include="include\Modules\Math\Matrices.h" />
     <ClInclude Include="include\Game\Game.h" />
+    <ClInclude Include="include\Modules\TemplateUtils\TypeSizeSum.h" />
     <ClInclude Include="include\Modules\Time\Timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\fonts\font.fnt" />
     <None Include="res\game.json" />
     <None Include="res\default-pipeline.json" />
     <None Include="res\mesh-shader-metadata.json" />
-    <None Include="res\models\bad_car.mtl" />
+    <None Include="res\shaders\compile.bat" />
+    <None Include="res\shaders\compiled\mesh.frag.spv" />
+    <None Include="res\shaders\compiled\mesh.vert.spv" />
+    <None Include="res\shaders\compiled\sprite.frag.spv" />
+    <None Include="res\shaders\compiled\sprite.vert.spv" />
     <None Include="res\shaders\default-pipeline.json" />
-    <None Include="res\shaders\game.json" />
-    <None Include="res\shaders\mesh.frag" />
-    <None Include="res\shaders\mesh.frag.spv" />
-    <None Include="res\shaders\mesh.vert" />
-    <None Include="res\shaders\mesh.vert.spv" />
     <None Include="res\shaders\spirv-mesh.bat" />
-    <None Include="res\test.lisp" />
-    <None Include="res\textures\tree.pdn" />
+    <None Include="res\shaders\sprite-pipeline.json" />
+    <None Include="res\shaders\sprite.frag" />
+    <None Include="res\shaders\sprite.vert" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bad_car.obj">
@@ -224,14 +230,16 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\textures\tree-uv.png" />
-    <Image Include="res\textures\tree.dds" />
-    <Image Include="res\textures\tree.png" />
+    <Xsd Include="res\shaders\sprite.xsd">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Xsd>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\models\bad_car.obj">
-      <FileType>Document</FileType>
-    </None>
+    <Image Include="res\textures\potion.dds" />
+    <Image Include="res\textures\potion.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

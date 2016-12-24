@@ -1,6 +1,7 @@
 #pragma once
 #include "Modules/ECS/ECS.h"
 #include "Game/GameConfig.h"
+#include "Game/Components/SpriteShader.h"
 
 namespace Systems
 {
@@ -16,16 +17,16 @@ namespace Systems
 			auto cameras = ecs.filterEntities<Filter<Components::Camera2D>>();
 			auto& camera = ecs.getComponent<Components::Camera2D>(cameras.at(0));
 
-			auto entities = ecs.filterEntities<GraphicsFilter>();
+			auto entities = ecs.filterEntities<SpriteFilter>();
 			for (auto entity : entities)
 			{
 				auto& texture = ecs.getComponent<Components::Texture>(entity);
-				auto& mesh = ecs.getComponent<Components::Mesh>(entity);
+				//auto& mesh = ecs.getComponent<Components::Mesh>(entity);
 				auto& buffers = ecs.getComponent<Components::CommandBuffers>(entity);
 				auto& pipeline = ecs.getComponent<Components::Pipeline>(entity);
-				auto& shader = ecs.getComponent<Components::MeshShader>(entity);
+				auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
 
-				graphics->render(buffers, shader, camera);
+				graphics->render<Components::ShaderType>(buffers, shader, camera);
 			}
 
 			graphics->present();

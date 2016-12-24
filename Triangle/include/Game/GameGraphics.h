@@ -1,5 +1,6 @@
 #pragma once
 #include "Modules/Graphics/Logic/Renderer.h"
+#include "Modules/Graphics/Data/Shaders/Shader.h"
 #include "Components/Components.h"
 
 #include <vector>
@@ -20,7 +21,8 @@ public:
 		renderer->prepare();
 	}
 
-	void render(Components::CommandBuffers& buffers, Components::MeshShader& shader, Components::Camera2D& camera) const
+	template<class ShaderType>
+	void render(Components::CommandBuffers& buffers, ShaderType& shader, Components::Camera2D& camera) const
 	{
 		shader.updateUniformBuffers(camera, renderer->context->device);
 		renderer->submit(buffers.commandBuffers->at(renderer->getCurrentBuffer()));

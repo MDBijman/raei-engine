@@ -7,7 +7,7 @@
 #include "Position3D.h"
 #include "Velocity3D.h"
 #include "Texture.h"
-#include "Mesh.h"
 #include "Pipeline.h"
 #include "CommandBuffers.h"
 #include "MeshShader.h"
+#include "SpriteShader.h"

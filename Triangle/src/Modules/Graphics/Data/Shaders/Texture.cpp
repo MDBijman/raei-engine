@@ -1,11 +1,12 @@
-#include "Modules/Graphics/Data/Textures/Texture.h"
+#include "Modules/Graphics/Data/Shaders/Texture.h"
 #include <gli/gli.hpp>
 
 namespace Graphics
 {
 	namespace Data
 	{
-		uint32_t Texture::getMemoryType(uint32_t typeBits, VkFlags properties, VkPhysicalDeviceMemoryProperties deviceMemoryProperties)
+		template<int BINDING, vk::ShaderStageFlagBits STAGE>
+		uint32_t Texture<BINDING, STAGE>::getMemoryType(uint32_t typeBits, VkFlags properties, VkPhysicalDeviceMemoryProperties deviceMemoryProperties)
 		{
 			for(uint32_t i = 0; i < 32; i++)
 			{
@@ -22,7 +23,8 @@ namespace Graphics
 			return 0;
 		}
 
-		void Texture::load(const char* filename, vk::Format format, vk::PhysicalDevice& physicalDevice, vk::Device& device, vk::CommandPool& pool, vk::Queue& queue)
+		template<int BINDING, vk::ShaderStageFlagBits STAGE>
+		void Texture<BINDING, STAGE>::load(const char* filename, vk::Format format, vk::PhysicalDevice& physicalDevice, vk::Device& device, vk::CommandPool& pool, vk::Queue& queue)
 		{
 			// Create command buffer for submitting image barriers
 			// and converting tilings

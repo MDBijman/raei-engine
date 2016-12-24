@@ -253,7 +253,7 @@ namespace Graphics
 		vk::FramebufferCreateInfo frameBufferCreateInfo;
 		frameBufferCreateInfo
 			.setRenderPass(renderPass)
-			.setAttachmentCount(fbAttachments.size())
+			.setAttachmentCount(static_cast<uint32_t>(fbAttachments.size()))
 			.setPAttachments(fbAttachments.data())
 			.setWidth(width)
 			.setHeight(height)

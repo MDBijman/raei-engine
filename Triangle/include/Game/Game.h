@@ -8,6 +8,7 @@
 #include "GameConfig.h"
 #include "Components/Components.h"
 #include "Systems/Systems.h"
+#include "Modules/Importers/Obj.h"
 
 class Game
 {
@@ -21,6 +22,7 @@ public:
 		auto cameraEntity = ecs.createEntity();
 		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D{ glm::vec2(1280, 720), 60.0f, 0.1f, 256.f });
 
+/* This is a mesh entity
 		auto e = ecs.createEntity();
 		{
 			ecs.addComponent(e, Components::Position2D());
@@ -34,12 +36,25 @@ public:
 			ecs.addComponent(e, Components::CameraID{ uint32_t(1) });
 			ecs.addComponent(e, Components::CommandBuffers{ graphics.renderer->cmdPool, *graphics.renderer->swapchain, graphics.renderer->context->device, camera, graphics.renderer->renderPass, p.pipeline, graphics.renderer->frameBuffers, ms, m.mesh });
 		}
+*/
 		
 		auto sprite = ecs.createEntity();
 		{
-			//ecs.addComponent(e, Components::Position2D());
-			//ecs.addComponent(e, Components::Velocity2D());
-			//auto& texture = ecs.addComponent(e, Components::Texture{"potions.dds", graphics.renderer->context, });
+			ecs.addComponent(sprite, Components::Position2D());
+			ecs.addComponent(sprite, Components::Velocity2D());
+
+			auto spriteData = Graphics::Data::Attributes<Graphics::Data::Vec2<0>>({
+				{ { 0.0, -0.1f } },
+				{ { 0.5, 0.5 } },
+				{ { -0.5, 0.5 } }
+			});
+
+			auto& texture = ecs.addComponent(sprite, Components::Texture{"potion.dds", *graphics.renderer->context, graphics.renderer->cmdPool, *graphics.renderer->queue });
+			auto& shader = ecs.addComponent(sprite, Components::SpriteShader{ *graphics.renderer->context, std::move(spriteData) });
+			shader.upload(graphics.renderer->context->device, graphics.renderer->context->physicalDevice);
+
+			auto& pipeline = ecs.addComponent(sprite, Components::Pipeline{ "./res/shaders/sprite-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, graphics.renderer->context->device, shader });
+			ecs.addComponent(sprite, Components::CommandBuffers{ graphics.renderer->cmdPool, *graphics.renderer->swapchain, graphics.renderer->context->device, camera, graphics.renderer->renderPass, pipeline.pipeline, graphics.renderer->frameBuffers, shader });
 		}
 
 

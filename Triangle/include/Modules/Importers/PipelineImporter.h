@@ -8,7 +8,7 @@ namespace Importers
 {
 	namespace Pipeline 
 	{
-		Graphics::Pipeline load(const std::string& location, vk::PipelineLayout& layout, vk::PipelineVertexInputStateCreateInfo& vi, vk::RenderPass& rp, vk::PipelineCache& cache, vk::Device& device);
+		Graphics::Pipeline load(const std::string& location, const vk::PipelineLayout& layout, const vk::PipelineVertexInputStateCreateInfo& vi, const vk::RenderPass& rp, const vk::PipelineCache& cache, const vk::Device& device);
 
 		vk::PipelineInputAssemblyStateCreateInfo parseInputAssemblyState(JSON::JSON& json);
 		vk::PipelineRasterizationStateCreateInfo parseRasterizationState(JSON::JSON& json);
@@ -17,6 +17,6 @@ namespace Importers
 		vk::PipelineDynamicStateCreateInfo parseDynamicStates(JSON::JSON& json, Graphics::Pipeline& pipeline);
 		vk::PipelineDepthStencilStateCreateInfo parseDepthAndStencilState(JSON::JSON & json);
 		vk::PipelineMultisampleStateCreateInfo parseMultisamplingState(JSON::JSON & json);
-		std::vector<vk::PipelineShaderStageCreateInfo> parseShaderStages(JSON::JSON & json, vk::Device& device);
+		std::vector<vk::PipelineShaderStageCreateInfo> parseShaderStages(JSON::JSON & json, const vk::Device& device);
 	};
 }

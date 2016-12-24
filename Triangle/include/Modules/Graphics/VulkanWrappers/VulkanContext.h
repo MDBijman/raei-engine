@@ -40,9 +40,9 @@ namespace Graphics
 
 			vk::InstanceCreateInfo instanceCreateInfo = vk::InstanceCreateInfo()
 				.setPApplicationInfo(&applicationInfo)
-				.setEnabledExtensionCount(extensions.size())
+				.setEnabledExtensionCount(static_cast<uint32_t>(extensions.size()))
 				.setPpEnabledExtensionNames(extensions.data())
-				.setEnabledLayerCount(layers.size())
+				.setEnabledLayerCount(static_cast<uint32_t>(layers.size()))
 				.setPpEnabledLayerNames(layers.data());
 
 			instance = vk::createInstance(instanceCreateInfo);
@@ -113,7 +113,7 @@ namespace Graphics
 			vk::DeviceCreateInfo deviceCreateInfo = vk::DeviceCreateInfo()
 				.setQueueCreateInfoCount(1)
 				.setPQueueCreateInfos(&queueCreateInfo)
-				.setEnabledExtensionCount(enabledExtensions.size())
+				.setEnabledExtensionCount(static_cast<uint32_t>(enabledExtensions.size()))
 				.setPpEnabledExtensionNames(enabledExtensions.data());
 
 			device = physicalDevice.createDevice(deviceCreateInfo);

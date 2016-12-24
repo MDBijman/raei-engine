@@ -126,7 +126,6 @@ public:
 
 	void setup(vk::CommandBuffer cmdBuffer, uint32_t *width, uint32_t *height)
 	{
-		VkResult err;
 		VkSwapchainKHR oldSwapchain = swapChain;
 
 		// Get physical device surface properties and formats

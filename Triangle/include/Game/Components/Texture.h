@@ -1,17 +1,17 @@
 #pragma once
 #include "Modules/ECS/ECS.h"
-#include "Modules/Graphics/Data/Textures/Texture.h"
+#include "Modules/Graphics/Data/Shaders/Texture.h"
 
 namespace Components
 {
 	class Texture : public Component
 	{
 	public:
-		Texture(const std::string& name, vk::Device& device, vk::PhysicalDevice& physicalDevice, vk::CommandPool& cmdPool, vk::Queue& queue)
+		Texture(const std::string& name, Graphics::VulkanContext& context, vk::CommandPool& cmdPool, vk::Queue& queue)
 		{
-			texture.load(("./res/textures/" + name).c_str(), vk::Format::eBc3UnormBlock, physicalDevice, device, cmdPool, queue);
+			texture.load(("./res/textures/" + name).c_str(), vk::Format::eBc3UnormBlock, context.physicalDevice, context.device, cmdPool, queue);
 		}
 
-		Graphics::Data::Texture texture;
+		Graphics::Data::Texture<0, vk::ShaderStageFlagBits::eFragment> texture;
 	};
 }

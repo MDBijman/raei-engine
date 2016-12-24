@@ -16,6 +16,15 @@ namespace Graphics
 				Uploads the data of this buffer to the GPU.
 			*/
 			virtual void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) = 0;
+
+			const vk::Buffer& getBuffer() const 
+			{
+				return buf;
+			}
+
+		protected:
+			vk::Buffer buf;
+			vk::DeviceMemory mem;
 		};
 	}
 }

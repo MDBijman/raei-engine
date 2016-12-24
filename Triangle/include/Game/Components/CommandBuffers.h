@@ -7,18 +7,19 @@ namespace Components
 	class CommandBuffers : public Component
 	{
 	public:
-		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, Camera& camera, vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers, Graphics::Data::Shader& shader, Graphics::Data::Mesh* mesh)
+		template<class ShaderType>
+		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, Camera& camera, vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers, ShaderType& shader)
 		{
 			vk::CommandBufferAllocateInfo info;
 			info.setCommandPool(cmdPool)
 				.setLevel(vk::CommandBufferLevel::ePrimary)
-				.setCommandBufferCount(swapchain.images.size());
+				.setCommandBufferCount(static_cast<uint32_t>(swapchain.images.size()));
 
 			commandBuffers = new std::vector<vk::CommandBuffer>(device.allocateCommandBuffers(info));
 
 			vk::CommandBufferBeginInfo cmdBufInfo;
 
-			auto clearColorValues = std::array<float, 4>{0.0f, 0.0f, 0.5f, 1.0f};
+			auto clearColorValues = std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f};
 
 			clearValues = new std::vector<vk::ClearValue>();
 			clearValues->resize(2);
@@ -57,8 +58,8 @@ namespace Components
 				vk::Rect2D scissor;
 				scissor
 					.setExtent(vk::Extent2D()
-						.setWidth(camera.getDimensions().x)
-						.setHeight(camera.getDimensions().y));
+						.setWidth(static_cast<uint32_t>(camera.getDimensions().x))
+						.setHeight(static_cast<uint32_t>(camera.getDimensions().y)));
 
 				// Add a present memory barrier to the end of the command buffer
 				// This will transform the frame buffer color attachment to a
@@ -66,7 +67,10 @@ namespace Components
 				vk::ImageSubresourceRange subresourceRange;
 				subresourceRange
 					.setAspectMask(vk::ImageAspectFlagBits::eColor)
-					.setBaseMipLevel(0).setLevelCount(1).setBaseArrayLayer(0).setLayerCount(1);
+					.setBaseMipLevel(0)
+					.setLevelCount(1)
+					.setBaseArrayLayer(0)
+					.setLayerCount(1);
 
 				// Command chaining
 				vk::CommandBuffer& buffer = commandBuffers->at(i);
@@ -74,12 +78,13 @@ namespace Components
 				buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 				buffer.setViewport(0, viewport);
 				buffer.setScissor(0, scissor);
-				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader.descriptorSet, nullptr);
+				//buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader->getSet(), nullptr);
 				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
 				std::array<vk::DeviceSize, 1> offsets = { 0 };
-				buffer.bindVertexBuffers(VERTEX_BUFFER_BIND_ID, mesh->vertices.getBuffer(), offsets);
-				buffer.bindIndexBuffer(mesh->indices.getBuffer(), 0, vk::IndexType::eUint32);
-				buffer.drawIndexed(mesh->indices.count, 1, 0, 0, 1);
+				buffer.bindVertexBuffers(0, shader.getAttributes().getBuffer(), offsets);
+				//buffer.bindIndexBuffer(mesh->indices.getBuffer(), 0, vk::IndexType::eUint32);
+				//buffer.drawIndexed(mesh->indices.count, 1, 0, 0, 1);
+				buffer.draw(3, 1, 0, 0);
 				buffer.endRenderPass();
 				buffer.end();
 

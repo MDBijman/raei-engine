@@ -13,7 +13,7 @@ namespace Importers
 {
 	namespace Pipeline
 	{
-		Graphics::Pipeline load(const std::string & location, vk::PipelineLayout & layout, vk::PipelineVertexInputStateCreateInfo & vi, vk::RenderPass & rp, vk::PipelineCache & cache, vk::Device & device)
+		Graphics::Pipeline load(const std::string & location, const vk::PipelineLayout & layout, const vk::PipelineVertexInputStateCreateInfo & vi, const vk::RenderPass & rp, const vk::PipelineCache & cache, const vk::Device & device)
 		{
 			JSON::JSON json;
 			std::ifstream jsonFile(location);
@@ -80,6 +80,8 @@ namespace Importers
 				std::string cullMode = json["cull-mode"];
 				if(cullMode == "none")
 					rasterizationState.setCullMode(vk::CullModeFlagBits::eNone);
+				else if(cullMode == "back")
+					rasterizationState.setCullMode(vk::CullModeFlagBits::eBack);
 				else
 					assert(!"Invalid cull mode state");
 			}
@@ -87,6 +89,8 @@ namespace Importers
 				std::string frontFace = json["front-face"];
 				if(frontFace == "ccw")
 					rasterizationState.setFrontFace(vk::FrontFace::eCounterClockwise);
+				else if(frontFace == "cw")
+					rasterizationState.setFrontFace(vk::FrontFace::eClockwise);
 				else
 					assert(!"Invalid front face state");
 			}
@@ -211,7 +215,7 @@ namespace Importers
 			return state;
 		}
 
-		std::vector<vk::PipelineShaderStageCreateInfo> parseShaderStages(JSON::JSON & json, vk::Device& device)
+		std::vector<vk::PipelineShaderStageCreateInfo> parseShaderStages(JSON::JSON & json, const vk::Device& device)
 		{
 			std::vector<vk::PipelineShaderStageCreateInfo> shaderStages(2);
 			const std::string& vertexLocation = json["vertex"];

@@ -44,7 +44,7 @@
 	},
 
 	"shader-stages" : {
-		"vertex" : "./res/shaders/compiled/mesh.vert.spv",
-		"fragment" : "./res/shaders/compiled/mesh.frag.spv",
+		"vertex" : "./res/shaders/compiled/sprite2.vert.spv",
+		"fragment" : "./res/shaders/compiled/sprite2.frag.spv"
 	}
 }
