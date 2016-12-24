@@ -107,9 +107,6 @@
     <ClCompile Include="src\Modules\Graphics\VulkanWrappers\VulkanDebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modules\Graphics\Data\Shaders\Texture.cpp">
-      <Filter>Source Files\Graphics\Data\Textures</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h">
@@ -293,6 +290,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Vec3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\TemplateUtils\ForEachInTuple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

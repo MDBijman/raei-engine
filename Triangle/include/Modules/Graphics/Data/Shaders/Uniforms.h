@@ -2,6 +2,7 @@
 #include <set>
 
 #include "Modules/Graphics/Data/GPUBuffer.h"
+#include "Modules/TemplateUtils/ForEachInTuple.h"
 
 namespace Graphics
 {
@@ -56,7 +57,10 @@ namespace Graphics
 					.setPSetLayouts(&descriptorSetLayout);
 				descriptorSet = context.device.allocateDescriptorSets(allocInfo).at(0);
 				std::vector<vk::WriteDescriptorSet> setWriters;
-				getWriteDescriptorSets(setWriters);
+				for_each_in_tuple(data, [&](auto& t)
+				{
+					setWriters.push_back(t.getWriteDescriptorSet());
+				});
 				for(auto& writer : setWriters)
 					writer.dstSet = descriptorSet;
 
@@ -78,20 +82,13 @@ namespace Graphics
 
 			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) override
 			{
-				uploadData(device, physicalDevice);
+				for_each_in_tuple(data, [&](auto& t)
+				{
+					t.upload(device, physicalDevice);
+				});
 			}
 
 		private:
-			template<int N = 0>
-			void uploadData(vk::Device& device, vk::PhysicalDevice& physicalDevice)
-			{
-				if(N < sizeof...(T))
-				{
-					std::get<N>(data).upload(device, physicalDevice);
-					uploadData<N + 1>(device, physicalDevice);
-				}
-			} 
-			
 			template<class... A>
 			std::vector<vk::DescriptorSetLayoutBinding> getDescriptorLayoutBindings()
 			{
@@ -107,17 +104,7 @@ namespace Graphics
 					A::getDescriptorPoolSize()...
 				};
 			}
-
-			template<int N = 0>
-			void getWriteDescriptorSets(std::vector<vk::WriteDescriptorSet>& temp)
-			{
-				if(N < sizeof...(T))
-				{
-					temp.push_back(std::get<N>(data).getWriteDescriptorSet());
-					getWriteDescriptorSets<N + 1>(temp);
-				}
-			}
-
+			
 			std::vector<vk::DescriptorSetLayoutBinding>* setLayoutBindings;
 			std::vector<vk::DescriptorPoolSize>* poolSizes;
 

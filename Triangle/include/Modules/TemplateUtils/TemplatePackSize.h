@@ -1,23 +1,15 @@
 #pragma once
-#include <vector>
-
 template<class... T>
-constexpr size_t getTemplatePackSize()
-{
-	std::array<size_t, sizeof...(T)> sizes{
-		sizeof(T)...
-	};
+struct packSize;
 
-	return sumArray(sizes);
-}
-
-template<int N>
-constexpr size_t sumArray(std::array<size_t, N> sizes)
+template<>
+struct packSize<>
 {
-	size_t size = 0;
-	for(size_t s : sizes)
-	{
-		size += s;
-	}
-	return size;
-}
+	static const size_t value = 0;
+};
+
+template<class Head, class... T>
+struct packSize<Head, T...>
+{
+	static const size_t value = sizeof(Head) + packSize<T...>::value;
+};

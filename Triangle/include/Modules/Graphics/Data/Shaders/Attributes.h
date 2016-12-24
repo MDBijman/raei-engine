@@ -17,7 +17,7 @@ namespace Graphics
 				bindingDescriptions = new std::vector<vk::VertexInputBindingDescription>();
 				bindingDescriptions->push_back(vk::VertexInputBindingDescription()
 					.setBinding(0)
-					.setStride(getTemplatePackSize<T...>())
+					.setStride(packSize<T...>::value)
 					.setInputRate(vk::VertexInputRate::eVertex));
 
 				vi
@@ -82,6 +82,11 @@ namespace Graphics
 				memcpy(mappedMemory, data.data(), dataSize);
 				device.unmapMemory(mem);
 				device.bindBufferMemory(buf, mem, 0);
+			}
+
+			vk::PipelineVertexInputStateCreateInfo& getVI()
+			{
+				return vi;
 			}
 
 		private:

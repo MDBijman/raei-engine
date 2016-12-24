@@ -35,7 +35,7 @@ namespace Graphics
 
 			const vk::PipelineVertexInputStateCreateInfo& getVI()
 			{
-				return attributes.vi;
+				return attributes.getVI();
 			}
 
 			const Attributes<A...>& getAttributes()
