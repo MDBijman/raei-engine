@@ -43,14 +43,29 @@ public:
 			ecs.addComponent(sprite, Components::Position2D());
 			ecs.addComponent(sprite, Components::Velocity2D());
 
-			auto spriteData = Graphics::Data::Attributes<Graphics::Data::Vec2<0>>({
-				{ { 0.0, -0.1f } },
-				{ { 0.5, 0.5 } },
-				{ { -0.5, 0.5 } }
+			auto spriteData = Graphics::Data::Attributes<Graphics::Data::Vec2<0, 0>, Graphics::Data::Vec2<1, 2>>({
+				{	
+					{ 0.0, -0.1f },
+					{ 0.0, 0.0 }
+				},
+				{ 
+					{ 0.5, 0.5 },
+					{ 1.0, 0.0 }
+				},
+				{ 
+					{ -0.5, 0.5 },
+					{ 1.0, 1.0 }
+				}
 			});
 
-			auto& texture = ecs.addComponent(sprite, Components::Texture{"potion.dds", *graphics.renderer->context, graphics.renderer->cmdPool, *graphics.renderer->queue });
-			auto& shader = ecs.addComponent(sprite, Components::SpriteShader{ *graphics.renderer->context, std::move(spriteData) });
+			auto texture = Graphics::Data::Texture<0, vk::ShaderStageFlagBits::eFragment>{};
+			texture.load("./res/textures/potion.dds", vk::Format::eBc3UnormBlock, graphics.renderer->context->physicalDevice, graphics.renderer->context->device, graphics.renderer->cmdPool, *graphics.renderer->queue);
+			auto uniform = Graphics::Data::Uniforms<Graphics::Data::Texture<0, vk::ShaderStageFlagBits::eFragment>>(*graphics.renderer->context, {
+				std::move(texture)
+			});
+
+			//auto& texture = ecs.addComponent(sprite, Components::Texture{"potion.dds", *graphics.renderer->context, graphics.renderer->cmdPool, *graphics.renderer->queue });
+			auto& shader = ecs.addComponent(sprite, Components::SpriteShader{ *graphics.renderer->context, std::move(spriteData), std::move(uniform) });
 			shader.upload(graphics.renderer->context->device, graphics.renderer->context->physicalDevice);
 
 			auto& pipeline = ecs.addComponent(sprite, Components::Pipeline{ "./res/shaders/sprite-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, graphics.renderer->context->device, shader });

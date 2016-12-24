@@ -22,6 +22,14 @@ namespace Graphics
 			{
 				this->textureDescriptor = other.textureDescriptor;
 				other.textureDescriptor = nullptr;
+				sampler = other.sampler;
+				image = other.image;
+				imageLayout = other.imageLayout;
+				deviceMemory = other.deviceMemory;
+				view = other.view;
+				width = other.width;
+				height = other.height;
+				mipLevels = other.mipLevels;
 			}
 
 			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice)

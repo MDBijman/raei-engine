@@ -5,8 +5,8 @@
 
 namespace Components
 {
-	using AttributeType = Graphics::Data::Attributes<Graphics::Data::Vec2<0>>;
-	using UniformType = Graphics::Data::Uniforms<>;
+	using AttributeType = Graphics::Data::Attributes<Graphics::Data::Vec2<0>, Graphics::Data::Vec2<1, 2>>;
+	using UniformType = Graphics::Data::Uniforms<Graphics::Data::Texture<0, vk::ShaderStageFlagBits::eFragment>>;
 	using ShaderType = Graphics::Data::Shader<AttributeType, UniformType>;
 
 	class SpriteShader : public Component, public ShaderType
@@ -17,7 +17,7 @@ namespace Components
 		* \param device The VulkanDevice to make vulkan objects with.
 		* \param physicalDevice The VulkanPhysicalDevice to make vulkan objects.
 		*/
-		SpriteShader(Graphics::VulkanContext& context, AttributeType&& attributes) : ShaderType(std::move(attributes), UniformType(context)) {}
+		SpriteShader(Graphics::VulkanContext& context, AttributeType&& attributes, UniformType&& uniforms) : ShaderType(std::move(attributes), std::move(uniforms)) {}
 
 		SpriteShader(SpriteShader&& other) noexcept : Component(std::move(other)), ShaderType(std::move(other)) {}
 

@@ -12,7 +12,7 @@ namespace Graphics
 		class Uniforms : public GPUBuffer
 		{
 		public:
-			Uniforms(Graphics::VulkanContext& context)
+			Uniforms(Graphics::VulkanContext& context, std::tuple<T...>&& data) : data(std::move(data))
 			{
 				/*
 					Descriptor Set Layout Initialization
@@ -67,7 +67,7 @@ namespace Graphics
 				context.device.updateDescriptorSets(setWriters, nullptr);
 			}
 
-			Uniforms(Uniforms&& other)
+			Uniforms(Uniforms&& other) : data(std::move(other.data))
 			{
 				this->setLayoutBindings = other.setLayoutBindings;
 				other.setLayoutBindings = nullptr;
@@ -78,8 +78,6 @@ namespace Graphics
 				descriptorSet = other.descriptorSet;
 				descriptorSetLayout = other.descriptorSetLayout;
 				descriptorPool = other.descriptorPool;
-			
-				this->data = other.data;
 			}
 				
 			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) override

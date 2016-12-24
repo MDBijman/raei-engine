@@ -18,4 +18,3 @@
 #include "Data/Shaders/UniformMVP.h"
 #include "Data/Shaders/Attributes.h"
 #include "Data/Shaders/Uniforms.h"
-#include "Data/Shaders/Texture.h"
