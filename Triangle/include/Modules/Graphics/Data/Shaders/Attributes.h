@@ -37,6 +37,7 @@ namespace Graphics
 				other.bindingDescriptions = nullptr;
 				this->attributeDescriptions = other.attributeDescriptions;
 				other.attributeDescriptions = nullptr;
+				this->data = other.data;
 			}
 
 			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) override

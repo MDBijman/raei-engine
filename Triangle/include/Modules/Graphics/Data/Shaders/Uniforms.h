@@ -78,8 +78,10 @@ namespace Graphics
 				descriptorSet = other.descriptorSet;
 				descriptorSetLayout = other.descriptorSetLayout;
 				descriptorPool = other.descriptorPool;
+			
+				this->data = other.data;
 			}
-
+				
 			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) override
 			{
 				for_each_in_tuple(data, [&](auto& t)
