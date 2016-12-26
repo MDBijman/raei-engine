@@ -23,7 +23,7 @@ using MyComponentList = ComponentList<
 >;
 
 //using GraphicsFilter = Filter<Components::Texture, Components::Mesh, Components::CameraID, Components::CommandBuffers, Components::Pipeline, Components::MeshShader>;
-using SpriteFilter = Filter<Components::Texture, Components::CommandBuffers, Components::Pipeline, Components::SpriteShader>;
+using SpriteFilter = Filter<Components::CommandBuffers, Components::Pipeline, Components::SpriteShader>;
 
 using MyFilterList = FilterList<
 	// Movement

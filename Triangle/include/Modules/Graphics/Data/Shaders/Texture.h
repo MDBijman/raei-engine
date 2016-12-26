@@ -10,8 +10,9 @@ namespace Graphics
 		class Texture
 		{
 		public:
-			Texture()
+			Texture(const char* filename, vk::Format format, vk::PhysicalDevice& physicalDevice, vk::Device& device, vk::CommandPool& pool, vk::Queue& queue)
 			{
+				load(filename, format, physicalDevice, device, pool, queue);
 				textureDescriptor = new vk::DescriptorImageInfo();
 				textureDescriptor->setImageLayout(vk::ImageLayout::eGeneral)
 					.setSampler(sampler)
@@ -86,7 +87,7 @@ namespace Graphics
 
 				return 0;
 			}
-
+		
 			void load(const char* filename, vk::Format format, vk::PhysicalDevice& physicalDevice, vk::Device& device, vk::CommandPool& pool, vk::Queue& queue)
 			{
 				// Create command buffer for submitting image barriers

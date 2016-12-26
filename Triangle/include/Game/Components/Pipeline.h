@@ -17,9 +17,9 @@ namespace Components
 			// In a more complex scenario you would have different pipeline layouts for different
 			// descriptor set layouts that could be reused
 			vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
-			//pipelineLayoutCreateInfo
-			//	.setPSetLayouts(&shader->getLayout())
-			//	.setSetLayoutCount(0);
+			pipelineLayoutCreateInfo
+				.setPSetLayouts(&shader.getLayout())
+				.setSetLayoutCount(1);
 			vk::PipelineLayout layout = device.createPipelineLayout(pipelineLayoutCreateInfo);
 
 			pipeline = Importers::Pipeline::load(location, layout, shader.getVI(), renderpass, cache, device);

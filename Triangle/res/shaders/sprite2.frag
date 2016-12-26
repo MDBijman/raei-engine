@@ -4,8 +4,8 @@
 layout(location = 0) out vec4 outColor;
 layout(location = 0) in vec2 textureCoord;
 
-layout(location = 0) uniform sampler2D image;
+layout(binding = 1) uniform sampler2D image;
 
 void main() {
-    outColor = texture(image, textureCoord);
+    outColor = texture(image, textureCoord);//vec4(1.0, 0.0, 0.0, 1.0);
 }

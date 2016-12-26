@@ -25,12 +25,12 @@ namespace Graphics
 
 			const vk::DescriptorSetLayout& getLayout()
 			{
-				return uniforms.descriptorSetLayout;
+				return uniforms.getDescriptorSetLayout();
 			}
 
-			const vk::DescriptorSet& getSet()
+			const vk::DescriptorSet& getDescriptorSet()
 			{
-				return uniforms.descriptorSet;
+				return uniforms.getDescriptorSet();
 			}
 
 			const vk::PipelineVertexInputStateCreateInfo& getVI()

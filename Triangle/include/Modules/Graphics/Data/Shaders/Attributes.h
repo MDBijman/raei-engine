@@ -8,11 +8,24 @@ namespace Graphics
 {
 	namespace Data
 	{
+		template<int N, class T>
+		class TupleElement
+		{
+		public:
+			T data;
+		};
+
+
+		class Tuple
+		{
+
+		};
+
 		template<class... T>
 		class Attributes : public GPUBuffer
 		{
 		public:
-			Attributes(std::vector<std::tuple<T...>> data) : data(data)
+			Attributes(std::vector<std::tuple<T...>> d) : data(std::move(d))
 			{
 				bindingDescriptions = new std::vector<vk::VertexInputBindingDescription>();
 				bindingDescriptions->push_back(vk::VertexInputBindingDescription()
@@ -76,7 +89,7 @@ namespace Graphics
 				memAlloc
 					.setAllocationSize(memReqs.size)
 					.setMemoryTypeIndex(memoryTypeIndex);
-
+				
 				memReqs.memoryTypeBits = 1;
 				mem = device.allocateMemory(memAlloc);
 				mappedMemory = device.mapMemory(mem, 0, memAlloc.allocationSize);

@@ -20,7 +20,7 @@ namespace Systems
 			auto entities = ecs.filterEntities<SpriteFilter>();
 			for (auto entity : entities)
 			{
-				auto& texture = ecs.getComponent<Components::Texture>(entity);
+				//auto& texture = ecs.getComponent<Components::Texture>(entity);
 				//auto& mesh = ecs.getComponent<Components::Mesh>(entity);
 				auto& buffers = ecs.getComponent<Components::CommandBuffers>(entity);
 				auto& pipeline = ecs.getComponent<Components::Pipeline>(entity);

@@ -12,7 +12,7 @@ namespace Graphics
 		class Uniforms : public GPUBuffer
 		{
 		public:
-			Uniforms(Graphics::VulkanContext& context, std::tuple<T...>&& data) : data(std::move(data))
+			Uniforms(Graphics::VulkanContext& context, std::tuple<T...>&& d) : data(std::move(d))
 			{
 				/*
 					Descriptor Set Layout Initialization
@@ -86,6 +86,16 @@ namespace Graphics
 				{
 					t.upload(device, physicalDevice);
 				});
+			}
+
+			const vk::DescriptorSetLayout& getDescriptorSetLayout()
+			{
+				return descriptorSetLayout;
+			}
+
+			const vk::DescriptorSet& getDescriptorSet()
+			{
+				return descriptorSet;
 			}
 
 		private:

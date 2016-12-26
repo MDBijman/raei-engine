@@ -78,7 +78,7 @@ namespace Components
 				buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 				buffer.setViewport(0, viewport);
 				buffer.setScissor(0, scissor);
-				//buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader->getSet(), nullptr);
+				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader.getDescriptorSet(), nullptr);
 				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
 				std::array<vk::DeviceSize, 1> offsets = { 0 };
 				buffer.bindVertexBuffers(0, shader.getAttributes().getBuffer(), offsets);

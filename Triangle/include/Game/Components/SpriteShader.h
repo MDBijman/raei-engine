@@ -5,8 +5,9 @@
 
 namespace Components
 {
-	using AttributeType = Graphics::Data::Attributes<Graphics::Data::Vec2<0>, Graphics::Data::Vec2<1, 2>>;
-	using UniformType = Graphics::Data::Uniforms<Graphics::Data::Texture<0, vk::ShaderStageFlagBits::eFragment>>;
+	using AttributeType = Graphics::Data::Attributes<Graphics::Data::Vec2<0, 0>, Graphics::Data::Vec2<1, sizeof(float) * 2>>;
+	using UniformType = Graphics::Data::Uniforms<Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment>>;
+	//using UniformType = Graphics::Data::Uniforms<>;
 	using ShaderType = Graphics::Data::Shader<AttributeType, UniformType>;
 
 	class SpriteShader : public Component, public ShaderType
