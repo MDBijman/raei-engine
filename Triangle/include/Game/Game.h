@@ -46,23 +46,37 @@ public:
 			auto spriteData = Components::AttributeType({
 				{	
 					{ 0.0f, 0.0f },
-					{ -1.0f, 0.0f }
+					{ 0.0f, 0.0f }
 				},
 				{ 
 					{ 0.0f, 1.0f },
-					{ -1.0f, 1.0f }
+					{ 0.0f, 1.0f }
 				},
 				{ 
 					{ 1.0f, 0.0f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ 1.0f, 0.0f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ 1.0f, 0.0f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ 0.0f, 0.0f },
 					{ 0.0f, 0.0f }
 				}
 			});
 
-			auto uniform = Components::UniformType(*graphics.renderer->context, {
+			
+
+			auto uniform = Components::UniformType{ *graphics.renderer->context, {
 				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/textures/potion.dds", vk::Format::eBc3UnormBlock, graphics.renderer->context->physicalDevice, graphics.renderer->context->device, graphics.renderer->cmdPool, *graphics.renderer->queue
 				}
-			});
+			} };
 
 			//auto uniform = Graphics::Data::Uniforms<>(*graphics.renderer->context, std::tuple<>());
 

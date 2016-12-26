@@ -84,7 +84,7 @@ namespace Components
 				buffer.bindVertexBuffers(0, shader.getAttributes().getBuffer(), offsets);
 				//buffer.bindIndexBuffer(mesh->indices.getBuffer(), 0, vk::IndexType::eUint32);
 				//buffer.drawIndexed(mesh->indices.count, 1, 0, 0, 1);
-				buffer.draw(3, 1, 0, 0);
+				buffer.draw(6, 1, 0, 0);
 				buffer.endRenderPass();
 				buffer.end();
 
