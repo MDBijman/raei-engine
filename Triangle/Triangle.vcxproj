@@ -183,6 +183,7 @@
     <ClInclude Include="include\Modules\Lisp\AST.h" />
     <ClInclude Include="include\Modules\IO\Logging.h" />
     <ClInclude Include="include\Modules\TemplateUtils\ForEachInTuple.h" />
+    <ClInclude Include="include\Modules\Graphics\Data\OrderedTuple.h" />
     <ClInclude Include="include\Modules\TemplateUtils\TemplatePackSize.h" />
     <ClInclude Include="include\Modules\TemplateUtils\TypeIndex.h" />
     <ClInclude Include="include\Modules\Graphics\Data\GPUBuffer.h" />

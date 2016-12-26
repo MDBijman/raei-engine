@@ -3,29 +3,19 @@
 #include <vulkan/VULKAN.HPP>
 #include "Modules/Graphics/Data/GPUBuffer.h"
 #include "Modules/TemplateUtils/TemplatePackSize.h"
+#include "Modules/Graphics/Data/OrderedTuple.h"
 
 namespace Graphics
 {
 	namespace Data
 	{
-		template<int N, class T>
-		class TupleElement
-		{
-		public:
-			T data;
-		};
-
-
-		class Tuple
-		{
-
-		};
+		
 
 		template<class... T>
 		class Attributes : public GPUBuffer
 		{
 		public:
-			Attributes(std::vector<std::tuple<T...>> d) : data(std::move(d))
+			Attributes(std::vector<OrderedTuple<T...>> d) : data(std::move(d))
 			{
 				bindingDescriptions = new std::vector<vk::VertexInputBindingDescription>();
 				bindingDescriptions->push_back(vk::VertexInputBindingDescription()
@@ -122,7 +112,7 @@ namespace Graphics
 
 			vk::PipelineVertexInputStateCreateInfo vi;
 			
-			std::vector<std::tuple<T...>> data;
+			std::vector<OrderedTuple<T...>> data;
 		};
 	}
 }
