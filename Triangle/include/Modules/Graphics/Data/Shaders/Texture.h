@@ -375,8 +375,8 @@ namespace Graphics
 
 				// Create sampler
 				vk::SamplerCreateInfo sampler2 = {};
-				sampler2.magFilter = vk::Filter::eLinear;
-				sampler2.minFilter = vk::Filter::eLinear;
+				sampler2.magFilter = vk::Filter::eNearest;
+				sampler2.minFilter = vk::Filter::eNearest;
 				sampler2.mipmapMode = vk::SamplerMipmapMode::eLinear;
 				sampler2.addressModeU = vk::SamplerAddressMode::eRepeat;
 				sampler2.addressModeV = vk::SamplerAddressMode::eRepeat;

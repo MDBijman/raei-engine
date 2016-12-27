@@ -7,5 +7,5 @@ layout(location = 0) in vec2 textureCoord;
 layout(binding = 1) uniform sampler2D image;
 
 void main() {
-    outColor = texture(image, textureCoord);//vec4(1.0, 0.0, 0.0, 1.0);
+    outColor = vec4(texture(image, textureCoord).xyz, 0.0);//vec4(1.0, 0.0, 0.0, 1.0);
 }

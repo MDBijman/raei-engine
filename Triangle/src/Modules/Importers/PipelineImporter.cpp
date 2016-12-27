@@ -120,7 +120,13 @@ namespace Importers
 				bool blendEnable = json["blending"];
 				pipeline.colorBlendAttachmentStates[0] = vk::PipelineColorBlendAttachmentState()
 					.setColorWriteMask(writeMask)
-					.setBlendEnable(blendEnable);
+					.setBlendEnable(blendEnable)
+					.setSrcColorBlendFactor(vk::BlendFactor::eOne)
+					.setDstColorBlendFactor(vk::BlendFactor::eOne)
+					.setColorBlendOp(vk::BlendOp::eAdd)
+					.setSrcAlphaBlendFactor(vk::BlendFactor::eOne)
+					.setDstAlphaBlendFactor(vk::BlendFactor::eOne)
+					.setAlphaBlendOp(vk::BlendOp::eAdd);
 			}
 			info.setAttachmentCount(1).setPAttachments(pipeline.colorBlendAttachmentStates.data());
 			return info;
