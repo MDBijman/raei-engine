@@ -247,9 +247,6 @@
     <ClInclude Include="include\Game\Components\CommandBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Components\MeshShader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Importers\PipelineImporter.h">
       <Filter>Header Files\Libraries\Importers</Filter>
     </ClInclude>

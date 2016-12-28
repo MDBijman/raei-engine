@@ -33,6 +33,9 @@ namespace Graphics
 				mipLevels = other.mipLevels;
 			}
 
+			void allocate(VulkanContext& context) 
+			{}
+
 			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice)
 			{}
 

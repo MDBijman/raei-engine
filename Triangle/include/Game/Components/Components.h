@@ -9,5 +9,4 @@
 #include "Texture.h"
 #include "Pipeline.h"
 #include "CommandBuffers.h"
-#include "MeshShader.h"
 #include "SpriteShader.h"

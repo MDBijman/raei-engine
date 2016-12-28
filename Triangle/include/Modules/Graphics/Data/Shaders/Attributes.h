@@ -187,7 +187,7 @@ namespace Graphics
 
 					// Copy index data to VRAM
 					buffer = context.device.createBuffer(indexBufferInfo);
-					vk::MemoryRequirements memReqs = contextdevice.getBufferMemoryRequirements(buffer);
+					vk::MemoryRequirements memReqs = context.device.getBufferMemoryRequirements(buffer);
 
 					uint32_t memoryTypeIndex = -1;
 

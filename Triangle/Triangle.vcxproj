@@ -150,7 +150,6 @@
     <ClInclude Include="include\Game\Components\Components.h" />
     <ClInclude Include="include\Game\Components\Camera2D.h" />
     <ClInclude Include="include\Game\Components\Input.h" />
-    <ClInclude Include="include\Game\Components\MeshShader.h" />
     <ClInclude Include="include\Game\Components\Orientation3D.h" />
     <ClInclude Include="include\Game\Components\Pipeline.h" />
     <ClInclude Include="include\Game\Components\Position2D.h" />

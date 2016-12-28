@@ -15,7 +15,6 @@ using MyComponentList = ComponentList<
 	Components::CameraID,
 	Components::Pipeline,
 	Components::CommandBuffers,
-	Components::MeshShader,
 	Components::SpriteShader,
 
 	// Other components

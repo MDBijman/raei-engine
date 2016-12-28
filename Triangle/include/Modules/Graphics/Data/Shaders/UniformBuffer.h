@@ -36,9 +36,9 @@ namespace Graphics
 			{
 				// Map uniform buffer and update it
 				void *pData;
-				pData = device.mapMemory(memory, 0, sizeof t);
+				pData = context.device.mapMemory(memory, 0, sizeof t);
 				memcpy(pData, &t, sizeof t);
-				device.unmapMemory(memory);
+				context.device.unmapMemory(memory);
 			}
 
 			vk::WriteDescriptorSet getWriteDescriptorSet()
@@ -46,7 +46,7 @@ namespace Graphics
 				return vk::WriteDescriptorSet()
 					.setDescriptorCount(1)
 					.setDescriptorType(vk::DescriptorType::eUniformBuffer)
-					.setPBufferInfo(descriptor)
+					.setPBufferInfo(&descriptor)
 					.setDstBinding(BINDING);
 			}
 

@@ -78,7 +78,7 @@ public:
 			shader.allocate(*graphics.renderer->context);
 			
 			auto& pipeline = ecs.addComponent(sprite, Components::Pipeline{ "./res/shaders/sprite-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, graphics.renderer->context->device, shader });
-			ecs.addComponent(sprite, Components::CommandBuffers{ graphics.renderer->cmdPool, *graphics.renderer->swapchain, graphics.renderer->context->device, camera, graphics.renderer->renderPass, pipeline.pipeline, graphics.renderer->frameBuffers, shader });
+			ecs.addComponent(sprite, Components::CommandBuffers{ graphics.renderer->cmdPool, *graphics.renderer->swapchain, graphics.renderer->context->device, glm::vec2{1280, 720}, graphics.renderer->renderPass, pipeline.pipeline, graphics.renderer->frameBuffers, shader });
 		}
 
 

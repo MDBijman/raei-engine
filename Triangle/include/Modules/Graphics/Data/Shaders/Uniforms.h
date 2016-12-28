@@ -84,14 +84,14 @@ namespace Graphics
 			{
 				for_each_in_tuple(data, [&](auto& t)
 				{
-					t.upload(context);
+					t.allocate(context);
 				});
 			}
 
-			template<int N>
-			void upload(VulkanContext& context, typename std::tuple_element<N, T...>::type newData)
+			template<int N, class T>
+			void upload(VulkanContext& context, T newData)
 			{
-				std::get<N>(data).upload(newData);
+				std::get<N>(data).upload(context, newData);
 			}
 
 			const vk::DescriptorSetLayout& getDescriptorSetLayout()

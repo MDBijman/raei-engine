@@ -8,7 +8,7 @@ namespace Components
 	{
 	public:
 		template<class ShaderType>
-		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, Camera& camera, vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers, ShaderType& shader)
+		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, glm::vec2& dimensions, vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers, ShaderType& shader)
 		{
 			vk::CommandBufferAllocateInfo info;
 			info.setCommandPool(cmdPool)
@@ -49,8 +49,8 @@ namespace Components
 				// Update dynamic viewport state
 				vk::Viewport viewport;
 				viewport
-					.setWidth(camera.getDimensions().x)
-					.setHeight(camera.getDimensions().y)
+					.setWidth(dimensions.x)
+					.setHeight(dimensions.y)
 					.setMinDepth(0.0f)
 					.setMaxDepth(1.0f);
 
@@ -58,8 +58,8 @@ namespace Components
 				vk::Rect2D scissor;
 				scissor
 					.setExtent(vk::Extent2D()
-						.setWidth(static_cast<uint32_t>(camera.getDimensions().x))
-						.setHeight(static_cast<uint32_t>(camera.getDimensions().y)));
+						.setWidth(static_cast<uint32_t>(dimensions.x))
+						.setHeight(static_cast<uint32_t>(dimensions.y)));
 
 				// Add a present memory barrier to the end of the command buffer
 				// This will transform the frame buffer color attachment to a
@@ -81,10 +81,6 @@ namespace Components
 				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader.getDescriptorSet(), nullptr);
 				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
 				shader.draw(buffer);
-				//buffer.bindVertexBuffers(0, shader.getAttributes().getBuffer(), offsets);
-				//buffer.bindIndexBuffer(mesh->indices.getBuffer(), 0, vk::IndexType::eUint32);
-				//buffer.drawIndexed(mesh->indices.count, 1, 0, 0, 1);
-				//buffer.draw(6, 1, 0, 0);
 				buffer.endRenderPass();
 				buffer.end();
 
