@@ -24,7 +24,7 @@ public:
 	template<class ShaderType>
 	void render(Components::CommandBuffers& buffers, ShaderType& shader, Components::Camera2D& camera) const
 	{
-		shader.updateUniformBuffers(camera, renderer->context->device);
+		//shader.updateUniformBuffers(camera, renderer->context->device);
 		renderer->submit(buffers.commandBuffers->at(renderer->getCurrentBuffer()));
 	}
 

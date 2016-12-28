@@ -119,7 +119,7 @@ namespace Graphics
 
 				void allocate(vk::Device& device, vk::PhysicalDevice& physicalDevice)
 				{
-					size_t dataSize = vertices.data.size() * sizeof(std::tuple<T...>);
+					size_t dataSize = data.size() * sizeof(std::tuple<T...>);
 
 					vk::BufferCreateInfo bufInfo;
 					bufInfo
@@ -146,7 +146,6 @@ namespace Graphics
 						memReqs.memoryTypeBits >>= 1;
 					}
 
-					vk::MemoryAllocateInfo memAlloc;
 					memAlloc
 						.setAllocationSize(memReqs.size)
 						.setMemoryTypeIndex(memoryTypeIndex);
@@ -158,7 +157,7 @@ namespace Graphics
 				{
 					void *mappedMemory;
 					mappedMemory = device.mapMemory(memory, 0, memAlloc.allocationSize);
-					size_t dataSize = vertices.data.size() * sizeof(std::tuple<T...>);
+					size_t dataSize = data.size() * sizeof(std::tuple<T...>);
 					memcpy(mappedMemory, data.data(), dataSize);
 					device.unmapMemory(memory);
 					device.bindBufferMemory(buffer, memory, 0);
@@ -170,6 +169,7 @@ namespace Graphics
 				vk::PipelineVertexInputStateCreateInfo vi;
 				std::vector<OrderedTuple<T...>> data;
 
+				vk::MemoryAllocateInfo memAlloc;
 				vk::Buffer buffer;
 				vk::DeviceMemory memory;
 			} vertices;
@@ -187,7 +187,7 @@ namespace Graphics
 
 					// Copy index data to VRAM
 					buffer = device.createBuffer(indexBufferInfo);
-					vk::MemoryRequirements memReqs = device.getBufferMemoryRequirements(buf);
+					vk::MemoryRequirements memReqs = device.getBufferMemoryRequirements(buffer);
 
 					uint32_t memoryTypeIndex = -1;
 
@@ -205,7 +205,6 @@ namespace Graphics
 						memReqs.memoryTypeBits >>= 1;
 					}
 
-					vk::MemoryAllocateInfo memAlloc;
 					memAlloc
 						.setAllocationSize(memReqs.size)
 						.setMemoryTypeIndex(memoryTypeIndex);
@@ -220,9 +219,9 @@ namespace Graphics
 					memcpy(mappedMemory, data.data(), data.size() * sizeof(uint32_t));
 					device.unmapMemory(memory);
 					device.bindBufferMemory(buffer, memory, 0);
-					count = static_cast<uint32_t>(data.size());
 				}
 
+				vk::MemoryAllocateInfo memAlloc;
 				vk::Buffer buffer;
 				vk::DeviceMemory memory;
 
