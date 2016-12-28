@@ -39,46 +39,11 @@ namespace Components
 
 		}
 
-		/**
-		* \brief Updates the uniform buffers for this shader.
-		* \param camera The camera to calculate the model view projection matrix from.
-		* \param device The VulkanDevice to map and unmap memory from.
-		*/
-		void updateUniformBuffers(Camera& camera, vk::Device& device)
-		{
-			// Update matrices
-			uboVS.projectionMatrix = Math::calculateProjection(camera.getFOV(), camera.getNearPlane(), camera.getFarPlane(), camera.getDimensions());
-			uboVS.viewMatrix = Math::calculateView(camera.getDirection(), camera.getUp(), camera.getPosition());
-			uboVS.modelMatrix = glm::mat4();
-			uboVS.modelMatrix = glm::scale(uboVS.modelMatrix, glm::vec3(1, -1, 1));
-
-			// Map uniform buffer and update it
-			void *pData;
-			pData = device.mapMemory(uniformDataVS.memory, 0, sizeof uboVS);
-			memcpy(pData, &uboVS, sizeof uboVS);
-			device.unmapMemory(uniformDataVS.memory);
-		}
 
 	private:
 		void allocateUniform(Graphics::VulkanContext& context)
 		{
-			// Vertex shader uniform buffer block
-			vk::BufferCreateInfo bufferInfo;
-			bufferInfo
-				.setSize(sizeof(uboVS))
-				.setUsage(vk::BufferUsageFlagBits::eUniformBuffer);
 
-			uniformDataVS.buffer = context.device.createBuffer(bufferInfo);
-
-			auto allocInfo = context.getMemoryRequirements(uniformDataVS.buffer, vk::MemoryPropertyFlagBits::eHostVisible);
-
-			uniformDataVS.memory = context.device.allocateMemory(allocInfo);
-			context.device.bindBufferMemory(uniformDataVS.buffer, uniformDataVS.memory, 0);
-
-			// Store information in the uniform's descriptor
-			uniformDataVS.descriptor.buffer = uniformDataVS.buffer;
-			uniformDataVS.descriptor.offset = 0;
-			uniformDataVS.descriptor.range = sizeof(uboVS);
 		}
 
 		Graphics::Data::Uniform		uniformDataVS;

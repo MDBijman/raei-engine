@@ -9,7 +9,7 @@ namespace Graphics
 	namespace Data
 	{
 		template<class... T>
-		class Uniforms : public GPUBuffer
+		class Uniforms
 		{
 		public:
 			Uniforms(Graphics::VulkanContext& context, std::tuple<T...>&& d) : data(std::move(d))
@@ -79,13 +79,19 @@ namespace Graphics
 				descriptorSetLayout = other.descriptorSetLayout;
 				descriptorPool = other.descriptorPool;
 			}
-				
-			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice) override
+
+			void allocate(VulkanContext& context)
 			{
 				for_each_in_tuple(data, [&](auto& t)
 				{
-					t.upload(device, physicalDevice);
+					t.upload(context);
 				});
+			}
+
+			template<int N>
+			void upload(VulkanContext& context, typename std::tuple_element<N, T...>::type newData)
+			{
+				std::get<N>(data).upload(newData);
 			}
 
 			const vk::DescriptorSetLayout& getDescriptorSetLayout()

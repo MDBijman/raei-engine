@@ -1,7 +1,8 @@
 #pragma once
-#include "Logic/Camera.h"
+#include "Logic/OrthoCamera.h"
 #include "Logic/Pipeline.h"
 #include "Logic/Renderer.h"
+#include "Logic/Swapchain.h"
 
 #include "Data/GPUBuffer.h"
 

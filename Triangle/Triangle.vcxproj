@@ -163,6 +163,7 @@
     <ClInclude Include="include\Game\GameConfig.h" />
     <ClInclude Include="include\Game\GameGraphics.h" />
     <ClInclude Include="include\Game\Systems\GraphicsInterface.h" />
+    <ClInclude Include="include\Game\Systems\GraphicsUpdateSystem.h" />
     <ClInclude Include="include\Game\Systems\Movement2D.h" />
     <ClInclude Include="include\Game\Systems\Systems.h" />
     <ClInclude Include="include\Game\Systems\Exit.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Uniforms.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Vec2.h" />
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Vec3.h" />
+    <ClInclude Include="include\Modules\Graphics\Logic\OrthoCamera.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Swapchain.h" />
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDebug.h" />
     <ClInclude Include="include\Modules\Lisp\AST.h" />

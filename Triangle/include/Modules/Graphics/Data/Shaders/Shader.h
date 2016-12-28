@@ -48,10 +48,10 @@ namespace Graphics
 				return uniforms;
 			}
 
-			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice)
+			void allocate(VulkanContext& context)
 			{
-				uniforms.upload(device, physicalDevice);
-				attributes.upload(device, physicalDevice);
+				uniforms.allocate(context);
+				attributes.allocate(context);
 			}
 
 			void draw(vk::CommandBuffer& cmdBuffer)

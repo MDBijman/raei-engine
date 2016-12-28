@@ -35,14 +35,14 @@ namespace Graphics
 				cmdBuffer.bindVertexBuffers(0, vertices.buffer, { 0 });
 			}
 
-			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice)
+			void allocate(VulkanContext& context)
 			{
-				vertices.allocate(device, physicalDevice);
-				vertices.upload(device);
+				vertices.allocate(context);
+				vertices.upload(context);
 				if(isIndexed())
 				{
-					indices.value().allocate(device, physicalDevice);
-					indices.value().upload(device);
+					indices.value().allocate(context);
+					indices.value().upload(context);
 				}
 			}
 
@@ -117,7 +117,7 @@ namespace Graphics
 			{
 				Vertices(std::vector<OrderedTuple<T...>>&& d) : data(d) {}
 
-				void allocate(vk::Device& device, vk::PhysicalDevice& physicalDevice)
+				void allocate(VulkanContext& context)
 				{
 					size_t dataSize = data.size() * sizeof(std::tuple<T...>);
 
@@ -127,12 +127,12 @@ namespace Graphics
 						.setUsage(vk::BufferUsageFlagBits::eVertexBuffer);
 
 					//	Copy data to VRAM
-					buffer = device.createBuffer(bufInfo);
-					vk::MemoryRequirements memReqs = device.getBufferMemoryRequirements(buffer);
+					buffer = context.device.createBuffer(bufInfo);
+					vk::MemoryRequirements memReqs = context.device.getBufferMemoryRequirements(buffer);
 
 					uint32_t memoryTypeIndex = -1;
 
-					auto properties = physicalDevice.getMemoryProperties();
+					auto properties = context.physicalDevice.getMemoryProperties();
 					for(uint32_t i = 0; i < 32; i++)
 					{
 						if(memReqs.memoryTypeBits & 1)
@@ -150,17 +150,17 @@ namespace Graphics
 						.setAllocationSize(memReqs.size)
 						.setMemoryTypeIndex(memoryTypeIndex);
 
-					memory = device.allocateMemory(memAlloc);
+					memory = context.device.allocateMemory(memAlloc);
 				}
 
-				void upload(vk::Device& device)
+				void upload(VulkanContext& context)
 				{
 					void *mappedMemory;
-					mappedMemory = device.mapMemory(memory, 0, memAlloc.allocationSize);
+					mappedMemory = context.device.mapMemory(memory, 0, memAlloc.allocationSize);
 					size_t dataSize = data.size() * sizeof(std::tuple<T...>);
 					memcpy(mappedMemory, data.data(), dataSize);
-					device.unmapMemory(memory);
-					device.bindBufferMemory(buffer, memory, 0);
+					context.device.unmapMemory(memory);
+					context.device.bindBufferMemory(buffer, memory, 0);
 				}
 
 				std::vector<vk::VertexInputBindingDescription>* bindingDescriptions;
@@ -178,7 +178,7 @@ namespace Graphics
 			{
 				Indices(std::vector<uint32_t>&& i) : data(i) {}
 
-				void allocate(vk::Device& device, vk::PhysicalDevice& physicalDevice)
+				void allocate(VulkanContext& context)
 				{
 					vk::BufferCreateInfo indexBufferInfo;
 					indexBufferInfo
@@ -186,12 +186,12 @@ namespace Graphics
 						.setUsage(vk::BufferUsageFlagBits::eIndexBuffer);
 
 					// Copy index data to VRAM
-					buffer = device.createBuffer(indexBufferInfo);
-					vk::MemoryRequirements memReqs = device.getBufferMemoryRequirements(buffer);
+					buffer = context.device.createBuffer(indexBufferInfo);
+					vk::MemoryRequirements memReqs = contextdevice.getBufferMemoryRequirements(buffer);
 
 					uint32_t memoryTypeIndex = -1;
 
-					auto properties = physicalDevice.getMemoryProperties();
+					auto properties = context.physicalDevice.getMemoryProperties();
 					for(uint32_t i = 0; i < 32; i++)
 					{
 						if(memReqs.memoryTypeBits & 1)
@@ -209,16 +209,16 @@ namespace Graphics
 						.setAllocationSize(memReqs.size)
 						.setMemoryTypeIndex(memoryTypeIndex);
 
-					memory = device.allocateMemory(memAlloc);
+					memory = context.device.allocateMemory(memAlloc);
 				}
 
-				void upload(vk::Device& device)
+				void upload(VulkanContext& context)
 				{
 					void *mappedMemory;
-					mappedMemory = device.mapMemory(memory, 0, data.size() * sizeof(uint32_t));
+					mappedMemory = context.device.mapMemory(memory, 0, data.size() * sizeof(uint32_t));
 					memcpy(mappedMemory, data.data(), data.size() * sizeof(uint32_t));
-					device.unmapMemory(memory);
-					device.bindBufferMemory(buffer, memory, 0);
+					context.device.unmapMemory(memory);
+					context.device.bindBufferMemory(buffer, memory, 0);
 				}
 
 				vk::MemoryAllocateInfo memAlloc;

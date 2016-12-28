@@ -4,8 +4,7 @@
 
 namespace Components
 {
-	class Camera2D : public Component, public Camera
+	class Camera2D : public Component, public OrthoCamera
 	{
-		using Camera::Camera;
 	};
 }

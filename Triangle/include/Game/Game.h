@@ -20,7 +20,7 @@ public:
 		gameState(PAUSED)
 	{
 		auto cameraEntity = ecs.createEntity();
-		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D{ glm::vec2(1280, 720), 60.0f, 0.1f, 256.f });
+		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D());
 
 /* This is a mesh entity
 		auto e = ecs.createEntity();
@@ -66,13 +66,16 @@ public:
 			};
 
 			auto uniform = Components::SpriteUniforms{ *graphics.renderer->context, {
+				Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+					camera.getMatrices().projection * camera.getMatrices().view
+				},
 				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/textures/potion.dds", vk::Format::eBc3UnormBlock, graphics.renderer->context->physicalDevice, graphics.renderer->context->device, graphics.renderer->cmdPool, *graphics.renderer->queue
 				}
 			} };
 
 			auto& shader = ecs.addComponent(sprite, Components::SpriteShader{ std::move(spriteData), std::move(uniform) });
-			shader.upload(graphics.renderer->context->device, graphics.renderer->context->physicalDevice);
+			shader.allocate(*graphics.renderer->context);
 			
 			auto& pipeline = ecs.addComponent(sprite, Components::Pipeline{ "./res/shaders/sprite-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, graphics.renderer->context->device, shader });
 			ecs.addComponent(sprite, Components::CommandBuffers{ graphics.renderer->cmdPool, *graphics.renderer->swapchain, graphics.renderer->context->device, camera, graphics.renderer->renderPass, pipeline.pipeline, graphics.renderer->frameBuffers, shader });
@@ -84,7 +87,7 @@ public:
 			ecs.addSystem<Systems::Exit>();
 			ecs.addSystem<Systems::Input>();
 			ecs.addSystem<Systems::GraphicsInterface>(&graphics);
-			ecs.addSystem<Systems::GraphicsUpdateSystem>();
+			ecs.addSystem<Systems::GraphicsUpdateSystem>(*graphics.renderer->context);
 		}
 	}
 
