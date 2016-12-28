@@ -38,12 +38,12 @@ namespace Graphics
 				return attributes.getVI();
 			}
 
-			const Attributes<A...>& getAttributes()
+			Attributes<A...>& getAttributes()
 			{
 				return attributes;
 			}
 
-			const Uniforms<U...>& getUniforms()
+			Uniforms<U...>& getUniforms()
 			{
 				return uniforms;
 			}
@@ -54,12 +54,14 @@ namespace Graphics
 				attributes.upload(device, physicalDevice);
 			}
 
-			/**
-			* \brief Updates the uniform buffers for this shader.
-			* \param camera The camera to calculate the model view projection matrix from.
-			* \param device The VulkanDevice to map and unmap memory from.
-			*/
-			virtual void updateUniformBuffers(Camera& camera, vk::Device& device) = 0;
+			void draw(vk::CommandBuffer& cmdBuffer)
+			{
+				attributes.bind(cmdBuffer);
+				if(attributes.isIndexed())
+					cmdBuffer.drawIndexed(attributes.getIndices().size(), 1, 0, 0, 0);
+				else
+					cmdBuffer.draw(attributes.getData().size(), 1, 0, 0);
+			}
 
 		protected:
 			Attributes<A...> attributes;

@@ -27,18 +27,17 @@ using SpriteFilter = Filter<Components::CommandBuffers, Components::Pipeline, Co
 
 using MyFilterList = FilterList<
 	// Movement
-	Filter<Components::Position2D>,
+	Filter<Components::Position2D, Components::Velocity2D>,
 
 	// Input
 	Filter<Components::Input, Components::Position2D, Components::Velocity2D>,
 
 	SpriteFilter,
 
+	Filter<Components::SpriteShader, Components::Position2D>,
+
 	// Camera Finding
 	Filter<Components::Camera2D>
-
-	// Sprite Graphics Filter,
-	//Filter<Components::Texture, Components::CameraID, Components::CommandBuffers, Components::Pipeline, Components::SpriteShader>
 >;
 
 using MyECSManager = ECSManager<MyComponentList, MyFilterList>;

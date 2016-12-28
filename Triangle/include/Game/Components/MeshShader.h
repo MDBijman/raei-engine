@@ -44,7 +44,7 @@ namespace Components
 		* \param camera The camera to calculate the model view projection matrix from.
 		* \param device The VulkanDevice to map and unmap memory from.
 		*/
-		void updateUniformBuffers(Camera& camera, vk::Device& device) override
+		void updateUniformBuffers(Camera& camera, vk::Device& device)
 		{
 			// Update matrices
 			uboVS.projectionMatrix = Math::calculateProjection(camera.getFOV(), camera.getNearPlane(), camera.getFarPlane(), camera.getDimensions());

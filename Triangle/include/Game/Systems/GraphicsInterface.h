@@ -26,7 +26,7 @@ namespace Systems
 				auto& pipeline = ecs.getComponent<Components::Pipeline>(entity);
 				auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
 
-				graphics->render<Components::ShaderType>(buffers, shader, camera);
+				graphics->render(buffers, shader, camera);
 			}
 
 			graphics->present();

@@ -16,7 +16,7 @@ namespace AssetManager
 		void addAsset(AssetType at)
 		{
 			constexpr int index = type_index<AssetType, AssetTypes...>();
-			std::get<index>(assets).push_back(std::make_pair(generateID(), at));
+			std::get<index>(assets).emplace(generateID(), at);
 		}
 
 		template<class AssetType>
@@ -28,6 +28,8 @@ namespace AssetManager
 
 	private:
 		std::tuple<std::unordered_map<AssetID, AssetTypes>...> assets;
+
+		
 
 		AssetID lastID = 0;
 		AssetID generateID()

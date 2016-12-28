@@ -43,47 +43,37 @@ public:
 			ecs.addComponent(sprite, Components::Position2D());
 			ecs.addComponent(sprite, Components::Velocity2D());
 
-			auto spriteData = Components::AttributeType({
-				{	
-					{ 0.0f, 0.0f },
-					{ 0.0f, 0.0f }
-				},
-				{ 
-					{ 0.0f, 1.0f },
-					{ 0.0f, 1.0f }
-				},
-				{ 
-					{ 1.0f, 0.0f },
-					{ 1.0f, 0.0f }
-				},
+			auto spriteData = Components::SpriteAttributes{
 				{
-					{ 1.0f, 0.0f },
-					{ 1.0f, 0.0f }
+					{
+						{ 0.0f, 0.0f },
+						{ 0.0f, 0.0f }
+					},
+					{
+						{ 0.0f, 1.0f },
+						{ 0.0f, 1.0f }
+					},
+					{
+						{ 1.0f, 0.0f },
+						{ 1.0f, 0.0f }
+					},
+					{
+						{ 1.0f, 1.0f },
+						{ 1.0f, 1.0f }
+					}
 				},
-				{
-					{ 0.0f, 1.0f },
-					{ 0.0f, 1.0f }
-				},
-				{
-					{ 1.0f, 1.0f },
-					{ 1.0f, 1.0f }
-				}
-			});
+				{ 0, 1, 2, 2, 1, 3 }
+			};
 
-			
-
-			auto uniform = Components::UniformType{ *graphics.renderer->context, {
+			auto uniform = Components::SpriteUniforms{ *graphics.renderer->context, {
 				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/textures/potion.dds", vk::Format::eBc3UnormBlock, graphics.renderer->context->physicalDevice, graphics.renderer->context->device, graphics.renderer->cmdPool, *graphics.renderer->queue
 				}
 			} };
 
-			//auto uniform = Graphics::Data::Uniforms<>(*graphics.renderer->context, std::tuple<>());
-
-			//auto& texture = ecs.addComponent(sprite, Components::Texture{"potion.dds", *graphics.renderer->context, graphics.renderer->cmdPool, *graphics.renderer->queue });
-			auto& shader = ecs.addComponent(sprite, Components::SpriteShader{ *graphics.renderer->context, std::move(spriteData), std::move(uniform) });
+			auto& shader = ecs.addComponent(sprite, Components::SpriteShader{ std::move(spriteData), std::move(uniform) });
 			shader.upload(graphics.renderer->context->device, graphics.renderer->context->physicalDevice);
-
+			
 			auto& pipeline = ecs.addComponent(sprite, Components::Pipeline{ "./res/shaders/sprite-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, graphics.renderer->context->device, shader });
 			ecs.addComponent(sprite, Components::CommandBuffers{ graphics.renderer->cmdPool, *graphics.renderer->swapchain, graphics.renderer->context->device, camera, graphics.renderer->renderPass, pipeline.pipeline, graphics.renderer->frameBuffers, shader });
 		}
@@ -94,6 +84,7 @@ public:
 			ecs.addSystem<Systems::Exit>();
 			ecs.addSystem<Systems::Input>();
 			ecs.addSystem<Systems::GraphicsInterface>(&graphics);
+			ecs.addSystem<Systems::GraphicsUpdateSystem>();
 		}
 	}
 

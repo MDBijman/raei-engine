@@ -11,10 +11,13 @@ namespace Systems
 		void update(MyECSManager& ecs, double dt) override
 		{
 			using namespace Components;
-			auto entities = ecs.filterEntities<Filter<Position2D>>();
+			auto entities = ecs.filterEntities<Filter<Position2D, Velocity2D>>();
 			for (auto& entity : entities)
 			{
 				auto& pos = ecs.getComponent<Position2D>(entity);
+				auto& vel = ecs.getComponent<Velocity2D>(entity);
+
+				pos.pos += vel.vel;
 			}
 		}
 	};

@@ -80,11 +80,11 @@ namespace Components
 				buffer.setScissor(0, scissor);
 				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader.getDescriptorSet(), nullptr);
 				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
-				std::array<vk::DeviceSize, 1> offsets = { 0 };
-				buffer.bindVertexBuffers(0, shader.getAttributes().getBuffer(), offsets);
+				shader.draw(buffer);
+				//buffer.bindVertexBuffers(0, shader.getAttributes().getBuffer(), offsets);
 				//buffer.bindIndexBuffer(mesh->indices.getBuffer(), 0, vk::IndexType::eUint32);
 				//buffer.drawIndexed(mesh->indices.count, 1, 0, 0, 1);
-				buffer.draw(6, 1, 0, 0);
+				//buffer.draw(6, 1, 0, 0);
 				buffer.endRenderPass();
 				buffer.end();
 
