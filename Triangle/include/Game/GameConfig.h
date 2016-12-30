@@ -1,7 +1,6 @@
 #pragma once
 #include "Components/Components.h"
 #include "Modules/ECS/ECS.h"
-#include "Modules/AssetManager/AssetManager.h"
 
 using MyComponentList = ComponentList<
 	// Transform components
@@ -42,6 +41,3 @@ using MyFilterList = FilterList<
 using MyECSManager = ECSManager<MyComponentList, MyFilterList>;
 using MySystem = System<MyComponentList, MyFilterList>;
 
-using MyAssetManager = AssetManager::AssetManager<
-	
->;

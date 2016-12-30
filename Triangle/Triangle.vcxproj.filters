@@ -124,23 +124,8 @@
     <ClInclude Include="include\Modules\Math\Matrices.h">
       <Filter>Header Files\Libraries\Math</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Geometry\Indices.h">
-      <Filter>Header Files\Graphics\Data\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Geometry\Mesh.h">
-      <Filter>Header Files\Graphics\Data\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Geometry\Vertices.h">
-      <Filter>Header Files\Graphics\Data\Geometry</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Data\Shaders\Shader.h">
       <Filter>Header Files\Graphics\Data\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Uniform.h">
-      <Filter>Header Files\Graphics\Data\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\UniformMVP.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Logic\Pipeline.h">
       <Filter>Header Files\Graphics\Logic</Filter>
@@ -164,9 +149,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\ECS\System.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\AssetManager\AssetManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Graphics.h">
@@ -298,10 +280,16 @@
     <ClInclude Include="include\Game\Components\SpriteShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Systems\GraphicsUpdateSystem.h">
+    <ClInclude Include="include\Modules\Graphics\Logic\OrthoCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\OrthoCamera.h">
+    <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Memory\Pool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Memory\StaticPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

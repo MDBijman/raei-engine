@@ -18,11 +18,11 @@ namespace Components
 			// descriptor set layouts that could be reused
 			vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 			pipelineLayoutCreateInfo
-				.setPSetLayouts(&shader.getLayout())
+				.setPSetLayouts(&shader.getUniforms().getDescriptorSetLayout())
 				.setSetLayoutCount(1);
 			vk::PipelineLayout layout = device.createPipelineLayout(pipelineLayoutCreateInfo);
 
-			pipeline = Importers::Pipeline::load(location, layout, shader.getVI(), renderpass, cache, device);
+			pipeline = Importers::Pipeline::load(location, layout, shader.getAttributes().getVertices().vi, renderpass, cache, device);
 		}
 
 		Graphics::Pipeline pipeline;

@@ -46,43 +46,19 @@ namespace Graphics
 				}
 			}
 
-			void setVertices(std::vector<OrderedTuple<T...>>&& vertices)
-			{
-				assert(vertices.size() == this->vertices.size());
-				this->vertices.data = vertices;
-				this->vertices.upload();
-			}
-
-			void setIndices(std::vector<uint32_t>&& indices)
-			{
-				assert(indices.size() == this->indices.size());
-				if(isIndexed())
-				{
-					this->indices.value().data = indices;
-					this->indices.value().upload();
-				}
-			}
-
 			bool isIndexed()
 			{
 				return indices.has_value();
 			}
 
-			const std::vector<uint32_t>& getIndices()
+			auto& getIndices()
 			{
-				if(indices.has_value())
-					return indices.value().data;
-				return {};
+				return indices;
 			}
 
-			const std::vector<OrderedTuple<T...>>& getData()
+			auto& getVertices()
 			{
-				return vertices.data;
-			}
-
-			const vk::PipelineVertexInputStateCreateInfo& getVI()
-			{
-				return vertices.vi;
+				return vertices;
 			}
 
 		private:
@@ -229,5 +205,7 @@ namespace Graphics
 			};
 			std::optional<Indices> indices;
 		};
+
+
 	}
 }

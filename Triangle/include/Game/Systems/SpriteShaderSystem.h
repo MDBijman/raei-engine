@@ -4,10 +4,10 @@
 
 namespace Systems
 {
-	class GraphicsUpdateSystem : public MySystem
+	class SpriteShaderSystem : public MySystem
 	{
 	public:
-		GraphicsUpdateSystem(Graphics::VulkanContext& context) : context(context) {}
+		SpriteShaderSystem(Graphics::VulkanContext& context) : context(context) {}
 
 		void update(MyECSManager& ecs, double dt) override
 		{

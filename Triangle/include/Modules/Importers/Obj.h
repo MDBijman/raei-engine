@@ -1,10 +1,20 @@
 #pragma once
-#include "Modules/Graphics/Data/Geometry/Mesh.h"
+#include <string>
+#include <glm/glm.hpp>
+#include <vector>
 
 namespace Importers
 {
-	namespace Obj
+	class Obj
 	{
-		Graphics::Data::Mesh* load(const std::string& path);
-	}
+	public:
+		using Vertex = std::tuple<glm::vec3, glm::vec2, glm::vec3>;
+		using Index = uint32_t;
+
+		std::vector<Vertex> vertices;
+		std::vector<Index> indices;
+		
+
+		static Obj* load(const std::string& path);
+	};
 }

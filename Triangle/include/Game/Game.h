@@ -2,7 +2,6 @@
 #include "Modules/Graphics/Graphics.h"
 #include "Modules/IO/Input.h"
 #include "Modules/ECS/ECS.h"
-#include "Modules/AssetManager/AssetManager.h"
 #include "Modules/Time/Timer.h"
 #include "GameGraphics.h"
 #include "GameConfig.h"
@@ -14,7 +13,6 @@ class Game
 {
 public:
 	Game(HINSTANCE hInstance, HWND window) :
-		assets(),
 		ecs(),
 		graphics(hInstance, window),
 		gameState(PAUSED)
@@ -87,7 +85,7 @@ public:
 			ecs.addSystem<Systems::Exit>();
 			ecs.addSystem<Systems::Input>();
 			ecs.addSystem<Systems::GraphicsInterface>(&graphics);
-			ecs.addSystem<Systems::GraphicsUpdateSystem>(*graphics.renderer->context);
+			ecs.addSystem<Systems::SpriteShaderSystem>(*graphics.renderer->context);
 		}
 	}
 
@@ -114,7 +112,6 @@ public:
 	}
 
 private:
-	MyAssetManager assets;
 	MyECSManager   ecs;
 	GameGraphics   graphics;
 
