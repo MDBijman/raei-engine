@@ -124,9 +124,6 @@
     <ClInclude Include="include\Modules\Math\Matrices.h">
       <Filter>Header Files\Libraries\Math</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Shader.h">
-      <Filter>Header Files\Graphics\Data\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Logic\Pipeline.h">
       <Filter>Header Files\Graphics\Logic</Filter>
     </ClInclude>
@@ -241,37 +238,13 @@
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDebug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Attributes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Uniforms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\TypeSizeSum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\TemplatePackSize.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\GPUBuffer.h">
-      <Filter>Header Files\Graphics\Data\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Vec2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\UniformBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\Shaders\Vec3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\ForEachInTuple.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Data\OrderedTuple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Components\ComponentShader.h">
@@ -290,6 +263,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Memory\StaticPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Attributes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Vec2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Vec3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\UniformBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\Uniforms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\GPUBuffer.h">
+      <Filter>Header Files\Graphics\Data\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Shader.h">
+      <Filter>Header Files\Graphics\Data\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\TemplateUtils\OrderedTuple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

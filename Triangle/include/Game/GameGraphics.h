@@ -1,6 +1,6 @@
 #pragma once
 #include "Modules/Graphics/Logic/Renderer.h"
-#include "Modules/Graphics/Data/Shaders/Shader.h"
+#include "Modules/Graphics/Shaders/Shader.h"
 #include "Components/Components.h"
 
 #include <vector>

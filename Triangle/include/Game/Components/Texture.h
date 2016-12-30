@@ -1,6 +1,6 @@
 #pragma once
 #include "Modules/ECS/ECS.h"
-#include "Modules/Graphics/Data/Shaders/Texture.h"
+#include "Modules/Graphics/Shaders/Uniforms/Texture.h"
 
 namespace Components
 {

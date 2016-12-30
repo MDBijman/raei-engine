@@ -1,7 +1,7 @@
 #pragma once
 #include <set>
 
-#include "Modules/Graphics/Data/GPUBuffer.h"
+#include "Modules/Graphics/Shaders/GPUBuffer.h"
 #include "Modules/TemplateUtils/ForEachInTuple.h"
 
 namespace Graphics

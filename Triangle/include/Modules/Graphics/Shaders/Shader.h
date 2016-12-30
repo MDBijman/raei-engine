@@ -1,7 +1,7 @@
 #pragma once
-#include "Modules/Graphics/Data/Shaders/Attributes.h"
-#include "Modules/Graphics/Data/Shaders/Uniforms.h"
-#include "Modules/Graphics/Data/Shaders/Texture.h"
+#include "Modules/Graphics/Shaders/Attributes/Attributes.h"
+#include "Modules/Graphics/Shaders/Uniforms/Uniforms.h"
+#include "Modules/Graphics/Shaders/Uniforms/Texture.h"
 
 #include <vulkan/vulkan.hpp>
 
