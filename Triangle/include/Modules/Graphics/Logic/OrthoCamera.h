@@ -41,7 +41,7 @@ private:
 		rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.x), { 1.0, 0.0, 0.0 });
 		rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.y), { 0.0, 1.0, 0.0 });
 		rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.z), { 0.0, 0.0, 1.0 });
-
+	
 		matrices.view = translationMatrix * rotationMatrix;
 	}
 
