@@ -167,7 +167,6 @@
     <ClInclude Include="include\Game\Systems\Systems.h" />
     <ClInclude Include="include\Game\Systems\Exit.h" />
     <ClInclude Include="include\Game\Systems\Input.h" />
-    <ClInclude Include="include\Modules\Graphics\Logic\PerspectiveCamera.h" />
     <ClInclude Include="include\Modules\Memory\Pool.h" />
     <ClInclude Include="include\Modules\Memory\StaticPool.h" />
     <ClInclude Include="include\Modules\ECS\Component.h" />
@@ -181,7 +180,6 @@
     <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\Uniforms.h" />
     <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Vec2.h" />
     <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Vec3.h" />
-    <ClInclude Include="include\Modules\Graphics\Logic\OrthoCamera.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Swapchain.h" />
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDebug.h" />
     <ClInclude Include="include\Modules\Lisp\AST.h" />

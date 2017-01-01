@@ -1,6 +1,5 @@
 #pragma once
-#include "Logic/OrthoCamera.h"
-#include "Logic/PerspectiveCamera.h"
+#include "Logic/Camera.h"
 #include "Logic/Pipeline.h"
 #include "Logic/Renderer.h"
 #include "Logic/Swapchain.h"

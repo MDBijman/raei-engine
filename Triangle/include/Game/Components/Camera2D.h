@@ -4,10 +4,12 @@
 
 namespace Components
 {
-	class Camera2D : public Component, public Graphics::PerspectiveCamera
+	class Camera2D : public Component
 	{
 	public:
-		Camera2D(float fov, float aspect, float n, float f) : Graphics::PerspectiveCamera(fov, aspect, n, f)
+		Camera2D(Graphics::Camera c) : camera(c)
 		{}
+
+		Graphics::Camera camera;
 	};
 }

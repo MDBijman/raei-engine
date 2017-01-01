@@ -17,24 +17,13 @@ public:
 		graphics(hInstance, window),
 		gameState(PAUSED)
 	{
+		//glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.f, 100.0f)
+
+
 		auto cameraEntity = ecs.createEntity();
-		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(90.0f, 1280.f / 720.f, 0.1f, 100.0f));
-
-/* This is a mesh entity
-		auto e = ecs.createEntity();
-		{
-			ecs.addComponent(e, Components::Position2D());
-			ecs.addComponent(e, Components::Velocity2D());
-			ecs.addComponent(e, Components::Input());
-
-			auto& texture = ecs.addComponent(e, Components::Texture{ "tree.dds", graphics.renderer->context->device, graphics.renderer->context->physicalDevice, graphics.renderer->cmdPool, *graphics.renderer->queue });
-			auto& m = ecs.addComponent(e, Components::Mesh{ "bad_car.obj", graphics.renderer->context->device, graphics.renderer->context->physicalDevice });
-			auto& ms = ecs.addComponent(e, Components::MeshShader{ *graphics.renderer->context, texture.texture });
-			auto& p = ecs.addComponent(e, Components::Pipeline{ "./res/shaders/default-pipeline.json", graphics.renderer->renderPass, graphics.renderer->pipelineCache, graphics.renderer->context->device, m.mesh->vertices.vi, texture.texture, ms });
-			ecs.addComponent(e, Components::CameraID{ uint32_t(1) });
-			ecs.addComponent(e, Components::CommandBuffers{ graphics.renderer->cmdPool, *graphics.renderer->swapchain, graphics.renderer->context->device, camera, graphics.renderer->renderPass, p.pipeline, graphics.renderer->frameBuffers, ms, m.mesh });
-		}
-*/
+		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(
+			Graphics::PerspectiveCamera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(), 90.0f, 1280.f / 720.f, 0.1f, 100.0f)
+		));
 		
 		auto sprite = ecs.createEntity();
 		{
@@ -65,7 +54,7 @@ public:
 
 			auto uniform = Components::SpriteUniforms{ *graphics.renderer->context, {
 				Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
-					camera.getMatrices().projection * camera.getMatrices().view * glm::mat4(), *graphics.renderer->context
+					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), *graphics.renderer->context
 				},
 				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/textures/potion.dds", vk::Format::eBc3UnormBlock, graphics.renderer->context->physicalDevice, graphics.renderer->context->device, graphics.renderer->cmdPool, *graphics.renderer->queue

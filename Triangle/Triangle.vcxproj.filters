@@ -253,9 +253,6 @@
     <ClInclude Include="include\Game\Components\SpriteShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\OrthoCamera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -290,9 +287,6 @@
       <Filter>Header Files\Graphics\Data\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\OrderedTuple.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\PerspectiveCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

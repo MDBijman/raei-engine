@@ -24,7 +24,7 @@ namespace Systems
 				auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
 				auto& pos = ecs.getComponent<Components::Position2D>(entity);
 
-				glm::mat4 newMatrix = camera.getMatrices().projection * camera.getMatrices().view;
+				glm::mat4 newMatrix = camera.camera.getMatrices().projection * camera.camera.getMatrices().view;
 
 				//shader.getUniforms().upload<0>(context, newMatrix);
 			}
