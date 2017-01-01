@@ -2,6 +2,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#undef near
+#undef far
+
 namespace Graphics
 {
 	class PerspectiveCamera
@@ -9,10 +12,11 @@ namespace Graphics
 	public:
 		PerspectiveCamera(float fov, float aspect, float near, float far)
 		{
-			position = glm::vec3(0.0f, 0.0f, 0.0f);
+			position = glm::vec3(0.0f, 0.0f, 1.0f);
 			rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
 			matrices.projection = glm::perspective(glm::radians(fov), aspect, near, far);
+			updateView();
 			//(-1.0f, 1.0f, -1.0f, 1.0f, -1.f, 100.0f);
 		}
 
@@ -45,7 +49,7 @@ namespace Graphics
 			rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.y), { 0.0, 1.0, 0.0 });
 			rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.z), { 0.0, 0.0, 1.0 });
 
-			matrices.view = translationMatrix * rotationMatrix;
+			matrices.view = glm::inverse(translationMatrix * rotationMatrix);
 		}
 
 		struct
@@ -58,3 +62,6 @@ namespace Graphics
 		glm::vec3 rotation;
 	};
 }
+
+#define near
+#define far

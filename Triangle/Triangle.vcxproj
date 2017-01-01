@@ -167,6 +167,7 @@
     <ClInclude Include="include\Game\Systems\Systems.h" />
     <ClInclude Include="include\Game\Systems\Exit.h" />
     <ClInclude Include="include\Game\Systems\Input.h" />
+    <ClInclude Include="include\Modules\Graphics\Logic\PerspectiveCamera.h" />
     <ClInclude Include="include\Modules\Memory\Pool.h" />
     <ClInclude Include="include\Modules\Memory\StaticPool.h" />
     <ClInclude Include="include\Modules\ECS\Component.h" />

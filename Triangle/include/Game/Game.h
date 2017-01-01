@@ -18,7 +18,7 @@ public:
 		gameState(PAUSED)
 	{
 		auto cameraEntity = ecs.createEntity();
-		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D());
+		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(90.0f, 1280.f / 720.f, 0.1f, 100.0f));
 
 /* This is a mesh entity
 		auto e = ecs.createEntity();

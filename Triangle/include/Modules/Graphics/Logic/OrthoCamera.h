@@ -7,10 +7,11 @@ class OrthoCamera
 public:
 	OrthoCamera()
 	{
-		position = glm::vec3(0.0f, 0.0f, 0.0f);
+		position = glm::vec3(1.0f, 0.0f, 0.0f);
 		rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		matrices.projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.f, 100.0f);
+		updateView();
 	}
 
 	// Moves the camera to the right.
