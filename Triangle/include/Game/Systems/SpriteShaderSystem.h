@@ -26,7 +26,7 @@ namespace Systems
 
 				glm::mat4 newMatrix = camera.getMatrices().projection * camera.getMatrices().view;
 
-				shader.getUniforms().upload<0>(context, newMatrix);
+				//shader.getUniforms().upload<0>(context, newMatrix);
 			}
 		}
 

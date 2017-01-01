@@ -65,7 +65,7 @@ public:
 
 			auto uniform = Components::SpriteUniforms{ *graphics.renderer->context, {
 				Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
-					camera.getMatrices().projection * camera.getMatrices().view
+					camera.getMatrices().projection * camera.getMatrices().view * glm::mat4(), *graphics.renderer->context
 				},
 				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/textures/potion.dds", vk::Format::eBc3UnormBlock, graphics.renderer->context->physicalDevice, graphics.renderer->context->device, graphics.renderer->cmdPool, *graphics.renderer->queue
@@ -84,8 +84,8 @@ public:
 			ecs.addSystem<Systems::Movement2D>();
 			ecs.addSystem<Systems::Exit>();
 			ecs.addSystem<Systems::Input>();
-			ecs.addSystem<Systems::GraphicsInterface>(&graphics);
 			ecs.addSystem<Systems::SpriteShaderSystem>(*graphics.renderer->context);
+			ecs.addSystem<Systems::GraphicsInterface>(&graphics);
 		}
 	}
 

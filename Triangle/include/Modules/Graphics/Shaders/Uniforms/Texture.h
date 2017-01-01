@@ -34,9 +34,11 @@ namespace Graphics
 			}
 
 			void allocate(VulkanContext& context) 
-			{}
+			{
 
-			void upload(vk::Device& device, vk::PhysicalDevice& physicalDevice)
+			}
+
+			void upload(VulkanContext& context)
 			{}
 
 			vk::WriteDescriptorSet getWriteDescriptorSet()

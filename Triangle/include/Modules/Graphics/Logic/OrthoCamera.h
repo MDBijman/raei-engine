@@ -7,10 +7,10 @@ class OrthoCamera
 public:
 	OrthoCamera()
 	{
-		position = glm::vec3(0.0f, 0.0f, 1.0f);
+		position = glm::vec3(0.0f, 0.0f, 0.0f);
 		rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 
-		matrices.projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 10.0f);
+		matrices.projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.f, 100.0f);
 	}
 
 	// Moves the camera to the right.
@@ -42,7 +42,7 @@ private:
 		rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.y), { 0.0, 1.0, 0.0 });
 		rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.z), { 0.0, 0.0, 1.0 });
 
-		matrices.view = rotationMatrix * translationMatrix;
+		matrices.view = translationMatrix * rotationMatrix;
 	}
 
 	struct

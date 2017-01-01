@@ -53,7 +53,7 @@ namespace Graphics
 
 		}
 
-		vk::MemoryAllocateInfo getMemoryRequirements(vk::Buffer buffer, vk::MemoryPropertyFlagBits flag)
+		vk::MemoryAllocateInfo getMemoryRequirements(vk::Buffer buffer, vk::MemoryPropertyFlags flag)
 		{
 			// Get memory requirements including size, alignment and memory type 
 			vk::MemoryRequirements memReqs = device.getBufferMemoryRequirements(buffer);
