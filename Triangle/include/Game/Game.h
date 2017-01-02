@@ -17,22 +17,17 @@ public:
 		graphics(hInstance, window),
 		gameState(PAUSED)
 	{
-		//glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.f, 100.0f)
-
-
 		auto cameraEntity = ecs.createEntity();
 		ecs.addComponent(cameraEntity, Components::Position3D(0.0f, 0.0f, 1.0f));
 		ecs.addComponent(cameraEntity, Components::Orientation3D());
-		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(
-			Graphics::PerspectiveCamera(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(), 90.0f, 1280.f / 720.f, 0.1f, 100.0f)
-		));
+		ecs.addComponent(cameraEntity, Components::Input());
+		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(Graphics::Camera(90.0f, 1280.f / 720.f, 0.1f, 100.0f)));
 
 		
 		auto sprite = ecs.createEntity();
 		{
 			ecs.addComponent(sprite, Components::Position2D());
 			ecs.addComponent(sprite, Components::Velocity2D());
-			//ecs.addComponent(sprite, Components::Input());
 
 			auto spriteData = Components::SpriteAttributes{
 				{
@@ -79,6 +74,7 @@ public:
 			ecs.addSystem<Systems::Input>();
 			ecs.addSystem<Systems::SpriteShaderSystem>(*graphics.renderer->context);
 			ecs.addSystem<Systems::GraphicsInterface>(&graphics);
+			ecs.addSystem<Systems::CameraSystem>();
 		}
 		//camera.camera.move(glm::vec3(0.0f, 0.3f, 0.0f), 1.0f);
 	}

@@ -3,3 +3,4 @@
 #include "Movement2D.h"
 #include "GraphicsInterface.h"
 #include "SpriteShaderSystem.h"
+#include "CameraSystem.h"

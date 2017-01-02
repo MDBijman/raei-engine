@@ -7,24 +7,16 @@ namespace Graphics
 	class Camera
 	{
 	public:
-		Camera(glm::vec3 p, glm::vec3 r, glm::mat4 proj) : position(p), rotation(r)
+		Camera(float left, float right, float bottom, float top, float clipNear, float clipFar)
 		{
-			matrices.projection = proj;
-			updateView();
+			matrices.projection = glm::ortho(left, right, bottom, top, clipNear, clipFar);
+			moveTo(glm::vec3()), glm::vec3());
 		}
 
-		// Moves the camera to the right.
-		void move(const glm::vec3 movement, const float dt)
+		Camera(float fov, float aspect, float clipNear, float clipFar)
 		{
-			position += movement * dt;
-			updateView();
-		}
-
-		// Rotates the camera.
-		void rotate(const glm::vec3 r, const float dt)
-		{
-			rotation += r * dt;
-			updateView();
+			matrices.projection = glm::perspective(glm::radians(fov), aspect, clipNear, clipFar);
+			moveTo(glm::vec3()), glm::vec3());
 		}
 
 		const auto& getMatrices()
@@ -32,18 +24,7 @@ namespace Graphics
 			return matrices;
 		}
 
-	protected:
-		struct
-		{
-			glm::mat4 view;
-			glm::mat4 projection;
-		} matrices;
-
-		glm::vec3 position;
-		glm::vec3 rotation;
-
-	private:
-		void updateView()
+		void moveTo(glm::vec3 position, glm::vec3 rotation)
 		{
 			glm::mat4 translationMatrix = glm::translate(glm::mat4(), position);
 
@@ -54,31 +35,12 @@ namespace Graphics
 
 			matrices.view = glm::inverse(translationMatrix * rotationMatrix);
 		}
+
+	protected:
+		struct
+		{
+			glm::mat4 view;
+			glm::mat4 projection;
+		} matrices;
 	};
-
-#undef near
-#undef far
-	class OrthoCamera : public Camera
-	{
-	public:
-		OrthoCamera(glm::vec3 position, glm::vec3 rotation, float left, float right, float bottom, float top, float near, float far) :
-			Camera(
-				position, rotation,
-				glm::ortho(left, right, bottom, top, near, far)
-			) {}
-
-	};
-
-	class PerspectiveCamera : public Camera
-	{
-	public:
-		PerspectiveCamera(glm::vec3 position, glm::vec3 rotation, float fov, float aspect, float near, float far) : 
-			Camera(
-				position, rotation,
-				glm::perspective(glm::radians(fov), aspect, near, far)
-			) {}
-	};
-#define near
-#define far
-
 }

@@ -182,6 +182,7 @@
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
     <ClInclude Include="include\Game\GameConfig.h" />
     <ClInclude Include="include\Game\GameGraphics.h" />
+    <ClInclude Include="include\Game\Systems\CameraSystem.h" />
     <ClInclude Include="include\Game\Systems\GraphicsInterface.h" />
     <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h" />
     <ClInclude Include="include\Game\Systems\Movement2D.h" />
