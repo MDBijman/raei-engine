@@ -25,7 +25,6 @@ namespace Systems
 				auto& pos = ecs.getComponent<Components::Position2D>(entity);
 
 				glm::mat4 newMatrix = camera.camera.getMatrices().projection * camera.camera.getMatrices().view;
-				camera.camera.move(glm::vec3(0.0f, -10000.0f, 0.0f), 1.0f);
 				shader.getUniforms().upload<0>(context, newMatrix);
 			}
 		}
