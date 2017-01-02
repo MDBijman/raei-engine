@@ -43,9 +43,9 @@ namespace Graphics
 			{
 				attributes.bind(cmdBuffer);
 				if(attributes.isIndexed())
-					cmdBuffer.drawIndexed(attributes.getIndices().value().data.size(), 1, 0, 0, 0);
+					cmdBuffer.drawIndexed(static_cast<uint32_t>(attributes.getIndices().value().data.size()), 1, 0, 0, 0);
 				else
-					cmdBuffer.draw(attributes.getVertices().data.size(), 1, 0, 0);
+					cmdBuffer.draw(static_cast<uint32_t>(attributes.getVertices().data.size()), 1, 0, 0);
 			}
 
 		protected:

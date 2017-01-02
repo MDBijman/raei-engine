@@ -101,13 +101,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return (DefWindowProc(hWnd, uMsg, wParam, lParam));
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
+int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR pCmdLine, _In_ int nCmdShow)
 {
 	createWindowsContext(hInstance, WndProc, "triangle", 1280, 720);
 
 	AllocConsole();
 	//HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-	freopen("CONOUT$", "w", stdout);
+	auto consoleOut = freopen("CONOUT$", "w", stdout);
 
 	Game game(hInstance, window);
 	game.run();

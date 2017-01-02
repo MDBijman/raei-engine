@@ -83,7 +83,7 @@ namespace Importers
 			// Face
 			if(line[0] == 'f')
 			{
-				int values[9];
+				int values[9] = {0};
 
 				std::stringstream lineWithoutIdentifier(line.substr(2));
 

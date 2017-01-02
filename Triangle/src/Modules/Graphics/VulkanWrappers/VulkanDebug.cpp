@@ -28,15 +28,12 @@ VkBool32 messageCallback(
 		{
 			buf << "PERF: ";
 		}
-		else
-		{
-			return false;
-		}
 		buf << "[" << pLayerPrefix << "] Code " << msgCode << " : " << pMsg;
 		message = buf.str();
 	}
 
 	std::cout << message << std::endl;
+	return VK_FALSE;
 }
 
 VulkanDebug::VulkanDebug()

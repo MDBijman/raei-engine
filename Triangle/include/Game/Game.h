@@ -76,6 +76,7 @@ public:
 			ecs.addSystem<Systems::SpriteShaderSystem>(*graphics.renderer->context);
 			ecs.addSystem<Systems::GraphicsInterface>(&graphics);
 		}
+
 	}
 
 	void run()

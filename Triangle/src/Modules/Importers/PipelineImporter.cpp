@@ -45,7 +45,7 @@ namespace Importers
 				.setPDynamicState(&graphicsPipeline.dynamicStateInfo)
 				.setPDepthStencilState(&graphicsPipeline.depthStencilInfo)
 				.setPMultisampleState(&graphicsPipeline.multisampleInfo)
-				.setStageCount(graphicsPipeline.shaderStagesInfo.size())
+				.setStageCount(static_cast<uint32_t>(graphicsPipeline.shaderStagesInfo.size()))
 				.setPStages(graphicsPipeline.shaderStagesInfo.data())
 				.setRenderPass(rp);
 			graphicsPipeline.vk = device.createGraphicsPipelines(cache, pipelineCreateInfo).at(0);
@@ -154,7 +154,9 @@ namespace Importers
 				if(state == "scissor")
 					pipeline.dynamicStates.push_back(vk::DynamicState(vk::DynamicState::eScissor));
 			}
-			dynamicStateCreateInfo.setDynamicStateCount(pipeline.dynamicStates.size()).setPDynamicStates(pipeline.dynamicStates.data());
+			dynamicStateCreateInfo
+				.setDynamicStateCount(static_cast<uint32_t>(pipeline.dynamicStates.size()))
+				.setPDynamicStates(pipeline.dynamicStates.data());
 			return dynamicStateCreateInfo;
 		}
 

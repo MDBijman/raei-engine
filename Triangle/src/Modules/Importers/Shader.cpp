@@ -21,6 +21,9 @@ namespace Importers
 			fseek(fp, 0L, SEEK_SET);
 
 			shader_code = malloc(size);
+			if(shader_code == nullptr)
+				return nullptr;
+
 			retval = fread(shader_code, size, 1, fp);
 			assert(retval == 1);
 

@@ -160,9 +160,6 @@
     <ClInclude Include="include\Modules\Time\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Lisp\AST.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\IO\Input.h">
       <Filter>Header Files\Libraries\Input</Filter>
     </ClInclude>
