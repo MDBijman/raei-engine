@@ -259,9 +259,6 @@
     <ClInclude Include="include\Modules\Memory\Pool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Memory\StaticPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Attributes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -287,6 +284,9 @@
       <Filter>Header Files\Graphics\Data\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\OrderedTuple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Memory\Queue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -168,7 +168,7 @@
     <ClInclude Include="include\Game\Systems\Exit.h" />
     <ClInclude Include="include\Game\Systems\Input.h" />
     <ClInclude Include="include\Modules\Memory\Pool.h" />
-    <ClInclude Include="include\Modules\Memory\StaticPool.h" />
+    <ClInclude Include="include\Modules\Memory\Queue.h" />
     <ClInclude Include="include\Modules\ECS\Component.h" />
     <ClInclude Include="include\Modules\ECS\ECS.h" />
     <ClInclude Include="include\Modules\ECS\ECSManager.h" />
