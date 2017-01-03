@@ -1,4 +1,5 @@
 #pragma once
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include "Modules/Graphics/Graphics.h"
 #include "Modules/IO/Input.h"
 #include "Modules/ECS/ECS.h"
@@ -17,12 +18,16 @@ public:
 		graphics(hInstance, window),
 		gameState(PAUSED)
 	{
-		auto cameraEntity = ecs.createEntity();
-		ecs.addComponent(cameraEntity, Components::Position3D(0.0f, 0.0f, 1.0f));
-		ecs.addComponent(cameraEntity, Components::Orientation3D());
-		ecs.addComponent(cameraEntity, Components::Input(0.1f));
-		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(Graphics::Camera(90.0f, 1280.f / 720.f, 0.1f, 100.0f)));
 
+		auto mat = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 1.9001f);
+
+
+		auto cameraEntity = ecs.createEntity();
+		auto& pos = ecs.addComponent(cameraEntity, Components::Position3D(0.0f, 0.0f, 1.0f));
+		ecs.addComponent(cameraEntity, Components::Orientation3D());
+		//ecs.addComponent(cameraEntity, Components::Input(0.1f));
+		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(Graphics::Camera(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 100.0f))); //90.0f, 1280.f / 720.f, 0.1f, 100.0f)));
+		camera.camera.moveTo(pos.pos, glm::vec3());
 		
 		auto sprite = ecs.createEntity();
 		{

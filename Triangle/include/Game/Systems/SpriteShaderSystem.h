@@ -14,7 +14,7 @@ namespace Systems
 			auto cameras = ecs.filterEntities<Filter<Components::Camera2D>>();
 			if(cameras.size() == 0)
 				return;
-
+			
 			auto& camera = ecs.getComponent<Components::Camera2D>(cameras.at(0));
 
 			auto entities = ecs.filterEntities<Filter<Components::SpriteShader, Components::Position2D>>();
@@ -25,6 +25,7 @@ namespace Systems
 				auto& pos = ecs.getComponent<Components::Position2D>(entity);
 
 				glm::mat4 newMatrix = camera.camera.getMatrices().projection * camera.camera.getMatrices().view;
+				glm::vec4 res = newMatrix * glm::vec4(1.0f,  1.0f, 0.0f, 1.0f);
 				shader.getUniforms().upload<0>(context, newMatrix);
 			}
 		}

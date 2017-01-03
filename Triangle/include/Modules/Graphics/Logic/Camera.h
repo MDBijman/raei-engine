@@ -9,7 +9,8 @@ namespace Graphics
 	public:
 		Camera(float left, float right, float bottom, float top, float clipNear, float clipFar)
 		{
-			matrices.projection = glm::ortho(left, right, bottom, top, clipNear, clipFar);
+			matrices.projection = glm::ortho<float>(left, right, bottom, top, clipNear, clipFar);
+			
 			moveTo(glm::vec3(), glm::vec3());
 		}
 
