@@ -10,13 +10,13 @@ namespace Graphics
 		Camera(float left, float right, float bottom, float top, float clipNear, float clipFar)
 		{
 			matrices.projection = glm::ortho(left, right, bottom, top, clipNear, clipFar);
-			moveTo(glm::vec3()), glm::vec3());
+			moveTo(glm::vec3(), glm::vec3());
 		}
 
 		Camera(float fov, float aspect, float clipNear, float clipFar)
 		{
 			matrices.projection = glm::perspective(glm::radians(fov), aspect, clipNear, clipFar);
-			moveTo(glm::vec3()), glm::vec3());
+			moveTo(glm::vec3(), glm::vec3());
 		}
 
 		const auto& getMatrices()

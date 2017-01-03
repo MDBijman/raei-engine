@@ -20,7 +20,7 @@ public:
 		auto cameraEntity = ecs.createEntity();
 		ecs.addComponent(cameraEntity, Components::Position3D(0.0f, 0.0f, 1.0f));
 		ecs.addComponent(cameraEntity, Components::Orientation3D());
-		ecs.addComponent(cameraEntity, Components::Input());
+		ecs.addComponent(cameraEntity, Components::Input(0.1f));
 		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(Graphics::Camera(90.0f, 1280.f / 720.f, 0.1f, 100.0f)));
 
 		
@@ -91,7 +91,7 @@ public:
 			/////
 
 			IO::Polling::update();
-			ecs.updateSystems(t.dt());
+			ecs.updateSystems(t.dt() / 1000.0);
 
 			////
 

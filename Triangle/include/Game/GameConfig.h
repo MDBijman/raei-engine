@@ -4,6 +4,8 @@
 
 using MyComponentList = ComponentList<
 	Components::Position2D,
+	Components::Position3D,
+	Components::Orientation3D,
 	Components::Velocity2D,
 	Components::Camera2D,
 	Components::Texture,
@@ -19,7 +21,7 @@ using MyFilterList = FilterList<
 	Filter<Components::Position2D, Components::Velocity2D>,
 
 	// Input
-	Filter<Components::Input, Components::Position2D>,
+	Filter<Components::Input, Components::Position3D>,
 
 	// Rendering
 	Filter<Components::CommandBuffers, Components::Pipeline, Components::SpriteShader>,
@@ -31,7 +33,7 @@ using MyFilterList = FilterList<
 	Filter<Components::Camera2D>,
 
 	// Camera view matrix updates
-	Filter<Components::Camera2D, Components::Position2D>
+	Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>
 >;
 
 using MyECSManager = ECSManager<MyComponentList, MyFilterList>;

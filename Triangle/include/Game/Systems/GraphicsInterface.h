@@ -17,11 +17,9 @@ namespace Systems
 			auto cameras = ecs.filterEntities<Filter<Components::Camera2D>>();
 			auto& camera = ecs.getComponent<Components::Camera2D>(cameras.at(0));
 
-			auto entities = ecs.filterEntities<SpriteFilter>();
+			auto entities = ecs.filterEntities<Filter<Components::CommandBuffers, Components::Pipeline, Components::SpriteShader>>();
 			for (auto entity : entities)
 			{
-				//auto& texture = ecs.getComponent<Components::Texture>(entity);
-				//auto& mesh = ecs.getComponent<Components::Mesh>(entity);
 				auto& buffers = ecs.getComponent<Components::CommandBuffers>(entity);
 				auto& pipeline = ecs.getComponent<Components::Pipeline>(entity);
 				auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
