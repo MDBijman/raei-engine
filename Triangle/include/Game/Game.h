@@ -18,10 +18,6 @@ public:
 		graphics(hInstance, window),
 		gameState(PAUSED)
 	{
-
-		auto mat = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 1.9001f);
-
-
 		auto cameraEntity = ecs.createEntity();
 		auto& pos = ecs.addComponent(cameraEntity, Components::Position3D(0.0f, 0.0f, 1.0f));
 		ecs.addComponent(cameraEntity, Components::Orientation3D());
