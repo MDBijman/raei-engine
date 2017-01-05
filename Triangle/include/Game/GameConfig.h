@@ -21,7 +21,7 @@ using MyFilterList = FilterList<
 	Filter<Components::Position2D, Components::Velocity2D>,
 
 	// Input
-	Filter<Components::Input, Components::Position3D>,
+	Filter<Components::Input, Components::Position2D>,
 
 	// Rendering
 	Filter<Components::CommandBuffers, Components::Pipeline, Components::SpriteShader>,

@@ -10,6 +10,10 @@
 #include "Systems/Systems.h"
 #include "Modules/Importers/Obj.h"
 
+#include <chaiscript/chaiscript.hpp>
+#include <chaiscript/chaiscript_stdlib.hpp>
+#include <string>
+
 class Game
 {
 public:
@@ -18,17 +22,28 @@ public:
 		graphics(hInstance, window),
 		gameState(PAUSED)
 	{
+		chaiscript::ChaiScript chai(chaiscript::Std_Lib::library());
+		chai.add(chaiscript::fun([](const std::string& name) -> std::string {
+			return "Hello " + name + "!";
+		}), "helloWorld");
+
+		chai.eval(R"(
+			puts(helloWorld("Bob"));
+		)");
+
+
+
 		auto cameraEntity = ecs.createEntity();
 		auto& pos = ecs.addComponent(cameraEntity, Components::Position3D(0.0f, 0.0f, 1.0f));
 		ecs.addComponent(cameraEntity, Components::Orientation3D());
-		//ecs.addComponent(cameraEntity, Components::Input(0.1f));
-		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(Graphics::Camera(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 100.0f))); //90.0f, 1280.f / 720.f, 0.1f, 100.0f)));
+		auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(Graphics::Camera(-2.0f, 2.0f, -2.0f, 2.0f, 0.1f, 100.0f)));
 		camera.camera.moveTo(pos.pos, glm::vec3());
 		
 		auto sprite = ecs.createEntity();
 		{
 			ecs.addComponent(sprite, Components::Position2D());
 			ecs.addComponent(sprite, Components::Velocity2D());
+			ecs.addComponent(sprite, Components::Input(0.1f));
 
 			auto spriteData = Components::SpriteAttributes{
 				{
@@ -77,7 +92,6 @@ public:
 			ecs.addSystem<Systems::GraphicsInterface>(&graphics);
 			ecs.addSystem<Systems::CameraSystem>();
 		}
-		//camera.camera.move(glm::vec3(0.0f, 0.3f, 0.0f), 1.0f);
 	}
 
 	void run()
@@ -113,6 +127,5 @@ private:
 		FINISHED
 	} gameState;
 
-	float rotationSpeed = 0.3f;
 	double dt = 0.0;
 };

@@ -10,11 +10,11 @@ namespace Systems
 	public:
 		void update(MyECSManager& ecs, double dt) override
 		{
-			auto&& entities = ecs.filterEntities<Filter<Components::Input, Components::Position3D>>();
+			auto&& entities = ecs.filterEntities<Filter<Components::Input, Components::Position2D>>();
 			for (auto& entity : entities)
 			{
 				auto& input = ecs.getComponent<Components::Input>(entity);
-				auto& pos = ecs.getComponent<Components::Position3D>(entity);
+				auto& pos = ecs.getComponent<Components::Position2D>(entity);
 
 				// Lower precision
 				float lpDt = static_cast<float>(dt);

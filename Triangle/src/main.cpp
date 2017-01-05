@@ -1,3 +1,4 @@
+#pragma warning(disable : 4503)
 #include <Windows.h>
 #include <iostream>
 #include "Game/Game.h"
