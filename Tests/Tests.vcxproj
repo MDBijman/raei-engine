@@ -74,7 +74,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Dev\Game Programming\Vulkan-Renderer\external;C:\Dev\Game Programming\Vulkan-Renderer\Triangle\include;C:\Dev\Game Programming\Vulkan-Renderer\Tests\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external;$(SolutionDir)Triangle\include;$(SolutionDir)Tests\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions> /std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>

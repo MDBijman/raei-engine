@@ -27,6 +27,7 @@
 #undef max
 #pragma push_macro("min")
 #undef min
+#define RESTORE_MIN_MAX
 #endif
 
 
@@ -2441,7 +2442,7 @@ namespace chaiscript
 }
 
 
-#ifdef CHAISCRIPT_MSVC
+#if defined(CHAISCRIPT_MSVC) && defined(RESTORE_MIN_MAX)
 #pragma pop_macro("min")
 #pragma pop_macro("max")
 #endif

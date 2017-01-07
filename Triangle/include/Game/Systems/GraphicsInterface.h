@@ -2,35 +2,31 @@
 #include "Modules/ECS/ECS.h"
 #include "Game/GameConfig.h"
 #include "Game/Components/SpriteShader.h"
+#include "Modules/Graphics/Logic/Renderer.h"
 
 namespace Systems
 {
 	class GraphicsInterface : public MySystem
 	{
 	public:
-		explicit GraphicsInterface(GameGraphics* graphics) : graphics(graphics) {}
+		explicit GraphicsInterface(Graphics::Renderer* graphics) : graphics(graphics) {}
 
 		void update(MyECSManager& ecs, double dt) override
 		{
-			graphics->prepare();
+			auto frame = graphics->getFrame();
 
-			auto cameras = ecs.filterEntities<Filter<Components::Camera2D>>();
-			auto& camera = ecs.getComponent<Components::Camera2D>(cameras.at(0));
-
-			auto entities = ecs.filterEntities<Filter<Components::CommandBuffers, Components::Pipeline, Components::SpriteShader>>();
+			auto entities = ecs.filterEntities<Filter<Components::CommandBuffers>>();
 			for (auto entity : entities)
 			{
 				auto& buffers = ecs.getComponent<Components::CommandBuffers>(entity);
-				auto& pipeline = ecs.getComponent<Components::Pipeline>(entity);
-				auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
-
-				graphics->render(buffers, shader, camera);
+				
+				frame.addCommandBuffer(buffers.commandBuffers->at(graphics->getCurrentBuffer()));
 			}
-
-			graphics->present();
+			
+			graphics->submitFrame(frame);
 		}
 
 	private:
-		GameGraphics* graphics;
+		Graphics::Renderer* graphics;
 	};
 }

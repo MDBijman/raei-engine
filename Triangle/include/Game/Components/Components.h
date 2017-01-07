@@ -10,3 +10,4 @@
 #include "Pipeline.h"
 #include "CommandBuffers.h"
 #include "SpriteShader.h"
+#include "Scale2D.h"

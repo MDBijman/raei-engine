@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Components/Components.h"
 #include "Modules/ECS/ECS.h"
 
@@ -13,7 +14,8 @@ using MyComponentList = ComponentList<
 	Components::Pipeline,
 	Components::CommandBuffers,
 	Components::SpriteShader,
-	Components::Input
+	Components::Input,
+	Components::Scale2D
 >;
 
 using MyFilterList = FilterList<
@@ -24,10 +26,10 @@ using MyFilterList = FilterList<
 	Filter<Components::Input, Components::Position2D>,
 
 	// Rendering
-	Filter<Components::CommandBuffers, Components::Pipeline, Components::SpriteShader>,
+	Filter<Components::CommandBuffers>,
 
 	// Sprite uniform updates
-	Filter<Components::SpriteShader, Components::Position2D>,
+	Filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>,
 
 	// Camera Finding
 	Filter<Components::Camera2D>,

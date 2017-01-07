@@ -11,10 +11,10 @@ out gl_PerVertex {
 layout(location = 0) out vec2 outTexture;
 
 layout(binding = 0) uniform Camera {
-	mat4 projection;
+	mat4 mvp;
 };
 
 void main() {
-    gl_Position = projection * vec4(position, 0.0, 1.0);
+    gl_Position = mvp * vec4(position, 0.0, 1.0);
 	outTexture = texture;
 }

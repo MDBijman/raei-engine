@@ -107,9 +107,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "_CRT_SECURE_NO_WARNINGS" /std:c++latest /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "_CRT_SECURE_NO_WARNINGS" /std:c++latest /D "GLM_FORCE_DEPTH_ZERO_TO_ONE" /wd4503 %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
       <EnablePREfast>true</EnablePREfast>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(SolutionDir)external\vulkan-lib\vulkan-1.lib;$(SolutionDir)external\glfw\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -154,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Modules\Graphics\Logic\Pipeline.cpp" />
     <ClCompile Include="src\Modules\Graphics\Logic\Renderer.cpp" />
@@ -176,12 +178,12 @@
     <ClInclude Include="include\Game\Components\Position2D.h" />
     <ClInclude Include="include\Game\Components\Position3D.h" />
     <ClInclude Include="include\Game\Components\ComponentShader.h" />
+    <ClInclude Include="include\Game\Components\Scale2D.h" />
     <ClInclude Include="include\Game\Components\SpriteShader.h" />
     <ClInclude Include="include\Game\Components\Texture.h" />
     <ClInclude Include="include\Game\Components\Velocity2D.h" />
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
     <ClInclude Include="include\Game\GameConfig.h" />
-    <ClInclude Include="include\Game\GameGraphics.h" />
     <ClInclude Include="include\Game\Systems\CameraSystem.h" />
     <ClInclude Include="include\Game\Systems\GraphicsInterface.h" />
     <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h" />
@@ -189,6 +191,7 @@
     <ClInclude Include="include\Game\Systems\Systems.h" />
     <ClInclude Include="include\Game\Systems\Exit.h" />
     <ClInclude Include="include\Game\Systems\Input.h" />
+    <ClInclude Include="include\Modules\Graphics\Logic\Frame.h" />
     <ClInclude Include="include\Modules\Memory\Pool.h" />
     <ClInclude Include="include\Modules\Memory\Queue.h" />
     <ClInclude Include="include\Modules\ECS\Component.h" />
@@ -236,11 +239,15 @@
     <None Include="res\shaders\compiled\mesh.vert.spv" />
     <None Include="res\shaders\compiled\sprite.frag.spv" />
     <None Include="res\shaders\compiled\sprite.vert.spv" />
+    <None Include="res\shaders\compiled\sprite2.frag.spv" />
+    <None Include="res\shaders\compiled\sprite2.vert.spv" />
     <None Include="res\shaders\default-pipeline.json" />
     <None Include="res\shaders\spirv-mesh.bat" />
     <None Include="res\shaders\sprite-pipeline.json" />
     <None Include="res\shaders\sprite.frag" />
     <None Include="res\shaders\sprite.vert" />
+    <None Include="res\shaders\sprite2.frag" />
+    <None Include="res\shaders\sprite2.vert" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bad_car.obj">

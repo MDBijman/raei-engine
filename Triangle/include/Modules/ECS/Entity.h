@@ -40,7 +40,7 @@ private:
 	}
 
 	/*
-		Returns true if this entity has the given component type.
+		Returns true if this entity has a component of the given type.
 	*/
 	template<class ComponentType>
 	bool hasComponent()
@@ -50,7 +50,7 @@ private:
 	}
 
 	/*
-		Sets the corresponding bit of the type to 1.
+		Sets the bit of the corresponding type to 1.
 	*/
 	template<class ComponentType>
 	void addComponent()
@@ -60,7 +60,7 @@ private:
 	}
 
 	/*
-		Sets the corresponding bit of the type to 0.
+		Sets the bit of the corresponding type to 0.
 	*/
 	template<class ComponentType>
 	void removeComponent()

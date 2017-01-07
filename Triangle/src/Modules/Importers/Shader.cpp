@@ -22,13 +22,17 @@ namespace Importers
 
 			shader_code = malloc(size);
 			if(shader_code == nullptr)
+			{
+				fclose(fp);
 				return nullptr;
+			}
 
 			retval = fread(shader_code, size, 1, fp);
 			assert(retval == 1);
 
 			*psize = size;
 
+			fclose(fp);
 			return static_cast<char*>(shader_code);
 		}
 

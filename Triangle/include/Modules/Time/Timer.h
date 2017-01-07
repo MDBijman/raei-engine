@@ -17,7 +17,7 @@ namespace Time
 		/*
 			Ends the timer and sets the dt to time elapsed since start().
 		*/
-		void end()
+		void stop()
 		{
 			auto endTime = std::chrono::high_resolution_clock::now();
 			delta = std::chrono::duration<double, std::milli>(endTime - time).count();

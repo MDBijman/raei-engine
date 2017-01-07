@@ -1,5 +1,6 @@
 #pragma once
 #include "Modules/ECS/Component.h"
+#include "Modules/Graphics/Logic/Pipeline.h"
 #include <glm/glm.hpp>
 
 namespace Components

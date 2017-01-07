@@ -75,41 +75,6 @@ namespace Graphics
 		renderComplete = context->device.createSemaphore(semaphoreCreateInfo);
 	}
 
-	void Renderer::prepare()
-	{
-		swapchain->acquireNextImage(presentComplete, &currentBuffer);
-		submitPostPresentBarrier(swapchain->images[currentBuffer]);
-	}
-
-	void Renderer::submit(vk::CommandBuffer& buffer) const
-	{
-		// The submit info structure contains a list of
-		// command buffers and semaphores to be submitted to a queue
-		// If you want to submit multiple command buffers, pass an array
-		vk::SubmitInfo submitInfo;
-		vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eBottomOfPipe;
-		submitInfo
-			.setCommandBufferCount(1)
-			.setPCommandBuffers(&buffer)
-			.setPWaitDstStageMask(&submitPipelineStages)
-			.setSignalSemaphoreCount(1)
-			.setPSignalSemaphores(&renderComplete)
-			.setWaitSemaphoreCount(1)
-			.setPWaitSemaphores(&presentComplete);
-
-		// Submit to the graphics queue
-		queue->submit(1, &submitInfo, nullptr);
-	}
-
-	void Renderer::present() const
-	{
-		submitPrePresentBarrier(swapchain->images[currentBuffer]);
-
-		swapchain->queuePresent(*queue, currentBuffer, renderComplete);
-
-		queue->waitIdle();
-	}
-
 	void Renderer::submitPostPresentBarrier(vk::Image image) const
 	{
 		vk::CommandBufferBeginInfo cmdBufInfo = vk::CommandBufferBeginInfo();
@@ -287,6 +252,43 @@ namespace Graphics
 	uint32_t Renderer::getCurrentBuffer() const
 	{
 		return currentBuffer;
+	}
+
+	Frame Renderer::getFrame() const
+	{
+		return Frame(context.get());
+	}
+
+	void Renderer::submitFrame(const Frame& frame)
+	{
+		queue->waitIdle();
+		swapchain->acquireNextImage(presentComplete, &currentBuffer);
+		submitPostPresentBarrier(swapchain->images[currentBuffer]);
+
+		for(auto& buffer : frame.buffers)
+		{
+			// The submit info structure contains a list of
+			// command buffers and semaphores to be submitted to a queue
+			// If you want to submit multiple command buffers, pass an array
+			vk::SubmitInfo submitInfo;
+			vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eBottomOfPipe;
+			submitInfo
+				.setCommandBufferCount(1)
+				.setPCommandBuffers(&buffer)
+				.setWaitSemaphoreCount(1)
+				.setPWaitSemaphores(&presentComplete)
+				.setPWaitDstStageMask(&submitPipelineStages);
+			//.setSignalSemaphoreCount(1)
+			//.setPSignalSemaphores(&renderComplete);
+
+			// Submit to the graphics queue
+			queue->submit(1, &submitInfo, nullptr);
+		}
+
+		queue->waitIdle();
+		submitPrePresentBarrier(swapchain->images[currentBuffer]);
+
+		swapchain->queuePresent(*queue, currentBuffer, nullptr);
 	}
 
 	void Renderer::submitPrePresentBarrier(vk::Image image) const

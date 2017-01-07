@@ -17,16 +17,21 @@ namespace Systems
 			
 			auto& camera = ecs.getComponent<Components::Camera2D>(cameras.at(0));
 
-			auto entities = ecs.filterEntities<Filter<Components::SpriteShader, Components::Position2D>>();
+			auto entities = ecs.filterEntities<Filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>>();
 
 			for(auto entity : entities)
 			{
 				auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
 				auto& pos = ecs.getComponent<Components::Position2D>(entity);
+				auto& scale2d = ecs.getComponent<Components::Scale2D>(entity);
 
-				glm::mat4 newMatrix = camera.camera.getMatrices().projection * camera.camera.getMatrices().view;
-				glm::vec4 res = newMatrix * glm::vec4(1.0f,  1.0f, 0.0f, 1.0f);
-				shader.getUniforms().upload<0>(context, newMatrix);
+				auto scale = glm::scale(glm::mat4(), glm::vec3(scale2d.scale, 1.0f));
+				auto translate = glm::translate(glm::mat4(), glm::vec3(pos.pos, 0.0f));
+				auto model = translate * scale;
+				
+				
+				glm::mat4 mvp = camera.camera.getMatrices().projection * camera.camera.getMatrices().view * model;
+				shader.getUniforms().upload<0>(context, mvp);
 			}
 		}
 

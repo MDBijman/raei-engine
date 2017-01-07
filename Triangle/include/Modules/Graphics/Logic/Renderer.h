@@ -6,8 +6,9 @@
 #include <vulkan/vulkan.hpp>
 #include <glm/detail/type_vec2.hpp>
 
-#include "Modules/Graphics/Logic/Swapchain.h"
-#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
+#include "Swapchain.h"
+#include "Frame.h"
+#include "../VulkanWrappers/VulkanContext.h"
 
 namespace Graphics
 {
@@ -25,10 +26,6 @@ namespace Graphics
 	public:
 		Renderer(WindowsContext context);
 
-		void prepare();
-		void submit(vk::CommandBuffer& buffer) const;
-		void present() const;
-
 		std::shared_ptr<VulkanContext> context;
 		std::shared_ptr<VulkanSwapChain> swapchain;
 		std::shared_ptr<vk::Queue> queue;
@@ -43,6 +40,9 @@ namespace Graphics
 		std::vector<vk::Framebuffer>   frameBuffers;
 
 		uint32_t getCurrentBuffer() const;
+
+		Frame getFrame() const;
+		void submitFrame(const Frame& frame);
 
 	private:
 		struct
