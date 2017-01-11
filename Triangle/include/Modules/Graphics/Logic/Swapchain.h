@@ -124,7 +124,7 @@ public:
 		colorSpace = surfaceFormats[0].colorSpace;
 	}
 
-	void setup(vk::CommandBuffer cmdBuffer, uint32_t *width, uint32_t *height)
+	void setup(vk::CommandBuffer& cmdBuffer, uint32_t *width, uint32_t *height)
 	{
 		VkSwapchainKHR oldSwapchain = swapChain;
 
@@ -263,12 +263,12 @@ public:
 	}
 
 	// Present the current image to the queue
-	void queuePresent(vk::Queue queue, uint32_t currentBuffer)
+	void queuePresent(vk::Queue queue, uint32_t* currentBuffer)
 	{
 		vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
 			.setSwapchainCount(1)
 			.setPSwapchains(&swapChain)
-			.setPImageIndices(&currentBuffer);
+			.setPImageIndices(currentBuffer);
 		queue.presentKHR(presentInfo);
 	}
 

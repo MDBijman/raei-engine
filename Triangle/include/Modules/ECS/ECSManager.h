@@ -1,6 +1,6 @@
 #pragma once
-#include "Entity.h"
 #include "Component.h"
+#include "Entity.h"
 #include "System.h"
 #include "Modules/TemplateUtils/TypeIndex.h"
 

@@ -47,9 +47,9 @@ namespace Graphics
 		prepareFramebuffers(windows.width, windows.height);
 		setupCmdBuffer.end();
 
-		std::vector<vk::CommandBuffer> buffers{ setupCmdBuffer };
 		vk::SubmitInfo submitInfo = vk::SubmitInfo()
-			.setPCommandBuffers(buffers.data());
+			.setCommandBufferCount(1)
+			.setPCommandBuffers(&setupCmdBuffer);
 
 		queue->submit(1, &submitInfo, nullptr);
 		queue->waitIdle();
@@ -86,8 +86,9 @@ namespace Graphics
 			.setLevelCount(1)
 			.setBaseArrayLayer(0)
 			.setLayerCount(1);
-
+		
 		vk::ImageMemoryBarrier postPresentBarrier = vk::ImageMemoryBarrier()
+			//.setSrcAccessMask(vk::AccessFlagBits::eTransferRead)
 			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
 			.setOldLayout(vk::ImageLayout::eUndefined)
 			.setNewLayout(vk::ImageLayout::eColorAttachmentOptimal)
@@ -96,15 +97,19 @@ namespace Graphics
 
 		postPresentCmdBuffer.pipelineBarrier(
 			vk::PipelineStageFlagBits::eAllCommands,
-			vk::PipelineStageFlagBits::eTopOfPipe,
+			vk::PipelineStageFlagBits::eAllCommands,
 			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &postPresentBarrier
 		);
 
 		postPresentCmdBuffer.end();
 
+		vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eTopOfPipe;
 		vk::SubmitInfo submitInfo = vk::SubmitInfo()
 			.setCommandBufferCount(1)
-			.setPCommandBuffers(&postPresentCmdBuffer);
+			.setPCommandBuffers(&postPresentCmdBuffer)
+			.setWaitSemaphoreCount(1)
+			.setPWaitSemaphores(&presentComplete)
+			.setPWaitDstStageMask(&submitPipelineStages);
 		queue->submit(1, &submitInfo, nullptr);
 	}
 
@@ -265,30 +270,31 @@ namespace Graphics
 		swapchain->acquireNextImage(presentComplete, &currentBuffer);
 		submitPostPresentBarrier(swapchain->images[currentBuffer]);
 
+		/*
+			The second synchronization scope of the semaphore attached to the first command buffer includes all other buffers submitted
+			to the queue afterwards.
+				From 6.3.2: "Also, in the case of vkQueueSubmit, the second synchronization scope additionally includes all batches
+			subsequently submitted to the same queue via vkQueueSubmit, including batches that are submitted in the same
+			queue submission command, but at a higher index within the array of batches."
+		*/
+
+
+
 		for(auto& buffer : frame.buffers)
 		{
-			// The submit info structure contains a list of
-			// command buffers and semaphores to be submitted to a queue
-			// If you want to submit multiple command buffers, pass an array
 			vk::SubmitInfo submitInfo;
-			vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eBottomOfPipe;
+			vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eTopOfPipe;
 			submitInfo
 				.setCommandBufferCount(1)
-				.setPCommandBuffers(&buffer)
-				.setWaitSemaphoreCount(1)
-				.setPWaitSemaphores(&presentComplete)
-				.setPWaitDstStageMask(&submitPipelineStages);
-			//.setSignalSemaphoreCount(1)
-			//.setPSignalSemaphores(&renderComplete);
-
-			// Submit to the graphics queue
+				.setPCommandBuffers(&buffer);
 			queue->submit(1, &submitInfo, nullptr);
 		}
+		
 
 		queue->waitIdle();
 		submitPrePresentBarrier(swapchain->images[currentBuffer]);
 
-		swapchain->queuePresent(*queue, currentBuffer, nullptr);
+		swapchain->queuePresent(*queue, &currentBuffer);
 	}
 
 	void Renderer::submitPrePresentBarrier(vk::Image image) const
@@ -311,7 +317,7 @@ namespace Graphics
 
 		prePresentCmdBuffer.pipelineBarrier(
 			vk::PipelineStageFlagBits::eAllCommands,
-			vk::PipelineStageFlagBits::eTopOfPipe,
+			vk::PipelineStageFlagBits::eAllCommands,
 			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1,
 			&prePresentBarrier
 		);

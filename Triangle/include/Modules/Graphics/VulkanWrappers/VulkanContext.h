@@ -36,7 +36,8 @@ namespace Graphics
 			vk::ApplicationInfo applicationInfo = vk::ApplicationInfo()
 				.setPApplicationName(name.c_str())
 				.setPEngineName(name.c_str())
-				.setEngineVersion(1);
+				.setEngineVersion(1)
+				.setApiVersion(VK_MAKE_VERSION(1, 0, 37));
 
 			vk::InstanceCreateInfo instanceCreateInfo = vk::InstanceCreateInfo()
 				.setPApplicationInfo(&applicationInfo)
