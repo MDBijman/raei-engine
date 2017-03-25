@@ -1,7 +1,5 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
-#include "Game/GameConfig.h"
-
+#include "Modules/ECS/System.h"
 
 namespace Systems
 {
@@ -10,7 +8,7 @@ namespace Systems
 	public:
 		void update(MyECSManager& ecs, double dt) override
 		{
-			auto entities = ecs.filterEntities<Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>>();
+			auto entities = ecs.filterEntities<ECS::Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>>();
 		
 			for(auto entity : entities)
 			{

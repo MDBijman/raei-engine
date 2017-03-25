@@ -1,13 +1,10 @@
+#include "stdafx.h"
 #include "Modules/Importers/PipelineImporter.h"
 
 #include "Modules/Graphics/Logic/Pipeline.h"
 #include "Modules/Importers/Shader.h"
 #include "Modules/Importers/JSON.h"
-
 #include <fstream>
-#include <sstream>
-#include <assert.h>
-#include <vector>
 
 namespace Importers
 {

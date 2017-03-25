@@ -1,5 +1,6 @@
 #pragma once
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
+namespace vk { class Instance; }
 
 VkBool32 messageCallback(
 	VkDebugReportFlagsEXT flags,
@@ -17,7 +18,7 @@ class VulkanDebug
 public:
 	VulkanDebug();
 
-	void initDebugging(vk::Instance instance);
+	void initDebugging(vk::Instance& instance);
 
 	PFN_vkCreateDebugReportCallbackEXT createDebugReportCallback = VK_NULL_HANDLE;
 	PFN_vkDestroyDebugReportCallbackEXT destroyDebugReportCallback = VK_NULL_HANDLE;

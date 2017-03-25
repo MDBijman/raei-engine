@@ -1,6 +1,4 @@
 #pragma once
-#include <tuple>
-#include <vulkan/VULKAN.HPP>
 #include "Modules/Graphics/Shaders/GPUBuffer.h"
 #include "Modules/TemplateUtils/TemplatePackSize.h"
 #include "Modules/TemplateUtils/OrderedTuple.h"

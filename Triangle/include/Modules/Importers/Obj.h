@@ -1,6 +1,8 @@
 #pragma once
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
 #include <string>
-#include <glm/glm.hpp>
+#include <tuple>
 #include <vector>
 
 namespace Importers

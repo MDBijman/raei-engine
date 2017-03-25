@@ -1,7 +1,7 @@
 #pragma once
-#include <vulkan/VULKAN.HPP>
 #include "../VulkanWrappers/VulkanContext.h"
 #include "Renderer.h"
+#include <vector>
 
 namespace Graphics
 {
@@ -10,16 +10,13 @@ namespace Graphics
 		friend class Renderer;
 
 	public:
-		Frame(VulkanContext* context) : context(context) {}
-
-		Frame& addCommandBuffer(vk::CommandBuffer buffer)
+		Frame& addCommandBuffer(vk::CommandBuffer* buffer)
 		{
 			buffers.push_back(buffer);
 			return *this;
 		}
 
 	private:
-		VulkanContext* context;
-		std::vector<vk::CommandBuffer> buffers;
+		std::vector<vk::CommandBuffer*> buffers;
 	};
 }

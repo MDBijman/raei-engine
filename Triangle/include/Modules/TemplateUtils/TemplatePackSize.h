@@ -1,4 +1,7 @@
 #pragma once
+
+// TODO fix namespace and naming convention
+
 template<class... T>
 struct packSize;
 

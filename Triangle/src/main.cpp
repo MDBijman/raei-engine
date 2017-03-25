@@ -1,6 +1,6 @@
 #pragma warning(disable : 4503)
+#include "stdafx.h"
 #include <Windows.h>
-#include <iostream>
 #include "Game/Game.h"
 #include "Modules/IO/Input.h"
 

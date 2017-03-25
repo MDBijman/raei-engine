@@ -17,7 +17,7 @@ namespace Graphics
 		class Shader<Attributes<A...>, Uniforms<U...>>
 		{
 		public:
-			Shader(Attributes<A...>&& attributes, Uniforms<U...>&& uniforms) : attributes(std::move(attributes)), uniforms(std::move(uniforms))
+			Shader(Attributes<A...>&& attributes, Uniforms<U...>&& uniforms) : attributes(std::forward<Attributes<A...>>(attributes)), uniforms(std::forward<Uniforms<U...>>(uniforms))
 			{}
 
 			Shader(Shader&& other) : attributes(std::move(other.attributes)), uniforms(std::move(other.uniforms))

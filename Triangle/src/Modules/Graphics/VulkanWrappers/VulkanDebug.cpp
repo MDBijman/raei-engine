@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include "Modules/Graphics/VulkanWrappers/VulkanDebug.h"
+#include <vulkan/VULKAN.HPP>
 #include <iostream>
 #include <sstream>
 
@@ -39,7 +41,7 @@ VkBool32 messageCallback(
 VulkanDebug::VulkanDebug()
 {}
 
-void VulkanDebug::initDebugging(vk::Instance instance)
+void VulkanDebug::initDebugging(vk::Instance& instance)
 {
 	createDebugReportCallback = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
 	destroyDebugReportCallback = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");

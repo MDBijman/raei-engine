@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include "Modules/IO/Logging.h"
+#include <string>
 #include <iostream>
 
 namespace Logging

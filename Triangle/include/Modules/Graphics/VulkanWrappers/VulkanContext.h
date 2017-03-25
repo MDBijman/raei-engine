@@ -1,9 +1,7 @@
 #pragma once
-#include <vector>
-#include <iostream>
-#include <vulkan/vulkan.hpp>
-#include <sstream>
 #include "VulkanDebug.h"
+#include <vulkan/VULKAN.HPP>
+#include <iostream>
 
 namespace Graphics
 {
@@ -37,7 +35,7 @@ namespace Graphics
 				.setPApplicationName(name.c_str())
 				.setPEngineName(name.c_str())
 				.setEngineVersion(1)
-				.setApiVersion(VK_MAKE_VERSION(1, 0, 37));
+				.setApiVersion(VK_MAKE_VERSION(1, 0, 39));
 
 			vk::InstanceCreateInfo instanceCreateInfo = vk::InstanceCreateInfo()
 				.setPApplicationInfo(&applicationInfo)

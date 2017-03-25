@@ -1,12 +1,11 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
+#include "Modules/ECS/Component.h"
 #include "Modules/Importers/PipelineImporter.h"
 #include "Modules/Graphics/Graphics.h"
-#include "Components.h"
 
 namespace Components
 {
-	class Pipeline : public Component
+	class Pipeline : public ECS::Component
 	{
 	public:
 		template<class ShaderType>

@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
+#include "Modules/ECS/System.h"
 #include "Modules/IO/Input.h"
 #include "Game/GameConfig.h"
 

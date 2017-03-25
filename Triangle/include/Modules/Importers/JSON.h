@@ -1,9 +1,8 @@
 #pragma once
-#include <algorithm>
-#include <vector>
 #include <map>
+#include <vector>
+#include <string>
 #include <sstream>
-
 
 namespace JSON
 {

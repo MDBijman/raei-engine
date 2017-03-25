@@ -1,9 +1,10 @@
+#include "stdafx.h"
 #include "Modules/Importers/Obj.h"
 #include <glm/glm.hpp>
 #include <sstream>
-#include <vector>
-#include <tuple>
+#include <string>
 #include <fstream>
+#include <vector>
 
 namespace Importers
 {

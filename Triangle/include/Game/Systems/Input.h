@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
+#include "Modules/ECS/System.h"
 #include "Modules/IO/Input.h"
 #include "Game/GameConfig.h"
 
@@ -10,7 +10,7 @@ namespace Systems
 	public:
 		void update(MyECSManager& ecs, double dt) override
 		{
-			auto&& entities = ecs.filterEntities<Filter<Components::Input, Components::Position2D>>();
+			auto&& entities = ecs.filterEntities<ECS::Filter<Components::Input, Components::Position2D>>();
 			for (auto& entity : entities)
 			{
 				auto& input = ecs.getComponent<Components::Input>(entity);

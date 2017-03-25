@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B43DE150-FEC5-415F-9DFF-16D876EED3D4}</ProjectGuid>
     <RootNamespace>Triangle</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
     <ProjectName>Game</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -81,10 +81,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,9 +97,14 @@
       <AdditionalOptions>/D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
       <EnablePREfast>true</EnablePREfast>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)external\vulkan-lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)external\vulkan\vulkan.lib;$(SolutionDir)external\lua\lua53.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -107,13 +114,18 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "_CRT_SECURE_NO_WARNINGS" /std:c++latest /D "GLM_FORCE_DEPTH_ZERO_TO_ONE" /wd4503 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "_CRT_SECURE_NO_WARNINGS" /D "GLM_FORCE_DEPTH_ZERO_TO_ONE" /wd4503 %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
       <EnablePREfast>true</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)external\vulkan-lib\vulkan-1.lib;$(SolutionDir)external\glfw\glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)external\vulkan\vulkan.lib;$(SolutionDir)external\lua\lua53_x64_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -127,12 +139,20 @@
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
       <EnablePREfast>true</EnablePREfast>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalOptions>
+      </AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ShowIncludes>false</ShowIncludes>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)external\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)external\vulkan\vulkan.lib;$(SolutionDir)external\lua\lua53.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -143,15 +163,21 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D "VK_USE_PLATFORM_WIN32_KHR" /D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "VK_USE_PLATFORM_WIN32_KHR" /D "_CRT_SECURE_NO_WARNINGS" /std:c++latest %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
       <EnablePREfast>true</EnablePREfast>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ShowIncludes>false</ShowIncludes>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)external\vulkan-lib\vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)external\vulkan\vulkan.lib;$(SolutionDir)external\lua\lua53_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>NotSet</SubSystem>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -166,12 +192,18 @@
     <ClCompile Include="src\Modules\IO\Input.cpp" />
     <ClCompile Include="src\Modules\IO\Logging.cpp" />
     <ClCompile Include="src\Modules\Math\Matrices.cpp" />
+    <ClCompile Include="src\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Game\Components\CameraID.h" />
     <ClInclude Include="include\Game\Components\CommandBuffers.h" />
-    <ClInclude Include="include\Game\Components\Components.h" />
     <ClInclude Include="include\Game\Components\Camera2D.h" />
+    <ClInclude Include="include\Game\Components\Dummy.h" />
     <ClInclude Include="include\Game\Components\Input.h" />
     <ClInclude Include="include\Game\Components\Orientation3D.h" />
     <ClInclude Include="include\Game\Components\Pipeline.h" />
@@ -184,6 +216,7 @@
     <ClInclude Include="include\Game\Components\Velocity2D.h" />
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
     <ClInclude Include="include\Game\GameConfig.h" />
+    <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\Game\Systems\CameraSystem.h" />
     <ClInclude Include="include\Game\Systems\GraphicsInterface.h" />
     <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h" />
@@ -191,11 +224,14 @@
     <ClInclude Include="include\Game\Systems\Systems.h" />
     <ClInclude Include="include\Game\Systems\Exit.h" />
     <ClInclude Include="include\Game\Systems\Input.h" />
+    <ClInclude Include="include\Modules\ECSFactory\Traits.h" />
+    <ClInclude Include="include\Modules\ECS\Traits.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\Frame.h" />
+    <ClInclude Include="include\Modules\ECSFactory\ECSFactory.h" />
+    <ClInclude Include="include\Modules\LuaECS\LuaECS.h" />
     <ClInclude Include="include\Modules\Memory\Pool.h" />
     <ClInclude Include="include\Modules\Memory\Queue.h" />
     <ClInclude Include="include\Modules\ECS\Component.h" />
-    <ClInclude Include="include\Modules\ECS\ECS.h" />
     <ClInclude Include="include\Modules\ECS\ECSManager.h" />
     <ClInclude Include="include\Modules\ECS\Entity.h" />
     <ClInclude Include="include\Modules\ECS\System.h" />
@@ -209,6 +245,7 @@
     <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDebug.h" />
     <ClInclude Include="include\Modules\IO\Logging.h" />
     <ClInclude Include="include\Modules\TemplateUtils\ForEachInTuple.h" />
+    <ClInclude Include="include\Modules\TemplateUtils\IsDefined.h" />
     <ClInclude Include="include\Modules\TemplateUtils\OrderedTuple.h" />
     <ClInclude Include="include\Modules\TemplateUtils\TemplatePackSize.h" />
     <ClInclude Include="include\Modules\TemplateUtils\TypeIndex.h" />
@@ -228,12 +265,14 @@
     <ClInclude Include="include\Modules\Math\Matrices.h" />
     <ClInclude Include="include\Game\Game.h" />
     <ClInclude Include="include\Modules\TemplateUtils\TypeSizeSum.h" />
+    <ClInclude Include="include\Modules\TemplateUtils\VariadicLogicalAnd.h" />
     <ClInclude Include="include\Modules\Time\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\game.json" />
     <None Include="res\default-pipeline.json" />
     <None Include="res\mesh-shader-metadata.json" />
+    <None Include="res\scripts\startup\TestSystem.lua" />
     <None Include="res\shaders\compile.bat" />
     <None Include="res\shaders\compiled\mesh.frag.spv" />
     <None Include="res\shaders\compiled\mesh.vert.spv" />

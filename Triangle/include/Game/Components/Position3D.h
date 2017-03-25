@@ -1,9 +1,10 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
+#include "Modules/ECS/Component.h"
+#include <glm/vec3.hpp>
 
 namespace Components
 {
-	class Position3D : public Component
+	class Position3D : public ECS::Component
 	{
 	public:
 		Position3D() {}

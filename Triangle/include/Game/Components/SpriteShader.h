@@ -1,6 +1,9 @@
 #pragma once
-#include "Modules/Graphics/Graphics.h"
 #include "ComponentShader.h"
+#include "Modules/Graphics/Shaders/Attributes/Vec2.h"
+#include "Modules/Graphics/Shaders/Uniforms/UniformBuffer.h"
+#include "Modules/Graphics/Shaders/Attributes/Attributes.h"
+#include "Modules/Graphics/Shaders/Uniforms/Uniforms.h"
 
 namespace Components
 {

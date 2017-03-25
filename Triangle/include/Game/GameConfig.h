@@ -1,9 +1,21 @@
 #pragma once
+#include "Modules/ECS/ECSManager.h"
+#include "Components/SpriteShader.h"
+#include "Components/Camera2D.h"
+#include "Components/CameraID.h"
+#include "Components/Input.h"
+#include "Components/Position2D.h"
+#include "Components/Velocity2D.h"
+#include "Components/Orientation3D.h"
+#include "Components/Position3D.h"
+#include "Components/Velocity3D.h"
+#include "Components/Texture.h"
+#include "Components/Pipeline.h"
+#include "Components/CommandBuffers.h"
+#include "Components/Scale2D.h"
+#include "Components/Dummy.h"
 
-#include "Components/Components.h"
-#include "Modules/ECS/ECS.h"
-
-using MyComponentList = ComponentList<
+using MyComponentList = ECS::ComponentList<
 	Components::Position2D,
 	Components::Position3D,
 	Components::Orientation3D,
@@ -18,25 +30,25 @@ using MyComponentList = ComponentList<
 	Components::Scale2D
 >;
 
-using MyFilterList = FilterList<
+using MyFilterList = ECS::FilterList<
 	// Movement
-	Filter<Components::Position2D, Components::Velocity2D>,
+	ECS::Filter<Components::Position2D, Components::Velocity2D>,
 
 	// Input
-	Filter<Components::Input, Components::Position2D>,
+	ECS::Filter<Components::Input, Components::Position2D>,
 
 	// Rendering
-	Filter<Components::CommandBuffers>,
+	ECS::Filter<Components::CommandBuffers>,
 
 	// Sprite uniform updates
-	Filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>,
+	ECS::Filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>,
 
 	// Camera Finding
-	Filter<Components::Camera2D>,
+	ECS::Filter<Components::Camera2D>,
 
 	// Camera view matrix updates
-	Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>
+	ECS::Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>
 >;
 
-using MyECSManager = ECSManager<MyComponentList, MyFilterList>;
-using MySystem = System<MyComponentList, MyFilterList>;
+using MyECSManager = ECS::ECSManager<MyComponentList, MyFilterList>;
+using MySystem = ECS::System<MyComponentList, MyFilterList>;

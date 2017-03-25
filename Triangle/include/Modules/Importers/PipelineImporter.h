@@ -1,6 +1,6 @@
 #pragma once
 #include "Modules/Graphics/Logic/Pipeline.h"
-#include "Modules/Importers/JSON.h"
+namespace JSON { class JSON; }
 
 #include <vector>
 

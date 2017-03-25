@@ -1,13 +1,16 @@
 #pragma once
 #include <stdint.h>
 
-class Component
+namespace ECS
 {
-public:
+	class Component
+	{
+	public:
 
-private:
-	template<class A, class B>
-	friend class ECSManager;
+	private:
+		template<class A, class B>
+		friend class ECSManager;
 
-	uint32_t parent;
-};
+		uint32_t parent;
+	};
+}

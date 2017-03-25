@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Modules/Graphics/Logic/Pipeline.h"
 
 namespace Graphics

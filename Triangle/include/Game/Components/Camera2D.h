@@ -1,14 +1,14 @@
 #pragma once
 #include "Modules/ECS/Component.h"
-#include "Modules/Graphics/Graphics.h"
+namespace Graphics { class Camera; }
 
 namespace Components
 {
-	class Camera2D : public Component
+	class Camera2D : public ECS::Component
 	{
 	public:
-		Camera2D(Graphics::Camera c) : camera(c) {}
+		Camera2D(Graphics::Camera& c) : camera(c) {}
 
-		Graphics::Camera camera;
+		Graphics::Camera& camera;
 	};
 }

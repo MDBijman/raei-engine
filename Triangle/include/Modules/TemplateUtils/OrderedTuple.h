@@ -1,5 +1,6 @@
 #pragma once
 
+// TODO fix these namespaces
 namespace Graphics
 {
 	namespace Data

@@ -1,9 +1,9 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
+#include "Modules/ECS/Component.h"
 
 namespace Components
 {
-	class Input : public Component
+	class Input : public ECS::Component
 	{
 	public:
 		float speed;

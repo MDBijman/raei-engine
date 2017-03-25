@@ -1,6 +1,7 @@
+#include "stdafx.h"
 #include "Modules/Importers/Shader.h"
 #include <cstdio>
-#include <cassert>
+#include <assert.h>
 
 namespace Importers
 {

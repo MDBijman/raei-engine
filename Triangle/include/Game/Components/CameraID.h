@@ -1,9 +1,9 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
+#include "Modules/ECS/Component.h"
 
 namespace Components
 {
-	class CameraID : public Component
+	class CameraID : public ECS::Component
 	{
 	public:
 		explicit CameraID(uint32_t id) : id(id) {}

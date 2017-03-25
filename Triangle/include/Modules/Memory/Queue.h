@@ -3,18 +3,8 @@
 
 namespace Memory
 {
-	template<class T>
-	class Queue
-	{
-	public:
-		virtual bool enqueue(T t) = 0;
-		virtual std::optional<T> dequeue() = 0;
-		virtual std::optional<T> peek() = 0;
-		virtual size_t size() = 0;
-	};
-
 	template<int SIZE, class T>
-	class RingBuffer : Queue<T>
+	class RingBuffer
 	{
 	public:
 		static_assert(SIZE > 0, "Queue size must be greater than 0");
@@ -26,7 +16,7 @@ namespace Memory
 			count = 0;
 		}
 
-		bool enqueue(T t) override
+		bool enqueue(T t)
 		{
 			if(count == SIZE)
 				return false;
@@ -37,7 +27,7 @@ namespace Memory
 			return true;
 		}
 
-		std::optional<T> dequeue() override
+		std::optional<T> dequeue()
 		{
 			if(count == 0)
 				return std::optional<T>();
@@ -47,7 +37,7 @@ namespace Memory
 			return std::make_optional(data[tail]);
 		}
 
-		std::optional<T> peek() override
+		std::optional<T> peek()
 		{
 			if(count == 0)
 				return std::optional<T>();
@@ -55,7 +45,7 @@ namespace Memory
 			return std::make_optional(data[tail - 1]);
 		}
 
-		size_t size() override
+		size_t size()
 		{
 			return count;
 		}

@@ -1,8 +1,8 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
-#include "Game/GameConfig.h"
-#include "Game/Components/SpriteShader.h"
-#include "Modules/Graphics/Logic/Renderer.h"
+#include "Modules/ECS/ECSManager.h"
+#include "Game/Components/CommandBuffers.h"
+namespace Graphics { class Renderer; }
+#include <vector>
 
 namespace Systems
 {
@@ -14,16 +14,14 @@ namespace Systems
 		void update(MyECSManager& ecs, double dt) override
 		{
 			auto frame = graphics->getFrame();
-
-			auto entities = ecs.filterEntities<Filter<Components::CommandBuffers>>();
+			auto entities = ecs.filterEntities<ECS::Filter<Components::CommandBuffers>>();
 			for (auto entity : entities)
 			{
 				auto& buffers = ecs.getComponent<Components::CommandBuffers>(entity);
-				
-				frame.addCommandBuffer(buffers.commandBuffers->at(graphics->getCurrentBuffer()));
+
+				frame.addCommandBuffer(&buffers.commandBuffers->at(graphics->getCurrentBuffer()));
 			}
-			
-			graphics->submitFrame(frame);
+			graphics->submitFrame(&frame);
 		}
 
 	private:

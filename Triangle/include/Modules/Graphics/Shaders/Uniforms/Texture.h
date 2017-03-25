@@ -1,6 +1,8 @@
 #pragma once
-#include <vulkan\VULKAN.HPP>
+#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
 #include <gli/gli.hpp>
+#include <vulkan/VULKAN.HPP>
+
 
 namespace Graphics
 {

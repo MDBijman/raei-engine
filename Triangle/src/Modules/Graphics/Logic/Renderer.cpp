@@ -1,7 +1,5 @@
+#include "stdafx.h"
 #include "Modules/Graphics/Logic/Renderer.h"
-
-#include <vector>
-#include <vulkan/vulkan.hpp>
 
 namespace Graphics
 {
@@ -73,44 +71,6 @@ namespace Graphics
 		// This semaphore ensures that all commands submitted
 		// have been finished before submitting the image to the queue
 		renderComplete = context->device.createSemaphore(semaphoreCreateInfo);
-	}
-
-	void Renderer::submitPostPresentBarrier(vk::Image image) const
-	{
-		vk::CommandBufferBeginInfo cmdBufInfo = vk::CommandBufferBeginInfo();
-		postPresentCmdBuffer.begin(&cmdBufInfo);
-
-		vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
-			.setAspectMask(vk::ImageAspectFlagBits::eColor)
-			.setBaseMipLevel(0)
-			.setLevelCount(1)
-			.setBaseArrayLayer(0)
-			.setLayerCount(1);
-		
-		vk::ImageMemoryBarrier postPresentBarrier = vk::ImageMemoryBarrier()
-			//.setSrcAccessMask(vk::AccessFlagBits::eTransferRead)
-			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
-			.setOldLayout(vk::ImageLayout::eUndefined)
-			.setNewLayout(vk::ImageLayout::eColorAttachmentOptimal)
-			.setSubresourceRange(subresourceRange)
-			.setImage(image);
-
-		postPresentCmdBuffer.pipelineBarrier(
-			vk::PipelineStageFlagBits::eAllCommands,
-			vk::PipelineStageFlagBits::eAllCommands,
-			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &postPresentBarrier
-		);
-
-		postPresentCmdBuffer.end();
-
-		vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eTopOfPipe;
-		vk::SubmitInfo submitInfo = vk::SubmitInfo()
-			.setCommandBufferCount(1)
-			.setPCommandBuffers(&postPresentCmdBuffer)
-			.setWaitSemaphoreCount(1)
-			.setPWaitSemaphores(&presentComplete)
-			.setPWaitDstStageMask(&submitPipelineStages);
-		queue->submit(1, &submitInfo, nullptr);
 	}
 
 	void Renderer::prepareDepthStencil(uint32_t width, uint32_t height)
@@ -259,42 +219,94 @@ namespace Graphics
 		return currentBuffer;
 	}
 
-	Frame Renderer::getFrame() const
+	Frame Renderer::getFrame()
 	{
-		return Frame(context.get());
+		// This needs to be done before the frame is returned since otherwise the wrong buffers (from the previous frame) will be added
+		// to the frame. TODO possibly change this so that this call can be done in the submit method. For this, the 'currentBuffer' of this frame must
+		// be known before it is retrieved with acquireNextImage.
+		swapchain->acquireNextImage(presentComplete, &currentBuffer);
+		return Frame{};
 	}
 
-	void Renderer::submitFrame(const Frame& frame)
+
+	void Renderer::submit(vk::CommandBuffer* buffer) const
 	{
-		queue->waitIdle();
-		swapchain->acquireNextImage(presentComplete, &currentBuffer);
+		// The submit info structure contains a list of
+		// command buffers and semaphores to be submitted to a queue
+		// If you want to submit multiple command buffers, pass an array
+		vk::SubmitInfo submitInfo;
+		vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eBottomOfPipe;
+		submitInfo
+			.setCommandBufferCount(1)
+			.setPCommandBuffers(buffer)
+
+			.setWaitSemaphoreCount(1)
+			.setPWaitSemaphores(&presentComplete)
+			.setPWaitDstStageMask(&submitPipelineStages)
+
+			.setSignalSemaphoreCount(1)
+			.setPSignalSemaphores(&renderComplete);
+
+		// Submit to the graphics queue
+		queue->submit(1, &submitInfo, nullptr);
+	}
+
+	void Renderer::prepare()
+	{
 		submitPostPresentBarrier(swapchain->images[currentBuffer]);
+	}
 
-		/*
-			The second synchronization scope of the semaphore attached to the first command buffer includes all other buffers submitted
-			to the queue afterwards.
-				From 6.3.2: "Also, in the case of vkQueueSubmit, the second synchronization scope additionally includes all batches
-			subsequently submitted to the same queue via vkQueueSubmit, including batches that are submitted in the same
-			queue submission command, but at a higher index within the array of batches."
-		*/
-
-
-
-		for(auto& buffer : frame.buffers)
-		{
-			vk::SubmitInfo submitInfo;
-			vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eTopOfPipe;
-			submitInfo
-				.setCommandBufferCount(1)
-				.setPCommandBuffers(&buffer);
-			queue->submit(1, &submitInfo, nullptr);
-		}
-		
-
-		queue->waitIdle();
+	void Renderer::present()
+	{
 		submitPrePresentBarrier(swapchain->images[currentBuffer]);
 
-		swapchain->queuePresent(*queue, &currentBuffer);
+		swapchain->queuePresent(*queue, &currentBuffer, renderComplete);
+
+		queue->waitIdle();
+	}
+
+	void Renderer::submitFrame(Frame* frame)
+	{
+		prepare();
+		
+		for (auto buffer : frame->buffers) {
+			submit(buffer);
+		}
+
+		present();
+	}
+
+	void Renderer::submitPostPresentBarrier(vk::Image image) const
+	{
+		vk::CommandBufferBeginInfo cmdBufInfo = vk::CommandBufferBeginInfo();
+		postPresentCmdBuffer.begin(&cmdBufInfo);
+
+		vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
+			.setAspectMask(vk::ImageAspectFlagBits::eColor)
+			.setBaseMipLevel(0)
+			.setLevelCount(1)
+			.setBaseArrayLayer(0)
+			.setLayerCount(1);
+
+		vk::ImageMemoryBarrier postPresentBarrier = vk::ImageMemoryBarrier()
+			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+			.setOldLayout(vk::ImageLayout::eUndefined)
+			.setNewLayout(vk::ImageLayout::eColorAttachmentOptimal)
+			.setSubresourceRange(subresourceRange)
+			.setImage(image);
+
+		postPresentCmdBuffer.pipelineBarrier(
+			vk::PipelineStageFlagBits::eAllCommands,
+			vk::PipelineStageFlagBits::eTopOfPipe,
+			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &postPresentBarrier
+		);
+
+		postPresentCmdBuffer.end();
+
+		vk::SubmitInfo submitInfo = vk::SubmitInfo()
+			.setCommandBufferCount(1)
+			.setPCommandBuffers(&postPresentCmdBuffer);
+		queue->submit(1, &submitInfo, nullptr);
 	}
 
 	void Renderer::submitPrePresentBarrier(vk::Image image) const
@@ -310,6 +322,7 @@ namespace Graphics
 			.setLayerCount(1);
 		vk::ImageMemoryBarrier prePresentBarrier = vk::ImageMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+			.setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
 			.setOldLayout(vk::ImageLayout::eColorAttachmentOptimal)
 			.setNewLayout(vk::ImageLayout::ePresentSrcKHR)
 			.setSubresourceRange(subresourceRange)
@@ -317,7 +330,7 @@ namespace Graphics
 
 		prePresentCmdBuffer.pipelineBarrier(
 			vk::PipelineStageFlagBits::eAllCommands,
-			vk::PipelineStageFlagBits::eAllCommands,
+			vk::PipelineStageFlagBits::eTopOfPipe,
 			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1,
 			&prePresentBarrier
 		);

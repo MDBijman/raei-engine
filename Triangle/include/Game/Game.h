@@ -1,5 +1,6 @@
 #pragma once
 #include "GameConfig.h"
+#include "Modules/Graphics/Logic/Renderer.h"
 
 class Game
 {

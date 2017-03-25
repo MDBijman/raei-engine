@@ -1,10 +1,10 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
-#include <glm/glm.hpp>
+#include "Modules/ECS/Component.h"
+#include <glm/vec3.hpp>
 
 namespace Components
 {
-	class Velocity3D : public Component
+	class Velocity3D : public ECS::Component
 	{
 	public:
 		Velocity3D() {}

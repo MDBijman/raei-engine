@@ -1,6 +1,9 @@
 #pragma once
-#include "Modules/ECS/ECS.h"
-#include "Game/GameConfig.h"
+#include "Modules/ECS/System.h"
+#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
+#include "Game/Components/SpriteShader.h"
+#include "Game/Components/Position2D.h"
+#include "Game/Components/Scale2D.h"
 
 namespace Systems
 {
@@ -11,13 +14,13 @@ namespace Systems
 
 		void update(MyECSManager& ecs, double dt) override
 		{
-			auto cameras = ecs.filterEntities<Filter<Components::Camera2D>>();
+			auto cameras = ecs.filterEntities<ECS::Filter<Components::Camera2D>>();
 			if(cameras.size() == 0)
 				return;
 			
 			auto& camera = ecs.getComponent<Components::Camera2D>(cameras.at(0));
 
-			auto entities = ecs.filterEntities<Filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>>();
+			auto entities = ecs.filterEntities<ECS::Filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>>();
 
 			for(auto entity : entities)
 			{

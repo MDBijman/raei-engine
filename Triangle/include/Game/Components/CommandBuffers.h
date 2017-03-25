@@ -5,7 +5,7 @@
 
 namespace Components
 {
-	class CommandBuffers : public Component
+	class CommandBuffers : public ECS::Component
 	{
 	public:
 		template<class ShaderType>
@@ -62,20 +62,10 @@ namespace Components
 						.setWidth(static_cast<uint32_t>(dimensions.x))
 						.setHeight(static_cast<uint32_t>(dimensions.y)));
 
-				// Add a present memory barrier to the end of the command buffer
-				// This will transform the frame buffer color attachment to a
-				// new layout for presenting it to the windowing system integration 
-				vk::ImageSubresourceRange subresourceRange;
-				subresourceRange
-					.setAspectMask(vk::ImageAspectFlagBits::eColor)
-					.setBaseMipLevel(0)
-					.setLevelCount(1)
-					.setBaseArrayLayer(0)
-					.setLayerCount(1);
-
 				// Command chaining
 				vk::CommandBuffer& buffer = commandBuffers->at(i);
 				buffer.begin(cmdBufInfo);
+
 				buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 				buffer.setViewport(0, viewport);
 				buffer.setScissor(0, scissor);
@@ -83,6 +73,8 @@ namespace Components
 				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
 				shader.draw(buffer);
 				buffer.endRenderPass();
+
+
 				buffer.end();
 
 			}

@@ -110,6 +110,9 @@
     <ClCompile Include="src\Game\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h">
@@ -134,9 +137,6 @@
       <Filter>Header Files\Graphics\Logic</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\ECS\Component.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\ECS\ECS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\ECS\ECSManager.h">
@@ -173,9 +173,6 @@
       <Filter>Header Files\Graphics\Logic</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\Systems.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Components\Components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Components\Position2D.h">
@@ -295,6 +292,30 @@
     <ClInclude Include="include\Modules\Graphics\Logic\Frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Modules\ECSFactory\ECSFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\LuaECS\LuaECS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\TemplateUtils\VariadicLogicalAnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\TemplateUtils\IsDefined.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\ECS\Traits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\ECSFactory\Traits.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Dummy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\game.json">
@@ -327,6 +348,7 @@
     <None Include="res\shaders\compiled\sprite2.vert.spv" />
     <None Include="res\shaders\sprite2.frag" />
     <None Include="res\shaders\sprite2.vert" />
+    <None Include="res\scripts\startup\TestSystem.lua" />
   </ItemGroup>
   <ItemGroup>
     <Xsd Include="res\shaders\sprite.xsd">

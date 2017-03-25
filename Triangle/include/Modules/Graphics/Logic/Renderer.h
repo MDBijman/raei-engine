@@ -1,9 +1,4 @@
 #pragma once
-#include <vector>
-#include <chrono>
-#include <memory>
-#include <windows.h>
-#include <vulkan/vulkan.hpp>
 #include <glm/detail/type_vec2.hpp>
 
 #include "Swapchain.h"
@@ -26,6 +21,10 @@ namespace Graphics
 	public:
 		Renderer(WindowsContext context);
 
+		void prepare();
+		void submit(vk::CommandBuffer* buffer) const;
+		void present();
+
 		std::shared_ptr<VulkanContext> context;
 		std::shared_ptr<VulkanSwapChain> swapchain;
 		std::shared_ptr<vk::Queue> queue;
@@ -41,8 +40,8 @@ namespace Graphics
 
 		uint32_t getCurrentBuffer() const;
 
-		Frame getFrame() const;
-		void submitFrame(const Frame& frame);
+		Frame getFrame();
+		void submitFrame(Frame* frame);
 
 	private:
 		struct
@@ -51,6 +50,7 @@ namespace Graphics
 			vk::DeviceMemory mem;
 			vk::ImageView    view;
 		} depthStencil;
+		vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eBottomOfPipe;
 
 		const glm::vec2 SCREEN_DIMENSIONS;
 

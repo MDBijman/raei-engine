@@ -1,4 +1,7 @@
 #pragma once
+#include <type_traits>
+
+// TODO fix namespace and naming convention
 
 /*
 	Type index

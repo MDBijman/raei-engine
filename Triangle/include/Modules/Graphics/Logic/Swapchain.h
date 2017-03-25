@@ -1,12 +1,4 @@
 #pragma once
-#include <stdlib.h>
-#include <assert.h>
-#include <stdio.h>
-#include <vector>
-#include <windows.h>
-
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan.hpp>
 #include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
 
 typedef struct _SwapChainBuffers
@@ -91,14 +83,14 @@ public:
 		// Exit if either a graphics or a presenting queue hasn't been found
 		if(graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX)
 		{
-			printf("Could not find a graphics and/or presenting queue! Fatal error");
+			std::cout << "Could not find a graphics and/or presenting queue! Fatal error" << std::endl;
 			exit(1);
 		}
 
 		// todo : Add support for separate graphics and presenting queue
 		if(graphicsQueueNodeIndex != presentQueueNodeIndex)
 		{
-			printf("Separate graphics and presenting queues are not supported yet! Fatal error");
+			std::cout << "Separate graphics and presenting queues are not supported yet! Fatal error" << std::endl;
 			exit(1);
 		}
 
@@ -124,7 +116,7 @@ public:
 		colorSpace = surfaceFormats[0].colorSpace;
 	}
 
-	void setup(vk::CommandBuffer& cmdBuffer, uint32_t *width, uint32_t *height)
+	void setup(vk::CommandBuffer cmdBuffer, uint32_t *width, uint32_t *height)
 	{
 		VkSwapchainKHR oldSwapchain = swapChain;
 
@@ -201,7 +193,7 @@ public:
 
 		swapChain = context.device.createSwapchainKHR(swapchainCI);
 
-		// If an existing sawp chain is re-created, destroy the old swap chain
+		// If an existing swap chain is re-created, destroy the old swap chain
 		// This also cleans up all the presentable images
 		if(oldSwapchain)
 		{
@@ -232,8 +224,7 @@ public:
 			// Create an image barrier object
 			vk::ImageMemoryBarrier imageMemoryBarrier = {};
 			// Some default values
-			imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-			imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			imageMemoryBarrier.setDstAccessMask(vk::AccessFlagBits::eMemoryRead);
 			imageMemoryBarrier.oldLayout = vk::ImageLayout::eUndefined;
 			imageMemoryBarrier.newLayout = vk::ImageLayout::ePresentSrcKHR;
 			imageMemoryBarrier.image = buffers[i].image;
@@ -273,12 +264,12 @@ public:
 	}
 
 	// Present the current image to the queue
-	void queuePresent(vk::Queue queue, uint32_t currentBuffer, vk::Semaphore waitSemaphore)
+	void queuePresent(vk::Queue queue, uint32_t* currentBuffer, vk::Semaphore waitSemaphore)
 	{
 		vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
 			.setSwapchainCount(1)
 			.setPSwapchains(&swapChain)
-			.setPImageIndices(&currentBuffer);
+			.setPImageIndices(currentBuffer);
 
 		if(waitSemaphore)
 		{
