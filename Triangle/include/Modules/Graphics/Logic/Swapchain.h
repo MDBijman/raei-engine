@@ -207,31 +207,36 @@ public:
 		buffers.resize(images.size());
 		for(uint32_t i = 0; i < images.size(); i++)
 		{
-			vk::ImageViewCreateInfo colorAttachmentView = {};
-			colorAttachmentView.format = colorFormat;
-			colorAttachmentView.components = {
-				VK_COMPONENT_SWIZZLE_R,
-				VK_COMPONENT_SWIZZLE_G,
-				VK_COMPONENT_SWIZZLE_B,
-				VK_COMPONENT_SWIZZLE_A
-			};
-			colorAttachmentView.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-			colorAttachmentView.subresourceRange.levelCount = 1;
-			colorAttachmentView.subresourceRange.layerCount = 1;
-			colorAttachmentView.viewType = vk::ImageViewType::e2D;
-
+			vk::ImageViewCreateInfo colorAttachmentView;
+			colorAttachmentView
+				.setFormat(colorFormat)
+				.setComponents(vk::ComponentMapping(
+					vk::ComponentSwizzle::eR,
+					vk::ComponentSwizzle::eG,
+					vk::ComponentSwizzle::eB,
+					vk::ComponentSwizzle::eA
+				))
+				.setViewType(vk::ImageViewType::e2D)
+				.subresourceRange
+					.setAspectMask(vk::ImageAspectFlagBits::eColor)
+					.setLevelCount(1)
+					.setLayerCount(1);
+				
 			buffers[i].image = images[i];
 
 			// Create an image barrier object
-			vk::ImageMemoryBarrier imageMemoryBarrier = {};
+			vk::ImageMemoryBarrier imageMemoryBarrier;
+
 			// Some default values
-			imageMemoryBarrier.setDstAccessMask(vk::AccessFlagBits::eMemoryRead);
-			imageMemoryBarrier.oldLayout = vk::ImageLayout::eUndefined;
-			imageMemoryBarrier.newLayout = vk::ImageLayout::ePresentSrcKHR;
-			imageMemoryBarrier.image = buffers[i].image;
-			imageMemoryBarrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-			imageMemoryBarrier.subresourceRange.levelCount = 1;
-			imageMemoryBarrier.subresourceRange.layerCount = 1;
+			imageMemoryBarrier
+				.setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
+				.setOldLayout(vk::ImageLayout::eUndefined)
+				.setNewLayout(vk::ImageLayout::ePresentSrcKHR)
+				.setImage(buffers[i].image)
+				.subresourceRange
+				.setAspectMask(vk::ImageAspectFlagBits::eColor)
+				.setLevelCount(1)
+				.setLayerCount(1);;
 
 			// Put barrier on top
 			vk::PipelineStageFlags srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
@@ -272,7 +277,7 @@ public:
 			.setPSwapchains(&swapChain)
 			.setPImageIndices(currentBuffer);
 
-		if(waitSemaphore)
+		if (waitSemaphore)
 		{
 			presentInfo
 				.setPWaitSemaphores(&waitSemaphore)
@@ -284,7 +289,7 @@ public:
 
 	void cleanup()
 	{
-		for(uint32_t i = 0; i < images.size(); i++)
+		for (uint32_t i = 0; i < images.size(); i++)
 		{
 			context.device.destroyImageView(buffers[i].view);
 		}
