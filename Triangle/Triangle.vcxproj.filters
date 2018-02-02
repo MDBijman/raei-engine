@@ -349,6 +349,7 @@
     <None Include="res\shaders\sprite2.frag" />
     <None Include="res\shaders\sprite2.vert" />
     <None Include="res\scripts\startup\TestSystem.lua" />
+    <None Include="res\shaders\.gitignore" />
   </ItemGroup>
   <ItemGroup>
     <Xsd Include="res\shaders\sprite.xsd">

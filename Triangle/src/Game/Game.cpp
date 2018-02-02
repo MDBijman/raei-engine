@@ -17,30 +17,15 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	ecs(),
 	graphics({
 		hInstance, window, "triangle", 1280, 720
-}),
-gameState(PAUSED)
+		}),
+	gameState(PAUSED),
+	camera(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f)
 {
 	auto cameraEntity = ecs.createEntity();
 	auto& pos = ecs.addComponent(cameraEntity, Components::Position3D(0.0f, 0.0f, 1.0f));
 	ecs.addComponent(cameraEntity, Components::Orientation3D());
-	auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(Graphics::Camera(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f)));
+	auto& camera = ecs.addComponent(cameraEntity, Components::Camera2D(this->camera));
 	camera.camera.moveTo(pos.pos, glm::vec3());
-
-	// Entity mapping
-	//using TestComponentList = ECS::ComponentList<Components::Position2D, Components::Scale2D>;
-	//ECS::Factory<TestComponentList> entityFactory(ecs);
-	//entityFactory.addComponentMapping<Components::Position2D>("Position2D");
-	//entityFactory.addComponentMapping<Components::Scale2D>("Scale2D");
-
-	// Run startup lua scripts
-	//LuaECS::LuaECS<ECS::Factory<TestComponentList>> luaECS(sol::state(), entityFactory);
-	//for (auto& file : std::experimental::filesystem::directory_iterator("./res/scripts/startup"))
-	//{
-	//	if (std::experimental::filesystem::is_regular_file(file))
-	//	{
-	//		luaECS.getEnvironment().script_file(file.path().generic_string());
-	//	}
-	//}
 
 	auto sprite = ecs.createEntity();
 	{
