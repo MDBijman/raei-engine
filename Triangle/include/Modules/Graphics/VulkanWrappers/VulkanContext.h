@@ -35,7 +35,7 @@ namespace Graphics
 				.setPApplicationName(name.c_str())
 				.setPEngineName(name.c_str())
 				.setEngineVersion(1)
-				.setApiVersion(VK_MAKE_VERSION(1, 0, 39));
+				.setApiVersion(VK_MAKE_VERSION(1, 0, 65));
 
 			vk::InstanceCreateInfo instanceCreateInfo = vk::InstanceCreateInfo()
 				.setPApplicationInfo(&applicationInfo)
@@ -48,8 +48,8 @@ namespace Graphics
 			debug.initDebugging(instance);
 
 			physicalDevice = vk::PhysicalDevice(instance.enumeratePhysicalDevices().at(0));
-			createDevice();
 
+			createDevice();
 		}
 
 		vk::MemoryAllocateInfo getMemoryRequirements(vk::Buffer buffer, vk::MemoryPropertyFlags flag)
@@ -109,11 +109,17 @@ namespace Graphics
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME
 			};
 
+			vk::PhysicalDeviceFeatures features;
+			features
+				.setTextureCompressionBC(true)
+				.setSamplerAnisotropy(true);
+
 			vk::DeviceCreateInfo deviceCreateInfo = vk::DeviceCreateInfo()
 				.setQueueCreateInfoCount(1)
 				.setPQueueCreateInfos(&queueCreateInfo)
 				.setEnabledExtensionCount(static_cast<uint32_t>(enabledExtensions.size()))
-				.setPpEnabledExtensionNames(enabledExtensions.data());
+				.setPpEnabledExtensionNames(enabledExtensions.data())
+				.setPEnabledFeatures(&features);
 
 			device = physicalDevice.createDevice(deviceCreateInfo);
 		}

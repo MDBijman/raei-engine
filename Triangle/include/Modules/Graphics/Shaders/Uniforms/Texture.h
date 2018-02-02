@@ -227,8 +227,8 @@ namespace Graphics
 					imageMemoryBarrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
 
 					// Put barrier on top
-					vk::PipelineStageFlags srcStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
-					vk::PipelineStageFlags destStageFlags = vk::PipelineStageFlagBits::eTopOfPipe;
+					vk::PipelineStageFlags srcStageFlags = vk::PipelineStageFlagBits::eHost;
+					vk::PipelineStageFlags destStageFlags = vk::PipelineStageFlagBits::eTransfer;
 
 					// Put barrier inside setup command buffer
 					cmdBuffer.pipelineBarrier(srcStageFlags, destStageFlags, vk::DependencyFlags(), nullptr, nullptr, imageMemoryBarrier);
@@ -252,8 +252,8 @@ namespace Graphics
 					imageMemoryBarrier2.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
 					imageMemoryBarrier2.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 					// Put barrier on top
-					vk::PipelineStageFlags srcStageFlags2 = vk::PipelineStageFlagBits::eTopOfPipe;
-					vk::PipelineStageFlags destStageFlags2 = vk::PipelineStageFlagBits::eTopOfPipe;
+					vk::PipelineStageFlags srcStageFlags2 = vk::PipelineStageFlagBits::eTransfer;
+					vk::PipelineStageFlags destStageFlags2 = vk::PipelineStageFlagBits::eVertexShader;
 
 					// Put barrier inside setup command buffer
 					cmdBuffer.pipelineBarrier(srcStageFlags2, destStageFlags2, vk::DependencyFlags(), nullptr, nullptr, imageMemoryBarrier2);
@@ -370,7 +370,7 @@ namespace Graphics
 					// Submit command buffer containing copy and image layout commands
 					cmdBuffer.end();
 
-					vk::Fence nullFence = { VK_NULL_HANDLE };
+					vk::Fence nullFence;
 
 					vk::SubmitInfo submitInfo = {};
 					submitInfo.commandBufferCount = 1;

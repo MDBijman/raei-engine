@@ -297,7 +297,7 @@ namespace Graphics
 
 		postPresentCmdBuffer.pipelineBarrier(
 			vk::PipelineStageFlagBits::eAllCommands,
-			vk::PipelineStageFlagBits::eTopOfPipe,
+			vk::PipelineStageFlagBits::eColorAttachmentOutput,
 			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &postPresentBarrier
 		);
 
@@ -320,6 +320,7 @@ namespace Graphics
 			.setLevelCount(1)
 			.setBaseArrayLayer(0)
 			.setLayerCount(1);
+
 		vk::ImageMemoryBarrier prePresentBarrier = vk::ImageMemoryBarrier()
 			.setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
 			.setDstAccessMask(vk::AccessFlagBits::eMemoryRead)

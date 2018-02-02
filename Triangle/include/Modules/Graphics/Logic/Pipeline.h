@@ -6,7 +6,7 @@ namespace Graphics
 	class Pipeline
 	{
 	public:
-		Pipeline() : vk(VK_NULL_HANDLE) {}
+		Pipeline() : vk(nullptr) {}
 		Pipeline(vk::Pipeline pipeline, vk::PipelineLayout pipelineLayout);
 
 		vk::Pipeline vk;

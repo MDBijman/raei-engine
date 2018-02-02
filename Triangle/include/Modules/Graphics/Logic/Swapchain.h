@@ -15,7 +15,7 @@ class VulkanSwapChain
 public:
 	vk::Format colorFormat;
 	vk::ColorSpaceKHR colorSpace;
-	vk::SwapchainKHR swapChain = VK_NULL_HANDLE;
+	vk::SwapchainKHR swapChain = nullptr;
 	vk::Extent2D swapchainExtent;
 
 	std::vector<vk::Image> images;
@@ -153,7 +153,8 @@ public:
 				swapchainPresentMode = vk::PresentModeKHR::eMailbox;
 				break;
 			}
-			if((swapchainPresentMode != vk::PresentModeKHR::eMailbox) && (presentModes[i] == vk::PresentModeKHR::eImmediate))
+			if((swapchainPresentMode != vk::PresentModeKHR::eMailbox) 
+				&& (presentModes[i] == vk::PresentModeKHR::eImmediate))
 			{
 				swapchainPresentMode = vk::PresentModeKHR::eImmediate;
 			}

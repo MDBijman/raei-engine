@@ -85,10 +85,13 @@ gameState(PAUSED)
 		shader.allocate(*graphics.context);
 
 		auto& pipeline = ecs.addComponent(sprite, Components::Pipeline{ "./res/shaders/sprite-pipeline.json", graphics.renderPass, graphics.pipelineCache, graphics.context->device, shader });
-		ecs.addComponent(sprite, Components::CommandBuffers{ graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1280, 720 }, graphics.renderPass, pipeline.pipeline, graphics.frameBuffers, shader });
+		ecs.addComponent(sprite, Components::CommandBuffers{ 
+			graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1280, 720 }, 
+			graphics.renderPass, pipeline.pipeline, graphics.frameBuffers, shader 
+		});
 	}
 
-
+	/*
 	for (int i = 0; i < 0; i++)
 	{
 		for (int j = 0; j < 10; j++)
@@ -142,7 +145,7 @@ gameState(PAUSED)
 
 		}
 	}
-
+	*/
 	{
 		//ecs.addSystem<Systems::LuaSystem>();
 		ecs.addSystem<Systems::Movement2D>();
