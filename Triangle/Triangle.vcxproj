@@ -273,6 +273,7 @@
     <None Include="res\default-pipeline.json" />
     <None Include="res\mesh-shader-metadata.json" />
     <None Include="res\scripts\startup\TestSystem.lua" />
+    <None Include="res\shaders\.gitignore" />
     <None Include="res\shaders\compile.bat" />
     <None Include="res\shaders\compiled\mesh.frag.spv" />
     <None Include="res\shaders\compiled\mesh.vert.spv" />

@@ -32,7 +32,6 @@ namespace Systems
 				auto translate = glm::translate(glm::mat4(), glm::vec3(pos.pos, 0.0f));
 				auto model = translate * scale;
 				
-				
 				glm::mat4 mvp = camera.camera.getMatrices().projection * camera.camera.getMatrices().view * model;
 				shader.getUniforms().upload<0>(context, mvp);
 			}

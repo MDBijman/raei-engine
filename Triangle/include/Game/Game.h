@@ -12,7 +12,7 @@ public:
 private:
 	MyECSManager		ecs;
 	Graphics::Renderer	graphics;
-
+	Graphics::Camera	camera;
 	enum GameState
 	{
 		PAUSED,

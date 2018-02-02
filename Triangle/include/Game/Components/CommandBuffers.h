@@ -74,11 +74,8 @@ namespace Components
 				shader.draw(buffer);
 				buffer.endRenderPass();
 
-
 				buffer.end();
-
 			}
-
 		}
 
 		CommandBuffers(CommandBuffers&& other) noexcept
