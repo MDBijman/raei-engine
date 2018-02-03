@@ -29,7 +29,7 @@
 	"depth-and-stencil" : {
 		"depth-test" : true,
 		"depth-write" : true,
-		"depth-compare-op" : "less-or-equal",
+		"depth-compare-op" : "greater-or-equal",
 		"depth-bound-test" : false,
 		"fail-op" : "keep",
 		"pass-op" : "keep",
@@ -44,7 +44,7 @@
 	},
 
 	"shader-stages" : {
-		"vertex" : "./res/shaders/compiled/sprite2.vert.spv",
-		"fragment" : "./res/shaders/compiled/sprite2.frag.spv"
+		"vertex" : "./res/shaders/compiled/sprite.vert.spv",
+		"fragment" : "./res/shaders/compiled/sprite.frag.spv"
 	}
 }

@@ -177,13 +177,16 @@ public:
 			preTransform = surfCaps.currentTransform;
 		}
 
+		auto imageUsage = 
+			vk::ImageUsageFlags(vk::ImageUsageFlagBits::eColorAttachment) | vk::ImageUsageFlagBits::eTransferDst;
+
 		vk::SwapchainCreateInfoKHR swapchainCI = vk::SwapchainCreateInfoKHR()
 			.setSurface(surface)
 			.setMinImageCount(desiredNumberOfSwapchainImages)
 			.setImageFormat(colorFormat)
 			.setImageColorSpace(colorSpace)
 			.setImageExtent(swapchainExtent)
-			.setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
+			.setImageUsage(imageUsage)
 			.setPreTransform(preTransform)
 			.setImageArrayLayers(1)
 			.setImageSharingMode(vk::SharingMode::eExclusive)
@@ -254,9 +257,9 @@ public:
 	}
 
 	// Acquires the next image in the swap chain
-	void acquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t *currentBuffer)
+	void acquireNextImage(VkSemaphore presentCompleteSemaphore, VkFence fence, uint32_t *currentBuffer)
 	{
-		context.device.acquireNextImageKHR(swapChain, UINT64_MAX, presentCompleteSemaphore, nullptr, currentBuffer);
+		context.device.acquireNextImageKHR(swapChain, UINT64_MAX, presentCompleteSemaphore, fence, currentBuffer);
 	}
 
 	// Present the current image to the queue
@@ -279,9 +282,9 @@ public:
 
 		if (waitSemaphore)
 		{
-			presentInfo
+		/*	presentInfo
 				.setPWaitSemaphores(&waitSemaphore)
-				.setWaitSemaphoreCount(1);
+				.setWaitSemaphoreCount(1);*/
 		}
 
 		queue.presentKHR(&presentInfo);

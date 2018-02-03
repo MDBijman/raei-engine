@@ -32,11 +32,12 @@ namespace Graphics
 		vk::Format depthFormat;
 		vk::Format colorformat = vk::Format::eB8G8R8A8Unorm;
 
-		vk::CommandPool                cmdPool;
-		vk::RenderPass                 renderPass;
+		vk::CommandPool cmdPool;
+		vk::RenderPass renderPass;
+		vk::RenderPass drawPass;
 
-		vk::PipelineCache              pipelineCache;
-		std::vector<vk::Framebuffer>   frameBuffers;
+		vk::PipelineCache pipelineCache;
+		std::vector<vk::Framebuffer> frameBuffers;
 
 		uint32_t getCurrentBuffer() const;
 
@@ -59,6 +60,7 @@ namespace Graphics
 
 		void prepareDepthStencil(uint32_t width, uint32_t height);
 		void prepareRenderPass();
+
 		void preparePipelineCache();
 		void prepareFramebuffers(uint32_t width, uint32_t height);
 		uint32_t getMemoryPropertyIndex(vk::MemoryPropertyFlags flag, vk::MemoryRequirements requirements) const;
@@ -67,6 +69,7 @@ namespace Graphics
 
 		vk::Semaphore          presentComplete;
 		vk::Semaphore          renderComplete;
+		vk::Fence waitImage;
 
 		vk::CommandBuffer      postPresentCmdBuffer;
 		vk::CommandBuffer      prePresentCmdBuffer;

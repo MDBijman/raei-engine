@@ -9,7 +9,9 @@ namespace Components
 	{
 	public:
 		template<class ShaderType>
-		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, glm::vec2& dimensions, vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers, ShaderType& shader)
+		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, glm::vec2& dimensions,
+			vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers,
+			ShaderType& shader)
 		{
 			vk::CommandBufferAllocateInfo info;
 			info.setCommandPool(cmdPool)
@@ -20,25 +22,15 @@ namespace Components
 
 			vk::CommandBufferBeginInfo cmdBufInfo;
 
-			auto clearColorValues = std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f};
-
-			clearValues = new std::vector<vk::ClearValue>();
-			clearValues->resize(2);
-			clearValues->at(0) = vk::ClearValue()
-				.setColor(vk::ClearColorValue(clearColorValues));
-			clearValues->at(1) = vk::ClearValue()
-				.setDepthStencil({ 1.0f, 0 });
-
 			vk::Rect2D renderArea;
 			renderArea
-				.setExtent(swapchain.swapchainExtent);
+				.setExtent(swapchain.swapchainExtent)
+				.setOffset({ 0, 0 });
 
 			vk::RenderPassBeginInfo renderPassBeginInfo;
 			renderPassBeginInfo
 				.setRenderPass(renderPass)
-				.setRenderArea(renderArea)
-				.setClearValueCount(2)
-				.setPClearValues(clearValues->data());
+				.setRenderArea(renderArea);
 
 			for(int32_t i = 0; i < commandBuffers->size(); ++i)
 			{
@@ -80,9 +72,6 @@ namespace Components
 
 		CommandBuffers(CommandBuffers&& other) noexcept
 		{
-			this->clearValues = other.clearValues;
-			other.clearValues = nullptr;
-
 			this->commandBuffers = other.commandBuffers;
 			other.commandBuffers = nullptr;
 		}
@@ -90,7 +79,6 @@ namespace Components
 		std::vector<vk::CommandBuffer>* commandBuffers;
 
 	private:
-		std::vector<vk::ClearValue>* clearValues;
 	};
 
 }

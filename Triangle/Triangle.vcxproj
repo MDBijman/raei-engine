@@ -114,7 +114,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "_CRT_SECURE_NO_WARNINGS" /D "GLM_FORCE_DEPTH_ZERO_TO_ONE" /wd4503 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "_CRT_SECURE_NO_WARNINGS" /wd4503 /D "GLM_FORCE_DEPTH_ZERO_TO_ONE" %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
       <EnablePREfast>true</EnablePREfast>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -216,6 +216,7 @@
     <ClInclude Include="include\Game\Components\Velocity2D.h" />
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
     <ClInclude Include="include\Game\GameConfig.h" />
+    <ClInclude Include="include\Modules\Graphics\Logic\default_renderpasses.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\Game\Systems\CameraSystem.h" />
     <ClInclude Include="include\Game\Systems\GraphicsInterface.h" />
@@ -275,19 +276,11 @@
     <None Include="res\scripts\startup\TestSystem.lua" />
     <None Include="res\shaders\.gitignore" />
     <None Include="res\shaders\compile.bat" />
-    <None Include="res\shaders\compiled\mesh.frag.spv" />
-    <None Include="res\shaders\compiled\mesh.vert.spv" />
-    <None Include="res\shaders\compiled\sprite.frag.spv" />
-    <None Include="res\shaders\compiled\sprite.vert.spv" />
-    <None Include="res\shaders\compiled\sprite2.frag.spv" />
-    <None Include="res\shaders\compiled\sprite2.vert.spv" />
     <None Include="res\shaders\default-pipeline.json" />
     <None Include="res\shaders\spirv-mesh.bat" />
     <None Include="res\shaders\sprite-pipeline.json" />
     <None Include="res\shaders\sprite.frag" />
     <None Include="res\shaders\sprite.vert" />
-    <None Include="res\shaders\sprite2.frag" />
-    <None Include="res\shaders\sprite2.vert" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\bad_car.obj">

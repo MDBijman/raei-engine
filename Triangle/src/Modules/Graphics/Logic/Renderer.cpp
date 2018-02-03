@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Modules/Graphics/Logic/Renderer.h"
+#include "Modules/Graphics/Logic/default_renderpasses.h"
 
 namespace Graphics
 {
@@ -71,6 +72,9 @@ namespace Graphics
 		// This semaphore ensures that all commands submitted
 		// have been finished before submitting the image to the queue
 		renderComplete = context->device.createSemaphore(semaphoreCreateInfo);
+
+		vk::FenceCreateInfo fenceCreateInfo = {};
+		waitImage = context->device.createFence(fenceCreateInfo);
 	}
 
 	void Renderer::prepareDepthStencil(uint32_t width, uint32_t height)
@@ -82,7 +86,8 @@ namespace Graphics
 			.setMipLevels(1).setArrayLayers(1)
 			.setSamples(vk::SampleCountFlagBits::e1)
 			.setTiling(vk::ImageTiling::eOptimal)
-			.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferSrc);
+			.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferSrc
+				| vk::ImageUsageFlagBits::eTransferDst);
 		depthStencil.image = context->device.createImage(imageCreateInfo);
 
 		vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
@@ -112,59 +117,8 @@ namespace Graphics
 
 	void Renderer::prepareRenderPass()
 	{
-		// Attachments
-		// Color attachment
-		std::vector<vk::AttachmentDescription> attachments(2);
-		attachments[0]
-			.setFormat(colorformat)
-			.setSamples(vk::SampleCountFlagBits::e1)
-			.setLoadOp(vk::AttachmentLoadOp::eClear)
-			.setStoreOp(vk::AttachmentStoreOp::eStore)
-			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-			.setInitialLayout(vk::ImageLayout::eColorAttachmentOptimal)
-			.setFinalLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-		// Depth attachment
-		attachments[1]
-			.setFormat(depthFormat)
-			.setSamples(vk::SampleCountFlagBits::e1)
-			.setLoadOp(vk::AttachmentLoadOp::eClear)
-			.setStoreOp(vk::AttachmentStoreOp::eStore)
-			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-			.setInitialLayout(vk::ImageLayout::eUndefined)
-			.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-		// Subpasses
-		std::vector<vk::AttachmentReference> colorReference(1);
-		// Color reference
-		colorReference[0]
-			.setAttachment(0)
-			.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-		// Depth reference
-		vk::AttachmentReference depthReference;
-		depthReference
-			.setAttachment(1)
-			.setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-		std::vector<vk::SubpassDescription> subpass(1);
-		subpass[0]
-			.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
-			.setColorAttachmentCount(1)
-			.setPColorAttachments(colorReference.data())
-			.setPDepthStencilAttachment(&depthReference);
-		
-		// RenderPass creation
-		vk::RenderPassCreateInfo renderPassInfo;
-		renderPassInfo
-			.setAttachmentCount(2)
-			.setPAttachments(attachments.data())
-			.setSubpassCount(1)
-			.setPSubpasses(subpass.data());
-
-		renderPass = context->device.createRenderPass(renderPassInfo);
+		renderPass = speck::graphics::get_clear_pass(*context, depthFormat, colorformat);
+		drawPass = speck::graphics::get_draw_pass(*context, depthFormat, colorformat);
 	}
 
 	void Renderer::preparePipelineCache()
@@ -182,7 +136,7 @@ namespace Graphics
 
 		vk::FramebufferCreateInfo frameBufferCreateInfo;
 		frameBufferCreateInfo
-			.setRenderPass(renderPass)
+			.setRenderPass(drawPass)
 			.setAttachmentCount(static_cast<uint32_t>(fbAttachments.size()))
 			.setPAttachments(fbAttachments.data())
 			.setWidth(width)
@@ -191,7 +145,7 @@ namespace Graphics
 
 		// Create frame buffers for every swap chain image
 		frameBuffers.resize(swapchain->images.size());
-		for(uint32_t i = 0; i < frameBuffers.size(); i++)
+		for (uint32_t i = 0; i < frameBuffers.size(); i++)
 		{
 			fbAttachments[0] = swapchain->buffers[i].view;
 			frameBuffers[i] = context->device.createFramebuffer(frameBufferCreateInfo);
@@ -200,11 +154,11 @@ namespace Graphics
 
 	uint32_t Renderer::getMemoryPropertyIndex(vk::MemoryPropertyFlags flag, vk::MemoryRequirements requirements) const
 	{
-		for(uint32_t i = 0; i < 32; i++)
+		for (uint32_t i = 0; i < 32; i++)
 		{
-			if((requirements.memoryTypeBits & 1) == 1)
+			if ((requirements.memoryTypeBits & 1) == 1)
 			{
-				if((context->physicalDevice.getMemoryProperties().memoryTypes[i].propertyFlags & flag) == flag)
+				if ((context->physicalDevice.getMemoryProperties().memoryTypes[i].propertyFlags & flag) == flag)
 				{
 					return i;
 				}
@@ -224,36 +178,39 @@ namespace Graphics
 		// This needs to be done before the frame is returned since otherwise the wrong buffers (from the previous frame) will be added
 		// to the frame. TODO possibly change this so that this call can be done in the submit method. For this, the 'currentBuffer' of this frame must
 		// be known before it is retrieved with acquireNextImage.
-		swapchain->acquireNextImage(presentComplete, &currentBuffer);
+		swapchain->acquireNextImage(nullptr, waitImage, &currentBuffer);
+		context->device.waitForFences(waitImage, VK_TRUE, 1000000000000);
+		context->device.resetFences(1, &waitImage);
 		return Frame{};
 	}
 
-
 	void Renderer::submit(vk::CommandBuffer* buffer) const
 	{
-		// The submit info structure contains a list of
-		// command buffers and semaphores to be submitted to a queue
-		// If you want to submit multiple command buffers, pass an array
 		vk::SubmitInfo submitInfo;
-		vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eBottomOfPipe;
 		submitInfo
 			.setCommandBufferCount(1)
-			.setPCommandBuffers(buffer)
+			.setPCommandBuffers(buffer);
 
-			.setWaitSemaphoreCount(1)
-			.setPWaitSemaphores(&presentComplete)
-			.setPWaitDstStageMask(&submitPipelineStages)
-
-			.setSignalSemaphoreCount(1)
-			.setPSignalSemaphores(&renderComplete);
-
-		// Submit to the graphics queue
 		queue->submit(1, &submitInfo, nullptr);
 	}
 
 	void Renderer::prepare()
 	{
 		submitPostPresentBarrier(swapchain->images[currentBuffer]);
+	}
+
+	void Renderer::submitFrame(Frame* frame)
+	{
+		prepare();
+
+		for (auto buffer : frame->buffers)
+		{
+			submit(buffer);
+		}
+
+		queue->waitIdle();
+
+		present();
 	}
 
 	void Renderer::present()
@@ -265,21 +222,12 @@ namespace Graphics
 		queue->waitIdle();
 	}
 
-	void Renderer::submitFrame(Frame* frame)
-	{
-		prepare();
-		
-		for (auto buffer : frame->buffers) {
-			submit(buffer);
-		}
-
-		present();
-	}
-
 	void Renderer::submitPostPresentBarrier(vk::Image image) const
 	{
 		vk::CommandBufferBeginInfo cmdBufInfo = vk::CommandBufferBeginInfo();
 		postPresentCmdBuffer.begin(&cmdBufInfo);
+		
+		// Image buffer
 
 		vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
 			.setAspectMask(vk::ImageAspectFlagBits::eColor)
@@ -288,17 +236,75 @@ namespace Graphics
 			.setBaseArrayLayer(0)
 			.setLayerCount(1);
 
-		vk::ImageMemoryBarrier postPresentBarrier = vk::ImageMemoryBarrier()
+		// Barrier for clearing color buffer
+		vk::ImageMemoryBarrier prepareClearBarrier = vk::ImageMemoryBarrier()
 			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
 			.setOldLayout(vk::ImageLayout::eUndefined)
+			.setNewLayout(vk::ImageLayout::eTransferDstOptimal)
+			.setSubresourceRange(subresourceRange)
+			.setImage(image);
+		postPresentCmdBuffer.pipelineBarrier(
+			vk::PipelineStageFlagBits::eAllCommands,
+			vk::PipelineStageFlagBits::eColorAttachmentOutput,
+			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &prepareClearBarrier
+		);
+
+		// Clear color buffer
+		auto clearColorValues = std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f};
+		postPresentCmdBuffer.clearColorImage(image, vk::ImageLayout::eTransferDstOptimal,
+			&vk::ClearColorValue(clearColorValues), 1, &subresourceRange);
+
+		// Barrier for changing color buffer layout back
+		vk::ImageMemoryBarrier postPresentBarrier = vk::ImageMemoryBarrier()
+			.setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+			.setOldLayout(vk::ImageLayout::eTransferDstOptimal)
 			.setNewLayout(vk::ImageLayout::eColorAttachmentOptimal)
 			.setSubresourceRange(subresourceRange)
 			.setImage(image);
-
 		postPresentCmdBuffer.pipelineBarrier(
 			vk::PipelineStageFlagBits::eAllCommands,
 			vk::PipelineStageFlagBits::eColorAttachmentOutput,
 			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &postPresentBarrier
+		);
+
+		// Depth buffer
+
+		vk::ImageSubresourceRange depthSubresourceRange = vk::ImageSubresourceRange()
+			.setAspectMask(vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil)
+			.setBaseMipLevel(0)
+			.setLevelCount(1)
+			.setBaseArrayLayer(0)
+			.setLayerCount(1);
+
+		// Barrier for clearing depth buffer
+		vk::ImageMemoryBarrier depthStencilClearBarrier = vk::ImageMemoryBarrier()
+			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+			.setOldLayout(vk::ImageLayout::eUndefined)
+			.setNewLayout(vk::ImageLayout::eTransferDstOptimal)
+			.setSubresourceRange(depthSubresourceRange)
+			.setImage(depthStencil.image);
+		postPresentCmdBuffer.pipelineBarrier(
+			vk::PipelineStageFlagBits::eAllCommands,
+			vk::PipelineStageFlagBits::eAllCommands, // TODO try back to eEarlyFragmentTest
+			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &depthStencilClearBarrier
+		);
+
+		// Clear depth buffer
+		auto clearDepthValues = vk::ClearDepthStencilValue(0.0f, 0);
+		postPresentCmdBuffer.clearDepthStencilImage(depthStencil.image, vk::ImageLayout::eTransferDstOptimal,
+			clearDepthValues, depthSubresourceRange);
+
+		// Barrier for changing depth buffer layout back
+		vk::ImageMemoryBarrier depthLayoutBarrier = vk::ImageMemoryBarrier()
+			.setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+			.setOldLayout(vk::ImageLayout::eTransferDstOptimal)
+			.setNewLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal)
+			.setSubresourceRange(depthSubresourceRange)
+			.setImage(depthStencil.image);
+		postPresentCmdBuffer.pipelineBarrier(
+			vk::PipelineStageFlagBits::eAllCommands,
+			vk::PipelineStageFlagBits::eAllCommands, // TODO try back to eEarlyFragmentTest
+			vk::DependencyFlags(), 0, nullptr, 0, nullptr, 1, &depthLayoutBarrier
 		);
 
 		postPresentCmdBuffer.end();
