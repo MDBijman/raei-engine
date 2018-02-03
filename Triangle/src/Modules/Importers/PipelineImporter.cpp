@@ -172,6 +172,10 @@ namespace Importers
 				const std::string& depthCompareOp = json["depth-compare-op"];
 				if(depthCompareOp == "less-or-equal")
 					state.setDepthCompareOp(vk::CompareOp::eLessOrEqual);
+				else if(depthCompareOp == "greater-or-equal")
+					state.setDepthCompareOp(vk::CompareOp::eGreaterOrEqual);
+				else if(depthCompareOp == "greater")
+					state.setDepthCompareOp(vk::CompareOp::eGreater);
 			}
 			{
 				bool depthBounds = json["depth-bound-test"];
@@ -200,6 +204,8 @@ namespace Importers
 				const std::string& front = json["front"];
 				if(front == "back")
 					state.setFront(state.back);
+				else if(front == "front")
+					state.setFront(state.front);
 			}
 			return state;
 		}

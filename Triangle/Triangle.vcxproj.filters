@@ -316,6 +316,9 @@
     <ClInclude Include="include\Game\Components\Dummy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Logic\default_renderpasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\game.json">
@@ -336,20 +339,12 @@
     <None Include="res\shaders\compile.bat">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="res\shaders\sprite.frag" />
-    <None Include="res\shaders\compiled\mesh.frag.spv" />
-    <None Include="res\shaders\compiled\mesh.vert.spv" />
-    <None Include="res\shaders\sprite.vert" />
-    <None Include="res\shaders\compiled\sprite.frag.spv" />
-    <None Include="res\shaders\compiled\sprite.vert.spv" />
     <None Include="res\shaders\default-pipeline.json" />
     <None Include="res\shaders\sprite-pipeline.json" />
-    <None Include="res\shaders\compiled\sprite2.frag.spv" />
-    <None Include="res\shaders\compiled\sprite2.vert.spv" />
-    <None Include="res\shaders\sprite2.frag" />
-    <None Include="res\shaders\sprite2.vert" />
     <None Include="res\scripts\startup\TestSystem.lua" />
     <None Include="res\shaders\.gitignore" />
+    <None Include="res\shaders\sprite.frag" />
+    <None Include="res\shaders\sprite.vert" />
   </ItemGroup>
   <ItemGroup>
     <Xsd Include="res\shaders\sprite.xsd">
