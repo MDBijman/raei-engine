@@ -14,7 +14,7 @@
 
 	"color-blending" : {
 		"color-write-mask" : 15,
-		"blending" : true
+		"blending" : false
 	},
 
 	"viewport" : {

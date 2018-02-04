@@ -47,7 +47,10 @@ using MyFilterList = ECS::FilterList<
 	ECS::Filter<Components::Camera2D>,
 
 	// Camera view matrix updates
-	ECS::Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>
+	ECS::Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>,
+
+	// Physics
+	ECS::Filter<Components::Position2D, Components::Scale2D>
 >;
 
 using MyECSManager = ECS::ECSManager<MyComponentList, MyFilterList>;

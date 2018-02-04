@@ -5,7 +5,9 @@
 #include "Modules/TemplateUtils/TypeIndex.h"
 
 #include <unordered_map>
+#include <unordered_set>
 #include <stdint.h>
+#include <algorithm>
 
 namespace ECS
 {
@@ -21,15 +23,20 @@ namespace ECS
 	{
 		void addEntity(uint32_t e)
 		{
-			entities.push_back(e);
+			entities.insert(e);
 		}
 
 		bool hasEntity(uint32_t e)
 		{
-			return std::find(entities.begin(), entities.end(), e) != entities.end();
+			return entities.find(e) != entities.end();
 		}
 
-		std::vector<uint32_t> entities;
+		void removeEntity(uint32_t e)
+		{
+			entities.erase(e);
+		}
+
+		std::unordered_set<uint32_t> entities;
 	};
 
 	// Give a pack of filter types
@@ -63,6 +70,13 @@ namespace ECS
 			Entity<A...> e = Entity<A...>(++entityCount);
 			entities.insert(std::make_pair(e.id, e));
 			return entityCount;
+		}
+
+		void removeEntity(uint32_t e)
+		{
+			removeComponents<A...>(e);
+			updateFilters<B...>(e);
+			entities.erase(e);
 		}
 
 		/*
@@ -110,7 +124,7 @@ namespace ECS
 			Returns all entities that match the signature.
 		*/
 		template<class Filter>
-		std::vector<uint32_t> filterEntities()
+		std::unordered_set<uint32_t> filterEntities()
 		{
 			// We can only create components that derive from Component class
 			constexpr int index = type_index<Filter, B...>::value;
@@ -145,6 +159,21 @@ namespace ECS
 		}
 
 	private:
+		template<class Component>
+		void removeComponents(uint32_t e)
+		{
+			constexpr size_t index = type_index<Component, A...>::value;
+			std::get<index>(components).erase(e);
+			entities.at(e).removeComponent<Component>();
+		}
+
+		template<class Component, class SecondComponent, class... Components>
+		void removeComponents(uint32_t e)
+		{
+			removeComponents<Component>(e);
+			removeComponents<SecondComponent, Components...>(e);
+		}
+
 		/*
 			Checks filters for the given entity to see if it matches, if so, update.
 			Helper struct for checkFilters().
@@ -170,13 +199,20 @@ namespace ECS
 		{
 			bool res = UpdateFilter<Filter>::call(entities, e);
 
+			// Index of filter in the list of filter types
+			constexpr size_t index = type_index<Filter, B...>::value;
+
+			auto& filter = std::get<index>(filters);
+
 			if (res)
 			{
-				// Index of filter in the list of filter types
-				constexpr size_t index = type_index<Filter, B...>::value;
-
-				if (!std::get<index>(filters).hasEntity(e))
-					std::get<index>(filters).addEntity(e);
+				if (!filter.hasEntity(e))
+					filter.addEntity(e);
+			}
+			else
+			{
+				if(filter.hasEntity(e))
+					filter.removeEntity(e);
 			}
 		}
 

@@ -163,7 +163,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
-      <AdditionalOptions>/D "VK_USE_PLATFORM_WIN32_KHR" /D "_CRT_SECURE_NO_WARNINGS" /std:c++latest %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /std:c++latest /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "GLM_FORCE_DEPTH_ZERO_TO_ONE" %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
       <EnablePREfast>true</EnablePREfast>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -216,6 +216,8 @@
     <ClInclude Include="include\Game\Components\Velocity2D.h" />
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
     <ClInclude Include="include\Game\GameConfig.h" />
+    <ClInclude Include="include\Game\Systems\game_rule_systems.h" />
+    <ClInclude Include="include\Game\Systems\physics_system.h" />
     <ClInclude Include="include\Modules\Graphics\Logic\default_renderpasses.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\Game\Systems\CameraSystem.h" />

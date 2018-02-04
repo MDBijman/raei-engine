@@ -4,3 +4,5 @@
 #include "GraphicsInterface.h"
 #include "SpriteShaderSystem.h"
 #include "CameraSystem.h"
+#include "physics_system.h"
+#include "game_rule_systems.h"

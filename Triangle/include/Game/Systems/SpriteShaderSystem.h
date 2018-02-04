@@ -18,7 +18,7 @@ namespace Systems
 			if(cameras.size() == 0)
 				return;
 			
-			auto& camera = ecs.getComponent<Components::Camera2D>(cameras.at(0));
+			auto& camera = ecs.getComponent<Components::Camera2D>(*cameras.begin());
 
 			auto entities = ecs.filterEntities<ECS::Filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>>();
 
