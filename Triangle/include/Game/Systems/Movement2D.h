@@ -18,7 +18,7 @@ namespace Systems
 				auto& pos = ecs.getComponent<Position2D>(entity);
 				auto& vel = ecs.getComponent<Velocity2D>(entity);
 
-				pos.pos += vel.vel;
+				pos.pos += vel.vel * (float)dt;
 			}
 		}
 	};
