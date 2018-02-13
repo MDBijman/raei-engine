@@ -6,7 +6,7 @@
 
 namespace Components
 {
-	class Scale2D : public ECS::Component
+	class Scale2D : public ecs::Component
 	{
 	public:
 		Scale2D() = default;
@@ -15,10 +15,10 @@ namespace Components
 	};
 }
 
-template<> struct ECS::FromLua<Components::Scale2D>
+template<> struct ecs::FromLua<Components::Scale2D>
 {
 	// TODO move type checking and such inside interface?
-	static Components::Scale2D construct(const std::vector<ECS::TypeVariant>& args)
+	static Components::Scale2D construct(const std::vector<ecs::TypeVariant>& args)
 	{
 		if(args.size() != 2) throw std::invalid_argument("Too many parameters");
 

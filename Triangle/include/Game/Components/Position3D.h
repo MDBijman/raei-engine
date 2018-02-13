@@ -4,7 +4,7 @@
 
 namespace Components
 {
-	class Position3D : public ECS::Component
+	class Position3D : public ecs::Component
 	{
 	public:
 		Position3D() {}

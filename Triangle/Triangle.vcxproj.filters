@@ -151,9 +151,6 @@
     <ClInclude Include="include\Modules\Graphics\Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\GameConfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\TypeIndex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -323,6 +320,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\game_rule_systems.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Events\EventManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\ECSConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\EventConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Events\BrickEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,7 @@
 #pragma once
 #include <variant>
 
-namespace ECS
+namespace ecs
 {
 	using TypeVariant = std::variant<int, const char*, void*, double>;
 

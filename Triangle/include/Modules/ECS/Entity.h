@@ -4,15 +4,12 @@
 #include <stdint.h>
 #include <bitset>
 
-namespace ECS
+namespace ecs
 {
 	template<class... ComponentTypes>
 	class Entity
 	{
-	private:
-		template<class A, class B>
-		friend class ECSManager;
-
+	public:
 		Entity() = delete;
 
 		explicit Entity(uint32_t id) : id(id) {}

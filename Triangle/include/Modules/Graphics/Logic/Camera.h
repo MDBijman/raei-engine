@@ -35,6 +35,8 @@ namespace Graphics
 			rotationMatrix = glm::rotate(rotationMatrix, glm::radians(rotation.z), { 0.0, 0.0, 1.0 });
 
 			matrices.view = glm::inverse(translationMatrix * rotationMatrix);
+
+			matrices.view_projection = matrices.projection * matrices.view;
 		}
 
 	protected:
@@ -42,6 +44,7 @@ namespace Graphics
 		{
 			glm::mat4 view;
 			glm::mat4 projection;
+			glm::mat4 view_projection;
 		} matrices;
 	};
 }

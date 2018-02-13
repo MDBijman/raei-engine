@@ -5,14 +5,14 @@
 #include <variant>
 #include <string>
 
-namespace ECS
+namespace ecs
 {
 	namespace detail {
 		template<class Component>
 		class ComponentConstructor
 		{
 		public:
-			Component construct(const std::vector<ECS::TypeVariant>& params)
+			Component construct(const std::vector<ecs::TypeVariant>& params)
 			{
 				return FromLua<Component>::construct(params);
 			}
@@ -41,9 +41,9 @@ namespace ECS
 	class Factory;
 
 	template<typename... Components>
-	class Factory<ECS::ComponentList<Components...>>
+	class Factory<ecs::std::tuple<Components...>>
 	{
-		static_assert(type_utils::var_and_v<std::is_base_of<ECS::Component, Components>::value...>, "All types must be a subclass of ECS::Component");
+		static_assert(type_utils::var_and_v<std::is_base_of<ecs::Component, Components>::value...>, "All types must be a subclass of ECS::Component");
 		static_assert(type_utils::var_and_v<
 			type_utils::is_defined<
 				FromLua<typename Components>
@@ -53,12 +53,12 @@ namespace ECS
 		static_assert(type_utils::var_and_v<
 			detail::has_construct<
 				FromLua<typename Components>,
-				Components(const std::vector<ECS::TypeVariant>&)
+				Components(const std::vector<ecs::TypeVariant>&)
 			>::value...
 		>, "All FromString traits must implement: public static construct(const vector<ECS::TypeVariant>&) -> ComponentType");
 
 	public:
-		Factory(MyECSManager& ecs) : ecs(ecs) {}
+		Factory(ecs_manager& ecs) : ecs(ecs) {}
 
 		auto createEntity()
 		{
@@ -71,7 +71,7 @@ namespace ECS
 			constructors.insert(std::make_pair(identifier, detail::ComponentConstructor<Component>()));
 		}
 
-		void addComponent(uint32_t componentId, const std::string& identifier, const std::vector<ECS::TypeVariant>& arguments)
+		void addComponent(uint32_t componentId, const std::string& identifier, const std::vector<ecs::TypeVariant>& arguments)
 		{
 			std::visit([&](auto&& constructor) {
 				ecs.addComponent(componentId, constructor.construct(arguments));
@@ -84,7 +84,7 @@ namespace ECS
 			std::variant<detail::ComponentConstructor<Components>...>
 		> constructors;
 
-		MyECSManager& ecs;
+		ecs_manager& ecs;
 	};
 
 }

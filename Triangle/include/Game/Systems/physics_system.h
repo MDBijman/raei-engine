@@ -11,9 +11,9 @@ namespace systems
 		physics_system(uint32_t ball, uint32_t paddle, std::unordered_set<uint32_t> bricks) : 
 			ball(ball), paddle(paddle), bricks(bricks) {}
 
-		void update(MyECSManager& ecs, double dt) override
+		void update(ecs_manager& ecs, double dt) override
 		{
-			auto entities = ecs.filterEntities<ECS::Filter<Components::Position2D, Components::Scale2D>>();
+			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::Position2D, Components::Scale2D>>();
 			auto& ball_velocity = ecs.getComponent<Components::Velocity2D>(ball);
 			auto& ball_position = ecs.getComponent<Components::Position2D>(ball);
 			auto& ball_scale = ecs.getComponent<Components::Scale2D>(ball);
@@ -22,8 +22,8 @@ namespace systems
 			{
 				if (*it == ball) continue;
 
-				std::vector<glm::vec2> other_cube = {
-					{ -.5f, -.5f },
+				std::array<glm::vec2, 4> other_cube = {
+					glm::vec2{ -.5f, -.5f },
 					{ -.5f, .5f },
 					{ .5f, -.5f },
 					{ .5f, .5f },
@@ -31,11 +31,11 @@ namespace systems
 
 				auto ball_cube = other_cube;
 
-				auto scale = [](std::vector<glm::vec2>& cube, const glm::vec2& offset) {
+				auto scale = [](std::array<glm::vec2, 4>& cube, const glm::vec2& offset) {
 					for (auto& component : cube)
 						component *= offset;
 				};
-				auto move = [](std::vector<glm::vec2>& cube, const glm::vec2& offset) {
+				auto move = [](std::array<glm::vec2, 4>& cube, const glm::vec2& offset) {
 					for (auto& component : cube)
 						component += offset;
 				};
@@ -48,7 +48,7 @@ namespace systems
 				scale(ball_cube, ball_scale.scale);
 				move(ball_cube, ball_position.pos);
 
-				auto intersects = [](std::vector<glm::vec2> cube, glm::vec2 pos) {
+				auto intersects = [](const std::array<glm::vec2, 4>& cube, const glm::vec2& pos) {
 					auto overlapX = pos.x - cube[0].x;
 					auto overlapX2 = cube[2].x - pos.x;
 					auto overlapY = pos.y - cube[0].y;
@@ -91,7 +91,7 @@ namespace systems
 								auto normal = glm::vec2(0, -overlap.y);
 								if (glm::dot(normal, ball_velocity.vel) < 0)
 								{
-									auto l = ball_velocity.vel.length();
+									auto l = glm::length(ball_velocity.vel);
 									if (*it == paddle)
 									{
 										auto paddle_offset = ball_position.pos.x - other_pos.pos.x;

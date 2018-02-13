@@ -6,10 +6,10 @@ namespace Systems
 	class CameraSystem : public MySystem
 	{
 	public:
-		void update(MyECSManager& ecs, double dt) override
+		void update(ecs_manager& ecs, double dt) override
 		{
-			auto entities = ecs.filterEntities<ECS::Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>>();
-		
+			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>>();
+			
 			for(auto entity : entities)
 			{
 				auto& camera = ecs.getComponent<Components::Camera2D>(entity);

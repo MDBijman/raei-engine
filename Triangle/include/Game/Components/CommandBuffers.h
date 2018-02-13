@@ -5,7 +5,7 @@
 
 namespace Components
 {
-	class CommandBuffers : public ECS::Component
+	class CommandBuffers : public ecs::Component
 	{
 	public:
 		template<class ShaderType>

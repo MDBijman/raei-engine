@@ -15,7 +15,7 @@
 #include "Components/Scale2D.h"
 #include "Components/Dummy.h"
 
-using MyComponentList = ECS::ComponentList<
+using component_list = std::tuple<
 	Components::Position2D,
 	Components::Position3D,
 	Components::Orientation3D,
@@ -30,28 +30,28 @@ using MyComponentList = ECS::ComponentList<
 	Components::Scale2D
 >;
 
-using MyFilterList = ECS::FilterList<
+using filter_list = std::tuple<
 	// Movement
-	ECS::Filter<Components::Position2D, Components::Velocity2D>,
+	ecs::filter<Components::Position2D, Components::Velocity2D>,
 
 	// Input
-	ECS::Filter<Components::Input, Components::Position2D>,
+	ecs::filter<Components::Input, Components::Position2D>,
 
 	// Rendering
-	ECS::Filter<Components::CommandBuffers>,
+	ecs::filter<Components::CommandBuffers>,
 
 	// Sprite uniform updates
-	ECS::Filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>,
+	ecs::filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>,
 
 	// Camera Finding
-	ECS::Filter<Components::Camera2D>,
+	ecs::filter<Components::Camera2D>,
 
 	// Camera view matrix updates
-	ECS::Filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>,
+	ecs::filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>,
 
 	// Physics
-	ECS::Filter<Components::Position2D, Components::Scale2D>
+	ecs::filter<Components::Position2D, Components::Scale2D>
 >;
 
-using MyECSManager = ECS::ECSManager<MyComponentList, MyFilterList>;
-using MySystem = ECS::System<MyComponentList, MyFilterList>;
+using ecs_manager = ecs::base_manager<component_list, filter_list>;
+using MySystem = ecs::System<component_list, filter_list>;

@@ -4,7 +4,7 @@ namespace Graphics { class Camera; }
 
 namespace Components
 {
-	class Camera2D : public ECS::Component
+	class Camera2D : public ecs::Component
 	{
 	public:
 		Camera2D(Graphics::Camera& c) : camera(c) {}

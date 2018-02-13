@@ -1,16 +1,16 @@
 #pragma once
 #include "Modules/ECS/System.h"
 #include "Modules/IO/Input.h"
-#include "Game/GameConfig.h"
 
 namespace Systems
 {
 	class Input : public MySystem
 	{
 	public:
-		void update(MyECSManager& ecs, double dt) override
+		void update(ecs_manager& ecs, double dt) override
 		{
-			auto&& entities = ecs.filterEntities<ECS::Filter<Components::Input, Components::Position2D>>();
+			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::Input, Components::Position2D>>();
+			
 			for (auto& entity : entities)
 			{
 				auto& input = ecs.getComponent<Components::Input>(entity);

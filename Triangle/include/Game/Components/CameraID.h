@@ -3,7 +3,7 @@
 
 namespace Components
 {
-	class CameraID : public ECS::Component
+	class CameraID : public ecs::Component
 	{
 	public:
 		explicit CameraID(uint32_t id) : id(id) {}

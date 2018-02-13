@@ -8,7 +8,7 @@
 
 namespace Components
 {
-	class Position2D : public ECS::Component
+	class Position2D : public ecs::Component
 	{
 	public:
 		Position2D() {}
@@ -17,9 +17,9 @@ namespace Components
 	};
 }
 
-template<> struct ECS::FromLua<Components::Position2D>
+template<> struct ecs::FromLua<Components::Position2D>
 {
-	static Components::Position2D construct(const std::vector<ECS::TypeVariant>& args)
+	static Components::Position2D construct(const std::vector<ecs::TypeVariant>& args)
 	{
 		if(args.size() != 2) throw std::invalid_argument("Too many parameters");
 

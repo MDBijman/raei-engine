@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ECS
+namespace ecs
 {
 	template<class CT, class FT>
 	class System
@@ -10,6 +10,6 @@ namespace ECS
 		{
 		}
 
-		virtual void update(ECSManager<CT, FT>& ecs, double dt) = 0;
+		virtual void update(base_manager<CT, FT>& ecs, double dt) = 0;
 	};
 }

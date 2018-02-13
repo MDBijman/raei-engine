@@ -1,5 +1,5 @@
 #pragma once
-#include "GameConfig.h"
+#include "ECSConfig.h"
 #include "Modules/Graphics/Logic/Renderer.h"
 
 class Game
@@ -10,15 +10,15 @@ public:
 	void run();
 
 private:
-	MyECSManager		ecs;
+
+	ecs_manager ecs;
 	Graphics::Renderer	graphics;
 	Graphics::Camera	camera;
+
 	enum GameState
 	{
 		PAUSED,
 		RUNNING,
 		FINISHED
 	} gameState;
-
-	double dt = 0.0;
 };

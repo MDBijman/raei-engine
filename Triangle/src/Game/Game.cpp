@@ -10,6 +10,8 @@
 #include "Modules/Time/Timer.h"
 #include "Modules/Importers/Obj.h"
 
+#include <memory>
+
 Game::Game(HINSTANCE hInstance, HWND window) :
 	ecs(),
 	graphics({
@@ -81,7 +83,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	auto ball = ecs.createEntity();
 	{
 		ecs.addComponent(ball, Components::Position2D(glm::vec2(0.0, 0.7)));
-		ecs.addComponent(ball, Components::Velocity2D(glm::vec2(0.0, .2)));
+		ecs.addComponent(ball, Components::Velocity2D(glm::vec2(0.0, .3)));
 		ecs.addComponent(ball, Components::Scale2D(glm::vec2{ .03f, .03f }));
 
 		auto ballData = Components::SpriteAttributes{
@@ -455,14 +457,19 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	}
 
 	{
-		ecs.addSystem<Systems::Movement2D>();
-		ecs.addSystem<Systems::Exit>();
-		ecs.addSystem<Systems::Input>();
-		ecs.addSystem<Systems::SpriteShaderSystem>(*graphics.context);
-		ecs.addSystem<Systems::GraphicsInterface>(&graphics);
-		ecs.addSystem<Systems::CameraSystem>();
-		ecs.addSystem<systems::physics_system>(ball, sprite, bricks);
-		ecs.addSystem<systems::game_rule_system>(ball);
+		auto sg = ecs.get_system_manager().create_group();
+		ecs.get_system_manager().add_to_group(sg, std::make_unique<Systems::Exit>());
+		ecs.get_system_manager().add_to_group(sg, std::make_unique<Systems::Input>());
+		ecs.get_system_manager().add_to_group(sg, std::make_unique<Systems::CameraSystem>());
+		ecs.get_system_manager().add_to_group(sg, std::make_unique<systems::game_rule_system>(ball));
+
+		auto render_thread = ecs.get_system_manager().create_group();
+		ecs.get_system_manager().add_to_group(render_thread, std::make_unique<Systems::GraphicsInterface>(&graphics));
+		ecs.get_system_manager().add_to_group(render_thread, std::make_unique<Systems::SpriteShaderSystem>(*graphics.context));
+
+		auto pt = ecs.get_system_manager().create_group();
+		ecs.get_system_manager().add_to_group(pt, std::make_unique<Systems::Movement2D>());
+		ecs.get_system_manager().add_to_group(pt, std::make_unique<systems::physics_system>(ball, sprite, bricks));
 	}
 }
 
@@ -470,21 +477,11 @@ void Game::run()
 {
 	gameState = RUNNING;
 
-	Time::Timer t;
-	t.start(); t.stop();
 	while (true)
 	{
-		t.start();
-
-		/////
-
 		IO::Polling::update();
-		ecs.updateSystems(t.dt() / 1000.0);
-
-		////
-
-		t.stop();
+		ecs.update();
 	}
 
-	// gameState = GameState::FINISHED;
+	gameState = GameState::FINISHED;
 }

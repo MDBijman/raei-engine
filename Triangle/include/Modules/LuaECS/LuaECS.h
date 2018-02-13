@@ -16,11 +16,11 @@ namespace LuaECS
 	template<typename T>
 	class lua_ecs_binding;
 
-	template<typename ComponentList>
-	class lua_ecs_binding<ECS::Factory<ComponentList>>
+	template<typename std::tuple>
+	class lua_ecs_binding<ecs::Factory<std::tuple>>
 	{
 	public:
-		lua_ecs_binding(sol::state&& e, ECS::Factory<ComponentList>& ecs) : environment(std::move(e))
+		lua_ecs_binding(sol::state&& e, ecs::Factory<std::tuple>& ecs) : environment(std::move(e))
 		{
 			environment.new_usertype<ecs_interface>("ecs", "create_entity", &ecs_interface::create_entity);
 		}
@@ -32,7 +32,7 @@ namespace LuaECS
 		{
 			int pre = lua_gettop(state);
 
-			ECS::Factory<ComponentList>* ecsPointer = static_cast<ECS::Factory<ComponentList>*>(lua_touserdata(state, 1));
+			ecs::Factory<std::tuple>* ecsPointer = static_cast<ecs::Factory<std::tuple>*>(lua_touserdata(state, 1));
 			auto entity = ecsPointer->createEntity();
 
 			lua_pushnil(state);
@@ -47,7 +47,7 @@ namespace LuaECS
 				lua_gettable(state, 4); // Push arguments
 
 				lua_pushnil(state);
-				std::vector<ECS::TypeVariant> arguments;
+				std::vector<ecs::TypeVariant> arguments;
 				while (lua_next(state, 5) != 0)
 				{
 					if (lua_type(state, -1) == LUA_TSTRING)

@@ -5,7 +5,7 @@
 
 namespace Components
 {
-	class Pipeline : public ECS::Component
+	class Pipeline : public ecs::Component
 	{
 	public:
 		template<class ShaderType>
