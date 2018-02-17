@@ -5,7 +5,7 @@
 namespace Components
 {
 	template<class AttributeType, class UniformType>
-	class ComponentShader : public ECS::Component, public Graphics::Data::Shader<AttributeType, UniformType>
+	class ComponentShader : public ecs::Component, public Graphics::Data::Shader<AttributeType, UniformType>
 	{
 		using ShaderType = Graphics::Data::Shader<AttributeType, UniformType>;
 	public:

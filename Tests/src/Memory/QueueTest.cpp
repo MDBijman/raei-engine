@@ -1,4 +1,4 @@
-#include <catch/catch.h>
+#include <catch/catch.hpp>
 #include <iostream>
 #include "Modules/Memory/Queue.h"
 

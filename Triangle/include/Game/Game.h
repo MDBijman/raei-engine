@@ -1,6 +1,7 @@
 #pragma once
-#include "GameConfig.h"
+#include "ECSConfig.h"
 #include "Modules/Graphics/Logic/Renderer.h"
+#include "EventConfig.h"
 
 class Game
 {
@@ -10,15 +11,17 @@ public:
 	void run();
 
 private:
-	MyECSManager		ecs;
+
+	std::shared_ptr<ecs_manager> ecs;
+	std::shared_ptr<event_manager> events;
+
 	Graphics::Renderer	graphics;
 	Graphics::Camera	camera;
+
 	enum GameState
 	{
 		PAUSED,
 		RUNNING,
 		FINISHED
 	} gameState;
-
-	double dt = 0.0;
 };

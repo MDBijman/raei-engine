@@ -5,7 +5,7 @@
 
 namespace Components
 {
-	class Orientation3D : public ECS::Component
+	class Orientation3D : public ecs::Component
 	{
 	public:
 		Orientation3D() : front(1, 0, 0), up(0, 1, 0), pitch(0), yaw(0) {}

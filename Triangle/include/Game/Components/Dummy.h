@@ -7,7 +7,7 @@
 
 namespace Components
 {
-	class Dummy : public ECS::Component
+	class Dummy : public ecs::Component
 	{
 	public:
 		Dummy(int x) : x(x + 2){}
@@ -15,9 +15,9 @@ namespace Components
 	};
 }
 
-template<> struct ECS::FromLua<Components::Dummy>
+template<> struct ecs::FromLua<Components::Dummy>
 {
-	static Components::Dummy construct(const std::vector<ECS::TypeVariant>& args)
+	static Components::Dummy construct(const std::vector<ecs::TypeVariant>& args)
 	{
 		std::cout << "Creating Dummys" << std::endl;
 		return Components::Dummy(3);

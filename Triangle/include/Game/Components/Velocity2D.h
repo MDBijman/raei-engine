@@ -4,7 +4,7 @@
 
 namespace Components
 {
-	class Velocity2D : public ECS::Component
+	class Velocity2D : public ecs::Component
 	{
 	public:
 		Velocity2D() {}

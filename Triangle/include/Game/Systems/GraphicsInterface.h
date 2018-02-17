@@ -11,10 +11,10 @@ namespace Systems
 	public:
 		explicit GraphicsInterface(Graphics::Renderer* graphics) : graphics(graphics) {}
 
-		void update(MyECSManager& ecs, double dt) override
+		void update(ecs_manager& ecs, double dt) override
 		{
 			auto frame = graphics->getFrame();
-			auto entities = ecs.filterEntities<ECS::Filter<Components::CommandBuffers>>();
+			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::CommandBuffers>>();
 			for (auto entity : entities)
 			{
 				auto& buffers = ecs.getComponent<Components::CommandBuffers>(entity);

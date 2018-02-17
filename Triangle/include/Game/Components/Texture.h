@@ -7,7 +7,7 @@
 
 namespace Components
 {
-	class Texture : public ECS::Component
+	class Texture : public ecs::Component
 	{
 	public:
 		Texture(const std::string& name, Graphics::VulkanContext& context, vk::CommandPool& cmdPool, vk::Queue& queue) : texture(("./res/textures/" + name).c_str(), vk::Format::eBc3UnormBlock, context.physicalDevice, context.device, cmdPool, queue)

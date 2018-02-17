@@ -3,7 +3,7 @@
 
 namespace Components
 {
-	class Input : public ECS::Component
+	class Input : public ecs::Component
 	{
 	public:
 		float speed;

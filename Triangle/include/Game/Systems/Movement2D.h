@@ -9,10 +9,10 @@ namespace Systems
 	class Movement2D : public MySystem
 	{
 	public:
-		void update(MyECSManager& ecs, double dt) override
+		void update(ecs_manager& ecs, double dt) override
 		{
 			using namespace Components;
-			auto entities = ecs.filterEntities<ECS::Filter<Position2D, Velocity2D>>();
+			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Position2D, Velocity2D>>();
 			for (auto& entity : entities)
 			{
 				auto& pos = ecs.getComponent<Position2D>(entity);

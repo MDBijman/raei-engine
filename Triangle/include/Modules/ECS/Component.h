@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-namespace ECS
+namespace ecs
 {
 	class Component
 	{
@@ -9,7 +9,7 @@ namespace ECS
 
 	private:
 		template<class A, class B>
-		friend class ECSManager;
+		friend class base_manager;
 
 		uint32_t parent;
 	};

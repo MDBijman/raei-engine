@@ -5,4 +5,7 @@
 #include "SpriteShaderSystem.h"
 #include "CameraSystem.h"
 #include "physics_system.h"
+#include "brick_event_system.h"
 #include "game_rule_systems.h"
+#include "fps_system.h"
+#include "score_system.h"
