@@ -8,6 +8,7 @@ namespace Components
 	{
 	public:
 		Velocity2D() {}
+		Velocity2D(double x, double y) : vel(x, y) {}
 		Velocity2D(float x, float y) : vel(x, y) {}
 		explicit Velocity2D(glm::vec2 v) : vel(v) {}
 

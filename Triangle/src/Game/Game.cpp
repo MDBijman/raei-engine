@@ -21,16 +21,16 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	camera(-1272.f / 689.f, 1272.f / 689.f, -1.0f, 1.0f, 0.1f, 100.0f)
 {
 	auto cameraEntity = ecs->createEntity();
-	auto& pos = ecs->addComponent(cameraEntity, Components::Position3D(0.0f, 0.0f, 1.0f));
+	auto& pos = ecs->addComponent(cameraEntity, Components::Position3D(0.0, 0.0, 1.0));
 	ecs->addComponent(cameraEntity, Components::Orientation3D());
 	auto& camera = ecs->addComponent(cameraEntity, Components::Camera2D(this->camera));
 	camera.camera.moveTo(pos.pos, glm::vec3());
 
 	auto sprite = ecs->createEntity();
 	{
-		ecs->addComponent(sprite, Components::Position2D(glm::vec2(0.0, 0.8)));
-		ecs->addComponent(sprite, Components::Velocity2D(glm::vec2(0.0, 0.0)));
-		ecs->addComponent(sprite, Components::Scale2D(glm::vec2{ .2f, 0.05f }));
+		ecs->addComponent(sprite, Components::Position2D(0.0, 0.8));
+		ecs->addComponent(sprite, Components::Velocity2D(0.0, 0.0));
+		ecs->addComponent(sprite, Components::Scale2D(.2, 0.05));
 		ecs->addComponent(sprite, Components::Input(1.0f));
 
 		auto spriteData = Components::SpriteAttributes{
@@ -75,16 +75,16 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			});
 
 		ecs->addComponent(sprite, Components::CommandBuffers{
-			graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
+			graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),
 			graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
 			});
 	}
 
 	auto ball = ecs->createEntity();
 	{
-		ecs->addComponent(ball, Components::Position2D(glm::vec2(0.0, 0.7)));
-		ecs->addComponent(ball, Components::Velocity2D(glm::vec2(0.0, 1.6)));
-		ecs->addComponent(ball, Components::Scale2D(glm::vec2{ .03f, .03f }));
+		ecs->addComponent(ball, Components::Position2D(0.0, 0.7));
+		ecs->addComponent(ball, Components::Velocity2D(0.0, 1.6));
+		ecs->addComponent(ball, Components::Scale2D(.03, .03));
 
 		auto ballData = Components::SpriteAttributes{
 			{
@@ -128,7 +128,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			});
 
 		ecs->addComponent(ball, Components::CommandBuffers{
-			graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
+			graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),
 			graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
 			});
 	}
@@ -146,13 +146,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			float width = 0.135f;
 			float gap = 0.05f;
 
-			auto& pos = ecs->addComponent(block, Components::Position2D(glm::vec2(
+			auto& pos = ecs->addComponent(block, Components::Position2D(
 				-0.9 + (width + gap) * i + 0.5f * width,
 				-0.9 + (double)j / 8.0
-			)));
-			auto& scale = ecs->addComponent(block, Components::Scale2D(
-				glm::vec2{ width, 1.0f / 15.0f }
 			));
+			auto& scale = ecs->addComponent(block, Components::Scale2D(width, 1.0f / 15.0f));
 
 			auto spriteData = Components::SpriteAttributes{
 				{
@@ -209,14 +207,9 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	// Top Wall
 	{
 		auto top_wall = ecs->createEntity();
-		float width = 2.0f;
 
-		auto& pos = ecs->addComponent(top_wall, Components::Position2D(glm::vec2(
-			0.0f, -1.0f
-		)));
-		auto& scale = ecs->addComponent(top_wall, Components::Scale2D(
-			glm::vec2{ width, 1.0f / 15.0f }
-		));
+		auto& pos = ecs->addComponent(top_wall, Components::Position2D(0.0, -1.0));
+		auto& scale = ecs->addComponent(top_wall, Components::Scale2D(2.0, 1.0 / 15.0));
 
 		auto spriteData = Components::SpriteAttributes{
 			{
@@ -268,81 +261,12 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			});
 	}
 
-	/*
-	// Bottom Wall
-	{
-		auto bottom_wall = ecs->createEntity();
-		float width = 2.0f;
-
-		auto& pos = ecs->addComponent(bottom_wall, Components::Position2D(glm::vec2(
-			0.0f, 1.0f
-		)));
-		auto& scale = ecs->addComponent(bottom_wall, Components::Scale2D(
-			glm::vec2{ width, 1.0f / 15.0f }
-		));
-
-		auto spriteData = Components::SpriteAttributes{
-			{
-				{
-					{ -.5f, -.5f },
-					{ 0.0f, 0.0f }
-				},
-				{
-					{ -.5f, .5f },
-					{ 0.0f, 1.0f }
-				},
-				{
-					{ .5f, -.5f },
-					{ 1.0f, 0.0f }
-				},
-				{
-					{ .5f, .5f },
-					{ 1.0f, 1.0f }
-				}
-			},
-			{ 0, 1, 2, 2, 1, 3 }
-		};
-
-		auto uniform = Components::SpriteUniforms(*graphics.context, {
-			Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
-				camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
-				*graphics.context
-			},
-			Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
-				"./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice,
-				graphics.context->device, graphics.cmdPool, *graphics.queue
-			}
-			});
-
-		auto& shader = ecs->addComponent(bottom_wall, Components::SpriteShader{
-			std::move(spriteData), std::move(uniform)
-			});
-
-		shader.allocate(*graphics.context);
-
-		auto& pipeline = ecs->addComponent(bottom_wall, Components::Pipeline{
-			"./res/shaders/sprite-pipeline.json", graphics.drawPass, graphics.pipelineCache,
-			graphics.context->device, shader
-			});
-
-		ecs->addComponent(bottom_wall, Components::CommandBuffers{
-			graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
-			graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
-			});
-	}
-	*/
-
 	// Left Wall
 	{
 		auto left_wall = ecs->createEntity();
-		float height = 2.0f;
 
-		auto& pos = ecs->addComponent(left_wall, Components::Position2D(glm::vec2(
-			-1.0f, 0.0f
-		)));
-		auto& scale = ecs->addComponent(left_wall, Components::Scale2D(
-			glm::vec2{ 1.0f / 15.0f, height }
-		));
+		auto& pos = ecs->addComponent(left_wall, Components::Position2D(-1.0, 0.0));
+		auto& scale = ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
 
 		auto spriteData = Components::SpriteAttributes{
 			{
@@ -397,14 +321,9 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	// Right Wall
 	{
 		auto left_wall = ecs->createEntity();
-		float height = 2.0f;
 
-		auto& pos = ecs->addComponent(left_wall, Components::Position2D(glm::vec2(
-			1.0f, 0.0f
-		)));
-		auto& scale = ecs->addComponent(left_wall, Components::Scale2D(
-			glm::vec2{ 1.0f / 15.0f, height }
-		));
+		auto& pos = ecs->addComponent(left_wall, Components::Position2D(1.0, 0.0));
+		auto& scale = ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
 
 		auto spriteData = Components::SpriteAttributes{
 			{
@@ -462,25 +381,25 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 
 		ecs->addComponent<components::score>(score, components::score());
 
-		auto& pos = ecs->addComponent(score, Components::Position2D(glm::vec2(-1.2f, 0.0f)));
-		auto& scale = ecs->addComponent(score, Components::Scale2D(glm::vec2(.1f, .1f)));
+		auto& pos = ecs->addComponent(score, Components::Position2D(-1.8361, -.99));
+		auto& scale = ecs->addComponent(score, Components::Scale2D(.1, .1));
 
 		auto spriteData = Components::SpriteAttributes{
 			{
 				{
-					{ -.5f, -.5f },
+					{ 0.0f, 0.0f },
 					{ 0.0f, 0.0f }
 				},
 				{
-					{ -.5f, .5f },
+					{ 0.0f, 1.0f },
 					{ 0.0f, 1.0f }
 				},
 				{
-					{ .5f, -.5f },
+					{ 1.0f, 0.0f },
 					{ 1.0f, 0.0f }
 				},
 				{
-					{ .5f, .5f },
+					{ 1.0f, 1.0f },
 					{ 1.0f, 1.0f }
 				}
 			},
@@ -498,7 +417,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			}
 			});
 
-		auto& shader = ecs->addComponent(score, Components::SpriteShader{ std::move(spriteData), std::move(uniform) });
+		auto& shader = ecs->addComponent(score, Components::SpriteShader(std::move(spriteData), std::move(uniform)));
 		shader.allocate(*graphics.context);
 
 		auto& pipeline = ecs->addComponent(score, Components::Pipeline{
@@ -507,7 +426,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			});
 
 		ecs->addComponent(score, Components::CommandBuffers{
-			graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
+			graphics.cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),
 			graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
 			});
 	}

@@ -12,6 +12,8 @@ namespace Components
 	{
 	public:
 		Position2D() {}
+		Position2D(double x, double y) : pos(x, y) {}
+		Position2D(float x, float y) : pos(x, y) {}
 		explicit Position2D(glm::vec2 v) : pos(v) {}
 		glm::vec2 pos;
 	};
