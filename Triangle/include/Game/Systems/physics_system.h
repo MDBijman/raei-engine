@@ -1,5 +1,7 @@
 #pragma once
 #include "Modules/ECS/System.h"
+#include "Modules/Events/EventManager.h"
+#include "../Events/BrickEvents.h"
 
 #include <unordered_set>
 
@@ -8,8 +10,8 @@ namespace systems
 	class physics_system : public MySystem
 	{
 	public:
-		physics_system(uint32_t ball, uint32_t paddle, std::unordered_set<uint32_t> bricks) : 
-			ball(ball), paddle(paddle), bricks(bricks) {}
+		physics_system(events::publisher<events::brick_hit> publisher, uint32_t ball, uint32_t paddle, 
+			std::unordered_set<uint32_t> bricks) : ball(ball), paddle(paddle), bricks(bricks), publisher(publisher) {}
 
 		void update(ecs_manager& ecs, double dt) override
 		{
@@ -113,16 +115,15 @@ namespace systems
 						}
 
 						if (bricks.find(*it) != bricks.end())
-						{
-							bricks.erase(*it);
-							ecs.removeEntity(*it);
-						}
+							publisher.broadcast(events::brick_hit(*it, ball));
 						break;
 					}
 				}
 			}
 		}
 	private:
+		events::publisher<events::brick_hit> publisher;
+
 		uint32_t ball, paddle;
 		std::unordered_set<uint32_t> bricks;
 	};

@@ -8,6 +8,9 @@
     <Filter Include="Source Files\Memory">
       <UniqueIdentifier>{9ff6e521-b2b8-43f6-bc68-d4f910880ab5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ECS">
+      <UniqueIdentifier>{44e62a25-902e-4ebb-bf6a-6d2e1757855e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -15,6 +18,9 @@
     </ClCompile>
     <ClCompile Include="src\Memory\QueueTest.cpp">
       <Filter>Source Files\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ECS\ecs_performance.cpp">
+      <Filter>Source Files\ECS</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

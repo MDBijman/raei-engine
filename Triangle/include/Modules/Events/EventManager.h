@@ -5,41 +5,57 @@
 #include <unordered_map>
 #include <tuple>
 
+#include "Modules/Memory/safe_dynamic_queue.h"
 #include "Modules/TemplateUtils/ForEachInTuple.h"
 #include "Modules/TemplateUtils/TypeIndex.h"
+#include "Modules/TemplateUtils/IsElementOfPack.h"
 
 namespace events
 {
-	template<class Subscriber, class... Events>
-	class base_subscriber
+	template<class T>
+	using subscriber = memory::safe_dynamic_queue<std::shared_ptr<const T>>;
+
+	template<class Event>
+	class publisher
 	{
 	public:
-		template<class EventData>
-		void add_event(EventData e)
-		{
-			constexpr int index = type_index<EventData, Events>::value;
-			std::get<index>(subscriptions).push_back(e.data);
-		}
+		publisher(std::function<void(Event)> callback) : broadcast(callback) {}
 
-	private:
-		std::tuple<std::vector<Events>...> subscriptions;
+		const std::function<void(Event)> broadcast;
 	};
 
-	template<class... Subscribers>
+	template<class... Events>
 	class base_manager
 	{
+		std::tuple<std::vector<std::shared_ptr<subscriber<Events>>>...> subscribers;
+
 	public:
 		using subscriber_id = uint32_t;
 
-		template<class EventData>
-		void broadcast(EventData e)
+		template<class Event>
+		subscriber<Event>& new_subscriber()
 		{
-			for_each_in_tuple(subscribers, [&e](auto& subscriber) {
-				subscriber.add_event<decltype(e.data)>(e);
-			});
+			constexpr auto index = type_index<Event, Events...>::value;
+			std::get<index>(subscribers).push_back(std::make_shared<subscriber<Event>>());
+			return *std::get<index>(subscribers).back();
+		}
+
+		template<class Event>
+		publisher<Event> new_publisher()
+		{
+			constexpr auto index = type_index<Event, Events...>::value;
+			return publisher<Event>([this](Event event) { this->broadcast(event); });
 		}
 
 	private:
-		std::tuple<Subscribers...> subscribers;
+		template<class Event>
+		void broadcast(Event e)
+		{
+			constexpr auto index = type_index<Event, Events...>::value;
+			auto heap_event = std::make_shared<const Event>(std::move(e));
+
+			for (auto& subscriber : std::get<index>(subscribers))
+				subscriber->push(heap_event);
+		}
 	};
 }

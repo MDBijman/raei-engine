@@ -14,6 +14,7 @@
 #include "Components/CommandBuffers.h"
 #include "Components/Scale2D.h"
 #include "Components/Dummy.h"
+#include "Components/score.h"
 
 using component_list = std::tuple<
 	Components::Position2D,
@@ -27,7 +28,8 @@ using component_list = std::tuple<
 	Components::CommandBuffers,
 	Components::SpriteShader,
 	Components::Input,
-	Components::Scale2D
+	Components::Scale2D,
+	components::score
 >;
 
 using filter_list = std::tuple<
@@ -42,7 +44,7 @@ using filter_list = std::tuple<
 
 	// Sprite uniform updates
 	ecs::filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>,
-
+	
 	// Camera Finding
 	ecs::filter<Components::Camera2D>,
 
@@ -50,7 +52,10 @@ using filter_list = std::tuple<
 	ecs::filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>,
 
 	// Physics
-	ecs::filter<Components::Position2D, Components::Scale2D>
+	ecs::filter<Components::Position2D, Components::Scale2D>,
+
+	// Score
+	ecs::filter<components::score, Components::SpriteShader>
 >;
 
 using ecs_manager = ecs::base_manager<component_list, filter_list>;

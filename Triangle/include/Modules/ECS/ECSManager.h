@@ -5,6 +5,7 @@
 #include "Modules/TemplateUtils/TypeIndex.h"
 #include "Modules/TemplateUtils/TemplatePackSize.h"
 #include "Modules/Time/Timer.h"
+#include "Modules/Memory/safe_queue.h"
 
 
 #include <unordered_map>
@@ -13,6 +14,7 @@
 #include <algorithm>
 #include <mutex>
 #include <atomic>
+#include <memory>
 
 namespace ecs
 {
@@ -54,29 +56,119 @@ namespace ecs
 		using ecs = ECS<std::tuple<Components...>, std::tuple<Filters...>>;
 		using system = System<std::tuple<Components...>, std::tuple<Filters...>>;
 
-		struct group
+		struct group_thread
 		{
-			group() {}
-			group(group&& o) : systems(std::move(o.systems)) {}
+			group_thread(std::shared_ptr<std::atomic_bool> keep_running, std::shared_ptr<std::atomic_int> workers_running,
+				std::shared_ptr<std::condition_variable> parent, std::shared_ptr<std::mutex> parent_mutex,
+				std::shared_ptr<memory::safe_queue<10, std::pair<system*, Time::Timer2*>>> queue, ecs& parent_ecs) : 
+				parent_wakeup(parent), parent_ecs(parent_ecs), keep_running(keep_running), parent_wakeup_mutex(parent_mutex),
+				workers_running(workers_running), work_queue(queue), thread(&group_thread::run, this) {}
 
-			void update(ecs& parent_ecs)
+			std::shared_ptr<std::atomic_bool> keep_running;
+			std::shared_ptr<std::condition_variable> parent_wakeup;
+			std::shared_ptr<std::mutex> parent_wakeup_mutex;
+			std::shared_ptr<std::atomic_int> workers_running;
+			std::condition_variable wakeup;
+			std::mutex wakeup_mutex;
+			bool should_wake = false;
+			ecs& parent_ecs;
+
+			std::shared_ptr<memory::safe_queue<10, std::pair<system*, Time::Timer2*>>> work_queue;
+			std::thread thread;
+
+		private:
+			void run()
 			{
-				std::vector<std::thread> threads;
-				for (auto& pair : systems)
+				while (keep_running->load())
 				{
-					threads.push_back(std::thread([&pair, &parent_ecs]() {
-						pair.first->update(parent_ecs, pair.second.dt());
-						pair.second.zero();
-					}));
-				}
+					std::unique_lock<std::mutex> lk(wakeup_mutex);
+					wakeup.wait(lk, [this]() { return should_wake; });
+					should_wake = false;
 
-				for (auto& thread : threads)
-				{
-					thread.join();
+					while (true)
+					{
+						auto work = work_queue->dequeue();
+						if (!work.has_value())
+							break;
+
+						auto pair = work.value();
+						pair.first->update(parent_ecs, pair.second->dt());
+						pair.second->zero();
+					}
+
+					{
+						std::scoped_lock<std::mutex> sl(*parent_wakeup_mutex);
+						(*workers_running)--;
+						parent_wakeup->notify_all();
+					}
 				}
 			}
+		};
 
-			std::vector<std::pair<std::unique_ptr<system>, Time::Timer2>> systems;
+		struct group
+		{
+			using group_work_queue = memory::safe_queue<10, std::pair<system*, Time::Timer2*>>;
+
+			group(ecs& parent_ecs) : keep_running(std::make_shared<std::atomic_bool>(true)),
+				workers_running(std::make_shared<std::atomic_int>()), wakeup(std::make_shared<std::condition_variable>()),
+				parent_ecs(parent_ecs), work_queue(std::make_shared<group_work_queue>()),
+				wakeup_mutex(std::make_shared<std::mutex>())
+			{
+				for (int i = 0; i < 4; i++)
+					threads.at(i) = std::make_unique<group_thread>(keep_running, workers_running, wakeup, wakeup_mutex
+						work_queue, parent_ecs);
+			}
+
+			group(group&& o) : parent_ecs(o.parent_ecs),
+				systems(std::move(o.systems)), workers_running(std::move(o.workers_running)),
+				keep_running(std::move(o.keep_running)), work_queue(std::move(o.work_queue)),
+				system_timers(std::move(o.system_timers)), threads(std::move(o.threads)), wakeup(std::move(o.wakeup)),
+				wakeup_mutex(std::move(o.wakeup_mutex)) {}
+
+			void update()
+			{
+				if (systems.size() == 0) return;
+				assert(systems.size() == system_timers.size());
+
+				// Put work in threads
+				for (std::size_t i = 0; i < systems.size(); i++)
+					work_queue->enqueue({ systems.at(i).get(), &system_timers.at(i) });
+
+				workers_running->store(4);
+
+				// Notify threads to run systems
+				for (auto& t : threads)
+				{
+					t->should_wake = true;
+					t->wakeup.notify_all();
+				}
+
+				std::unique_lock<std::mutex> ul(*wakeup_mutex);
+				wakeup->wait(ul, [this]{ 
+					return this->workers_running->load() == 0; 
+				});
+			}
+
+			void add_system(std::unique_ptr<system> s)
+			{
+				systems.push_back(std::move(s));
+				system_timers.push_back(Time::Timer2());
+			}
+
+		private:
+			std::array<std::unique_ptr<group_thread>, 4> threads;
+
+			std::shared_ptr<std::atomic_bool> keep_running;
+
+			std::shared_ptr<std::condition_variable> wakeup;
+			std::shared_ptr<std::mutex> wakeup_mutex;
+
+			std::shared_ptr<std::atomic_int> workers_running;
+			std::shared_ptr<group_work_queue> work_queue;
+			ecs& parent_ecs;
+
+			std::vector<std::unique_ptr<system>> systems;
+			std::vector<Time::Timer2> system_timers;
 		};
 
 	public:
@@ -87,8 +179,7 @@ namespace ecs
 		group_id create_group()
 		{
 			counter++;
-			group g = group();
-			system_groups.insert({ counter, std::move(g) });
+			system_groups.insert({ counter, group(parent_ecs) });
 			order.push_back(counter);
 			return counter;
 		}
@@ -100,14 +191,14 @@ namespace ecs
 
 		void add_to_group(group_id id, std::unique_ptr<system> sys)
 		{
-			system_groups.at(id).systems.push_back({ std::move(sys), Time::Timer2() });
+			system_groups.at(id).add_system(std::move(sys));
 		}
 
-		void update(ecs& parent_ecs)
+		void update()
 		{
 			for (auto id : order)
 			{
-				system_groups[id].update(parent_ecs);
+				system_groups.at(id).update();
 			}
 		}
 
@@ -118,7 +209,7 @@ namespace ecs
 		}
 
 	private:
-		ecs& parent_ecs;
+		ecs & parent_ecs;
 
 		// Vector of system groups
 		std::unordered_map<group_id, group> system_groups;
@@ -284,7 +375,7 @@ namespace ecs
 
 		void update()
 		{
-			this->child_system_manager.update(*this);
+			this->child_system_manager.update();
 		}
 
 	private:
