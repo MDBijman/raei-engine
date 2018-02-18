@@ -10,10 +10,10 @@ namespace systems
 	public:
 		fps_system() : timer() {}
 
-		void update(ecs_manager& ecs, double dt) override
+		void update(ecs_manager& ecs) override
 		{
 			auto ms = timer.dt();
-			std::cout << 1.0 / ms << "\n";
+			//std::cout << 1.0 / ms << "\n";
 			timer.zero();
 		}
 

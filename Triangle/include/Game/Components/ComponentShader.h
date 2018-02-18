@@ -9,7 +9,7 @@ namespace Components
 	{
 		using ShaderType = Graphics::Data::Shader<AttributeType, UniformType>;
 	public:
-		ComponentShader(AttributeType&& attributes, UniformType&& uniforms) : ShaderType(std::forward<AttributeType>(attributes), std::forward<UniformType>(uniforms)) {}
+		ComponentShader(AttributeType attributes, UniformType uniforms) : ShaderType(std::forward<AttributeType>(attributes), std::forward<UniformType>(uniforms)) {}
 		ComponentShader(ComponentShader&& other) noexcept : Component(std::move(other)), ShaderType(std::move(other)) {}
 	};
 }

@@ -9,7 +9,7 @@ namespace systems
 		game_rule_system(uint32_t ball)
 			: ball(ball) {}
 
-		void update(ecs_manager& ecs, double dt) override
+		void update(ecs_manager& ecs) override
 		{
 			auto& ball_pos = ecs.getComponent<Components::Position2D>(ball);
 

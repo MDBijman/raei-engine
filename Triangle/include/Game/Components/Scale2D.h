@@ -10,6 +10,8 @@ namespace Components
 	{
 	public:
 		Scale2D() = default;
+		Scale2D(double x, double y) : scale(x, y) {}
+		Scale2D(float x, float y) : scale(x, y) {}
 		Scale2D(glm::vec2 a) : scale(a) {}
 		glm::vec2 scale;
 	};

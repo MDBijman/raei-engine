@@ -13,7 +13,7 @@ namespace systems
 		physics_system(events::publisher<events::brick_hit> publisher, uint32_t ball, uint32_t paddle, 
 			std::unordered_set<uint32_t> bricks) : ball(ball), paddle(paddle), bricks(bricks), publisher(publisher) {}
 
-		void update(ecs_manager& ecs, double dt) override
+		void update(ecs_manager& ecs) override
 		{
 			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::Position2D, Components::Scale2D>>();
 			auto& ball_velocity = ecs.getComponent<Components::Velocity2D>(ball);

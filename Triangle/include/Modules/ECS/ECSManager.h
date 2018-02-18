@@ -59,21 +59,18 @@ namespace ecs
 		struct group_thread
 		{
 			group_thread(std::shared_ptr<std::atomic_bool> keep_running, std::shared_ptr<std::atomic_int> workers_running,
-				std::shared_ptr<std::condition_variable> parent, std::shared_ptr<std::mutex> parent_mutex,
-				std::shared_ptr<memory::safe_queue<10, std::pair<system*, Time::Timer2*>>> queue, ecs& parent_ecs) : 
-				parent_wakeup(parent), parent_ecs(parent_ecs), keep_running(keep_running), parent_wakeup_mutex(parent_mutex),
-				workers_running(workers_running), work_queue(queue), thread(&group_thread::run, this) {}
+				std::shared_ptr<memory::safe_queue<10, system*>> queue, ecs& parent_ecs) : 
+				parent_ecs(parent_ecs), keep_running(keep_running), workers_running(workers_running), work_queue(queue), 
+				thread(&group_thread::run, this) {}
 
 			std::shared_ptr<std::atomic_bool> keep_running;
-			std::shared_ptr<std::condition_variable> parent_wakeup;
-			std::shared_ptr<std::mutex> parent_wakeup_mutex;
 			std::shared_ptr<std::atomic_int> workers_running;
 			std::condition_variable wakeup;
 			std::mutex wakeup_mutex;
 			bool should_wake = false;
 			ecs& parent_ecs;
 
-			std::shared_ptr<memory::safe_queue<10, std::pair<system*, Time::Timer2*>>> work_queue;
+			std::shared_ptr<memory::safe_queue<10, system*>> work_queue;
 			std::thread thread;
 
 		private:
@@ -91,50 +88,42 @@ namespace ecs
 						if (!work.has_value())
 							break;
 
-						auto pair = work.value();
-						pair.first->update(parent_ecs, pair.second->dt());
-						pair.second->zero();
+						auto sys = work.value();
+						sys->update(parent_ecs);
 					}
 
-					{
-						std::scoped_lock<std::mutex> sl(*parent_wakeup_mutex);
-						(*workers_running)--;
-						parent_wakeup->notify_all();
-					}
+					(*workers_running)--;
 				}
 			}
 		};
 
 		struct group
 		{
-			using group_work_queue = memory::safe_queue<10, std::pair<system*, Time::Timer2*>>;
+			using group_work_queue = memory::safe_queue<10, system*>;
 
 			group(ecs& parent_ecs) : keep_running(std::make_shared<std::atomic_bool>(true)),
-				workers_running(std::make_shared<std::atomic_int>()), wakeup(std::make_shared<std::condition_variable>()),
-				parent_ecs(parent_ecs), work_queue(std::make_shared<group_work_queue>()),
-				wakeup_mutex(std::make_shared<std::mutex>())
+				workers_running(std::make_shared<std::atomic_int>()),
+				parent_ecs(parent_ecs), work_queue(std::make_shared<group_work_queue>())
 			{
 				for (int i = 0; i < 4; i++)
-					threads.at(i) = std::make_unique<group_thread>(keep_running, workers_running, wakeup, wakeup_mutex
-						work_queue, parent_ecs);
+					threads.at(i) = std::make_unique<group_thread>(keep_running, workers_running, work_queue, parent_ecs);
 			}
 
 			group(group&& o) : parent_ecs(o.parent_ecs),
 				systems(std::move(o.systems)), workers_running(std::move(o.workers_running)),
 				keep_running(std::move(o.keep_running)), work_queue(std::move(o.work_queue)),
-				system_timers(std::move(o.system_timers)), threads(std::move(o.threads)), wakeup(std::move(o.wakeup)),
-				wakeup_mutex(std::move(o.wakeup_mutex)) {}
+				threads(std::move(o.threads))
+				{}
 
 			void update()
 			{
 				if (systems.size() == 0) return;
-				assert(systems.size() == system_timers.size());
+
+				workers_running->store(4);
 
 				// Put work in threads
 				for (std::size_t i = 0; i < systems.size(); i++)
-					work_queue->enqueue({ systems.at(i).get(), &system_timers.at(i) });
-
-				workers_running->store(4);
+					work_queue->enqueue(systems.at(i).get());
 
 				// Notify threads to run systems
 				for (auto& t : threads)
@@ -143,16 +132,16 @@ namespace ecs
 					t->wakeup.notify_all();
 				}
 
-				std::unique_lock<std::mutex> ul(*wakeup_mutex);
-				wakeup->wait(ul, [this]{ 
-					return this->workers_running->load() == 0; 
-				});
+				// TODO Improve to reduce latency
+				while (workers_running->load() != 0)
+				{
+					std::this_thread::yield();
+				}
 			}
 
 			void add_system(std::unique_ptr<system> s)
 			{
 				systems.push_back(std::move(s));
-				system_timers.push_back(Time::Timer2());
 			}
 
 		private:
@@ -160,15 +149,11 @@ namespace ecs
 
 			std::shared_ptr<std::atomic_bool> keep_running;
 
-			std::shared_ptr<std::condition_variable> wakeup;
-			std::shared_ptr<std::mutex> wakeup_mutex;
-
 			std::shared_ptr<std::atomic_int> workers_running;
 			std::shared_ptr<group_work_queue> work_queue;
 			ecs& parent_ecs;
 
 			std::vector<std::unique_ptr<system>> systems;
-			std::vector<Time::Timer2> system_timers;
 		};
 
 	public:
@@ -364,8 +349,8 @@ namespace ecs
 			// We can only create components that derive from Component class
 			constexpr size_t index = type_index<Filter, Filters...>::value;
 
-			return std::pair<filter_lock<Filter>, const std::unordered_set<uint32_t>&>(
-				filter_lock<Filter>(*this), std::get<index>(filters).entities);
+			return std::pair<filter_lock<Filter>, const std::unordered_set<uint32_t>&>(filter_lock<Filter>(*this),
+				std::get<index>(filters).entities);
 		}
 
 		system_manager& get_system_manager()
