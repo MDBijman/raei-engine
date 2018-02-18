@@ -9,7 +9,7 @@ typedef struct _SwapChainBuffers
 
 class VulkanSwapChain
 {
-	const Graphics::VulkanContext& context;
+	const graphics::VulkanContext& context;
 	vk::SurfaceKHR surface;
 
 public:
@@ -24,7 +24,7 @@ public:
 	// Index of the detected graphics and presenting device queue
 	uint32_t queueNodeIndex = UINT32_MAX;
 
-	VulkanSwapChain(const Graphics::VulkanContext& context) : context(context)
+	VulkanSwapChain(const graphics::VulkanContext& context) : context(context)
 	{}
 
 	void initSurface(HINSTANCE platformHandle, HWND platformWindow, std::string name)

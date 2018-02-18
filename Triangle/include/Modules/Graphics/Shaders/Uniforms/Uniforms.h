@@ -2,15 +2,15 @@
 #include "Modules/Graphics/Shaders/GPUBuffer.h"
 #include "Modules/TemplateUtils/ForEachInTuple.h"
 
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
 		template<class... T>
 		class Uniforms
 		{
 		public:
-			Uniforms(Graphics::VulkanContext& context, std::tuple<T...>&& d) : data(std::move(d))
+			Uniforms(graphics::VulkanContext& context, std::tuple<T...>&& d) : data(std::move(d))
 			{
 				/*
 					Descriptor Set Layout Initialization

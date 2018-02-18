@@ -10,7 +10,7 @@ namespace Importers
 {
 	namespace Pipeline
 	{
-		Graphics::Pipeline load(const std::string & location, const vk::PipelineLayout & layout, const vk::PipelineVertexInputStateCreateInfo & vi, const vk::RenderPass & rp, const vk::PipelineCache & cache, const vk::Device & device)
+		graphics::Pipeline load(const std::string & location, const vk::PipelineLayout & layout, const vk::PipelineVertexInputStateCreateInfo & vi, const vk::RenderPass & rp, const vk::PipelineCache & cache, const vk::Device & device)
 		{
 			JSON::JSON json;
 			std::ifstream jsonFile(location);
@@ -21,7 +21,7 @@ namespace Importers
 			jsonContent << jsonFile.rdbuf();
 			json = JSON::Parser::parse(jsonContent.str());
 
-			Graphics::Pipeline graphicsPipeline;
+			graphics::Pipeline graphicsPipeline;
 			graphicsPipeline.layout = layout;
 			graphicsPipeline.inputAssemblyInfo = parseInputAssemblyState(json["input-assembly"]);
 			graphicsPipeline.rasterizationInfo = parseRasterizationState(json["rasterization"]);
@@ -107,7 +107,7 @@ namespace Importers
 			return rasterizationState;
 		}
 
-		vk::PipelineColorBlendStateCreateInfo parseBlendAttachmentState(JSON::JSON& json, Graphics::Pipeline& pipeline)
+		vk::PipelineColorBlendStateCreateInfo parseBlendAttachmentState(JSON::JSON& json, graphics::Pipeline& pipeline)
 		{
 			vk::PipelineColorBlendStateCreateInfo info;
 			pipeline.colorBlendAttachmentStates = std::vector<vk::PipelineColorBlendAttachmentState>(1);
@@ -140,7 +140,7 @@ namespace Importers
 			return viewport;
 		}
 
-		vk::PipelineDynamicStateCreateInfo parseDynamicStates(JSON::JSON& json, Graphics::Pipeline& pipeline)
+		vk::PipelineDynamicStateCreateInfo parseDynamicStates(JSON::JSON& json, graphics::Pipeline& pipeline)
 		{
 			std::vector<JSON::JSON> vectorJSON = json;
 			vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo;

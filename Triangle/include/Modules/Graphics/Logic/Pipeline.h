@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 
-namespace Graphics
+namespace graphics
 {
 	class Pipeline
 	{

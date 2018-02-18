@@ -6,9 +6,9 @@
 
 #include <optional>
 
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
 		template<class... T>
 		class Attributes

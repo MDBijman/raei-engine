@@ -24,7 +24,7 @@ namespace Components
 			pipeline = Importers::Pipeline::load(location, layout, shader.getAttributes().getVertices().vi, renderpass, cache, device);
 		}
 
-		Graphics::Pipeline pipeline;
+		graphics::Pipeline pipeline;
 	};
 }
 

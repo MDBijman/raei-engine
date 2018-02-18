@@ -1,9 +1,9 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
 		class GPUBuffer
 		{

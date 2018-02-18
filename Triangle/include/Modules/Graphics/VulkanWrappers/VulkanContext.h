@@ -3,7 +3,7 @@
 #include <vulkan/VULKAN.HPP>
 #include <iostream>
 
-namespace Graphics
+namespace graphics
 {
 	class VulkanContext
 	{

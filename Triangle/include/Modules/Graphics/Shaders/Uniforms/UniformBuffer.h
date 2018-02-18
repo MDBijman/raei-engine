@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
 		template<class T, int BINDING, vk::ShaderStageFlagBits STAGE>
 		class UniformBuffer

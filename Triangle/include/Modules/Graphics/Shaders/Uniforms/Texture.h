@@ -4,9 +4,9 @@
 #include <vulkan/VULKAN.HPP>
 
 
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
 		template<int BINDING, vk::ShaderStageFlagBits STAGE>
 		class Texture

@@ -56,11 +56,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		};
 
 		auto uniform = Components::SpriteUniforms(*graphics.context, {
-				Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+				graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 
 					*graphics.context
 				},
-				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
+				graphics::data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice, 
 					graphics.context->device, graphics.cmdPool, *graphics.queue
 				}
@@ -109,11 +109,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		};
 
 		auto uniform = Components::SpriteUniforms(*graphics.context, {
-				Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+				graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 
 					*graphics.context
 				},
-				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
+				graphics::data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice, 
 					graphics.context->device, graphics.cmdPool, *graphics.queue
 				}
@@ -175,11 +175,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			};
 
 			auto uniform = Components::SpriteUniforms(*graphics.context, {
-				Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+				graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 					*graphics.context
 				},
-				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
+				graphics::data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice,
 					graphics.context->device, graphics.cmdPool, *graphics.queue
 				}
@@ -234,11 +234,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		};
 
 		auto uniform = Components::SpriteUniforms(*graphics.context, {
-			Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+			graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 				camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 				*graphics.context
 			},
-			Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
+			graphics::data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 				"./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice,
 				graphics.context->device, graphics.cmdPool, *graphics.queue
 			}
@@ -291,11 +291,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		};
 
 		auto uniform = Components::SpriteUniforms(*graphics.context, {
-			Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+			graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 				camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 				*graphics.context
 			},
-			Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
+			graphics::data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 				"./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice,
 				graphics.context->device, graphics.cmdPool, *graphics.queue
 			}
@@ -348,11 +348,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		};
 
 		auto uniform = Components::SpriteUniforms(*graphics.context, {
-			Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+			graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 				camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 				*graphics.context
 			},
-			Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
+			graphics::data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 				"./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice,
 				graphics.context->device, graphics.cmdPool, *graphics.queue
 			}
@@ -447,11 +447,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 				8, 9, 10, 10, 9, 11,
 			}),
 			Components::SpriteUniforms(*graphics.context, {
-				Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+				graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 					*graphics.context
 				},
-				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
+				graphics::data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
 					"./res/fonts/vcr_osd_mono.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice,
 					graphics.context->device, graphics.cmdPool, *graphics.queue
 				}

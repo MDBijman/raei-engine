@@ -1,7 +1,7 @@
 #pragma once
 #include "Modules/ECS/ECSManager.h"
 #include "Game/Components/CommandBuffers.h"
-namespace Graphics { class Renderer; }
+namespace graphics { class Renderer; }
 #include <vector>
 
 namespace Systems
@@ -9,7 +9,7 @@ namespace Systems
 	class GraphicsInterface : public MySystem
 	{
 	public:
-		explicit GraphicsInterface(Graphics::Renderer* graphics) : graphics(graphics) {}
+		explicit GraphicsInterface(graphics::Renderer* graphics) : graphics(graphics) {}
 
 		void update(ecs_manager& ecs) override
 		{
@@ -25,6 +25,6 @@ namespace Systems
 		}
 
 	private:
-		Graphics::Renderer* graphics;
+		graphics::Renderer* graphics;
 	};
 }

@@ -2,7 +2,7 @@
 #include "Modules/Graphics/Logic/Renderer.h"
 #include "Modules/Graphics/Logic/default_renderpasses.h"
 
-namespace Graphics
+namespace graphics
 {
 	Renderer::Renderer(WindowsContext windows) : context(new VulkanContext("triangle"))
 	{

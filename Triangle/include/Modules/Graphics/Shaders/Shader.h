@@ -5,10 +5,9 @@
 
 #include <vulkan/vulkan.hpp>
 
-namespace Graphics
+namespace graphics
 {
-
-	namespace Data
+	namespace data
 	{
 		template<class A, class U>
 		class Shader;

@@ -10,7 +10,7 @@ namespace Systems
 	class SpriteShaderSystem : public MySystem
 	{
 	public:
-		SpriteShaderSystem(Graphics::VulkanContext& context) : context(context) {}
+		SpriteShaderSystem(graphics::VulkanContext& context) : context(context) {}
 
 		void update(ecs_manager& ecs) override
 		{
@@ -41,6 +41,6 @@ namespace Systems
 			}
 		}
 
-		Graphics::VulkanContext& context;
+		graphics::VulkanContext& context;
 	};
 }

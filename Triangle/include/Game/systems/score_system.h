@@ -10,11 +10,11 @@ namespace systems
 	class score_system : public MySystem
 	{
 		events::subscriber<events::brick_hit>& subscriber;
-		Graphics::VulkanContext& context;
+		graphics::VulkanContext& context;
 		fnt::file text_file;
 
 	public:
-		score_system(events::subscriber<events::brick_hit>& sub, Graphics::VulkanContext& context) : context(context),
+		score_system(events::subscriber<events::brick_hit>& sub, graphics::VulkanContext& context) : context(context),
 			subscriber(sub), text_file("./res/fonts/vcr_osd_mono.fnt") {}
 
 		void update(ecs_manager& ecs) override

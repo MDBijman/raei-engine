@@ -3,7 +3,7 @@
 #include "Renderer.h"
 #include <vector>
 
-namespace Graphics
+namespace graphics
 {
 	class Frame
 	{

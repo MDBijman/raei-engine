@@ -5,7 +5,7 @@
 #include "Frame.h"
 #include "../VulkanWrappers/VulkanContext.h"
 
-namespace Graphics
+namespace graphics
 {
 	struct WindowsContext
 	{

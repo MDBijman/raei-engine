@@ -10,7 +10,7 @@ namespace Components
 	public:
 		template<class ShaderType>
 		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, glm::vec2& dimensions,
-			vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers,
+			vk::RenderPass& renderPass, graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers,
 			ShaderType& shader)
 		{
 			vk::CommandBufferAllocateInfo info;
