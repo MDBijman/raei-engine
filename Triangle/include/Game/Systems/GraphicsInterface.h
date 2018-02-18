@@ -11,7 +11,7 @@ namespace Systems
 	public:
 		explicit GraphicsInterface(Graphics::Renderer* graphics) : graphics(graphics) {}
 
-		void update(ecs_manager& ecs, double dt) override
+		void update(ecs_manager& ecs) override
 		{
 			auto frame = graphics->getFrame();
 			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::CommandBuffers>>();

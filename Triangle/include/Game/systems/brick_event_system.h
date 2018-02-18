@@ -10,7 +10,7 @@ namespace systems
 	public:
 		brick_event_system(events::subscriber<events::brick_hit>& sub) : subscriber(sub) {}
 
-		void update(ecs_manager& ecs, double dt) override
+		void update(ecs_manager& ecs) override
 		{
 			while (subscriber.size() > 0)
 			{

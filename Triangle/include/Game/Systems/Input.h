@@ -1,13 +1,21 @@
 #pragma once
 #include "Modules/ECS/System.h"
 #include "Modules/IO/Input.h"
+#include "Modules/Time/Timer.h"
 
 namespace Systems
 {
 	class Input : public MySystem
 	{
+		Time::Timer2 timer;
+
 	public:
-		void update(ecs_manager& ecs, double dt) override
+		Input()
+		{
+			timer.zero();
+		}
+
+		void update(ecs_manager& ecs) override
 		{
 			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::Input, Components::Position2D>>();
 			
@@ -17,7 +25,7 @@ namespace Systems
 				auto& pos = ecs.getComponent<Components::Position2D>(entity);
 
 				// Lower precision
-				float lpDt = static_cast<float>(dt);
+				float lpDt = static_cast<float>(timer.dt());
 
 				// Move left or right
 				if (IO::Keyboard::getKeyStatus('A') == IO::Keyboard::KeyStatus::DOWN)
@@ -25,6 +33,7 @@ namespace Systems
 				if (IO::Keyboard::getKeyStatus('D') == IO::Keyboard::KeyStatus::DOWN)
 					pos.pos.x += input.speed * lpDt;		
 			}
+			timer.zero();
 		}
 	};
 }

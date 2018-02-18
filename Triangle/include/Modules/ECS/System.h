@@ -10,6 +10,6 @@ namespace ecs
 		{
 		}
 
-		virtual void update(base_manager<CT, FT>& ecs, double dt) = 0;
+		virtual void update(base_manager<CT, FT>& ecs) = 0;
 	};
 }

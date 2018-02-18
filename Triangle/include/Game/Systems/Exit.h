@@ -10,7 +10,7 @@ namespace Systems
 	class Exit : public MySystem
 	{
 	public:
-		void update(ecs_manager& ecs, double dt) override
+		void update(ecs_manager& ecs) override
 		{
 			auto status = IO::Keyboard::getKeyStatus(VK_ESCAPE);
 			if (status == IO::Keyboard::KeyStatus::DOWN)

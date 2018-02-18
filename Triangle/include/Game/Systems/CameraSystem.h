@@ -6,7 +6,7 @@ namespace Systems
 	class CameraSystem : public MySystem
 	{
 	public:
-		void update(ecs_manager& ecs, double dt) override
+		void update(ecs_manager& ecs) override
 		{
 			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>>();
 			

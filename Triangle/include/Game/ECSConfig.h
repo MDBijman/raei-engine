@@ -55,7 +55,7 @@ using filter_list = std::tuple<
 	ecs::filter<Components::Position2D, Components::Scale2D>,
 
 	// Score
-	ecs::filter<components::score, Components::SpriteShader>
+	ecs::filter<components::score, Components::SpriteShader, Components::Scale2D>
 >;
 
 using ecs_manager = ecs::base_manager<component_list, filter_list>;

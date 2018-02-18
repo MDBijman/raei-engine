@@ -12,7 +12,7 @@ namespace Systems
 	public:
 		SpriteShaderSystem(Graphics::VulkanContext& context) : context(context) {}
 
-		void update(ecs_manager& ecs, double dt) override
+		void update(ecs_manager& ecs) override
 		{
 			glm::mat4 pv;
 			{

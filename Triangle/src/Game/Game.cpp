@@ -382,10 +382,11 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		ecs->addComponent<components::score>(score, components::score());
 
 		auto& pos = ecs->addComponent(score, Components::Position2D(-1.8361, -.99));
-		auto& scale = ecs->addComponent(score, Components::Scale2D(.1, .1));
+		auto& scale = ecs->addComponent(score, Components::Scale2D(.3, .1));
 
-		auto spriteData = Components::SpriteAttributes{
-			{
+		auto& shader = ecs->addComponent(score, Components::SpriteShader(
+			Components::SpriteAttributes({
+				// Quad 1
 				{
 					{ 0.0f, 0.0f },
 					{ 0.0f, 0.0f }
@@ -401,23 +402,62 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 				{
 					{ 1.0f, 1.0f },
 					{ 1.0f, 1.0f }
+				},
+				// Quad 2
+				{
+					{ 1.0f, 0.0f },
+					{ 0.0f, 0.0f }
+				},
+				{
+					{ 1.0f, 1.0f },
+					{ 0.0f, 1.0f }
+				},
+				{
+					{ 2.0f, 0.0f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ 2.0f, 1.0f },
+					{ 1.0f, 1.0f }
+				},
+				// Quad 4 
+				{
+					{ 2.0f, 0.0f },
+					{ 0.0f, 0.0f }
+				},
+				{
+					{ 2.0f, 1.0f },
+					{ 0.0f, 1.0f }
+				},
+				{
+					{ 3.0f, 0.0f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ 3.0f, 1.0f },
+					{ 1.0f, 1.0f }
 				}
 			},
-			{ 0, 1, 2, 2, 1, 3 }
-		};
+			{
+				// Quad 1
+				0, 1, 2, 2, 1, 3,
+				// Quad 2 
+				4, 5, 6, 6, 5, 7,
+				// Quad 3
+				8, 9, 10, 10, 9, 11,
+			}),
+			Components::SpriteUniforms(*graphics.context, {
+				Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
+					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
+					*graphics.context
+				},
+				Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
+					"./res/fonts/vcr_osd_mono.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice,
+					graphics.context->device, graphics.cmdPool, *graphics.queue
+				}
+			})
+		));
 
-		auto uniform = Components::SpriteUniforms(*graphics.context, {
-			Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
-				camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
-				*graphics.context
-			},
-			Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment> {
-				"./res/fonts/vcr_osd_mono.dds", vk::Format::eBc3UnormBlock, graphics.context->physicalDevice,
-				graphics.context->device, graphics.cmdPool, *graphics.queue
-			}
-			});
-
-		auto& shader = ecs->addComponent(score, Components::SpriteShader(std::move(spriteData), std::move(uniform)));
 		shader.allocate(*graphics.context);
 
 		auto& pipeline = ecs->addComponent(score, Components::Pipeline{
