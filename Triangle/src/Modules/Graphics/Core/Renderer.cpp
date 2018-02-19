@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "Modules/Graphics/Logic/Renderer.h"
-#include "Modules/Graphics/Logic/default_renderpasses.h"
+#include "Modules/Graphics/Core/Renderer.h"
+#include "Modules/Graphics/Core/default_renderpasses.h"
 
 namespace graphics
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include "Modules/Graphics/Shaders/Uniforms/Texture.h"
-#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
+#include "Modules/Graphics/Core/VulkanContext.h"
 #include "Modules/ECS/Component.h"
 
 #include <vulkan/VULKAN.HPP>

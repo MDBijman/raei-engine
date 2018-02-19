@@ -3,7 +3,7 @@
 
 #include "Swapchain.h"
 #include "Frame.h"
-#include "../VulkanWrappers/VulkanContext.h"
+#include "VulkanContext.h"
 
 namespace graphics
 {

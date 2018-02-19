@@ -1,6 +1,6 @@
 #pragma once
 #include "Modules/ECS/Component.h"
-#include "Modules/Graphics/Logic/Pipeline.h"
+#include "Modules/Graphics/Core/Pipeline.h"
 #include <glm/glm.hpp>
 
 namespace Components
@@ -62,7 +62,7 @@ namespace Components
 				buffer.setViewport(0, viewport);
 				buffer.setScissor(0, scissor);
 				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0,
-					shader.uniform_data().getDescriptorSet(), nullptr);
+					shader.uniforms().getDescriptorSet(), nullptr);
 				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
 				shader.draw(buffer);
 				buffer.endRenderPass();

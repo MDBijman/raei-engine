@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/Graphics/Logic/Pipeline.h"
+#include "Modules/Graphics/Core/Pipeline.h"
 namespace JSON { class JSON; }
 
 #include <vector>

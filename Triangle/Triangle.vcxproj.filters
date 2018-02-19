@@ -83,12 +83,6 @@
     <ClCompile Include="src\Modules\Importers\Shader.cpp">
       <Filter>Source Files\Libraries\Importers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modules\Graphics\Logic\Pipeline.cpp">
-      <Filter>Source Files\Graphics\Logic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Modules\Graphics\Logic\Renderer.cpp">
-      <Filter>Source Files\Graphics\Logic</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -104,13 +98,22 @@
     <ClCompile Include="src\Modules\Importers\PipelineImporter.cpp">
       <Filter>Source Files\Libraries\Importers</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modules\Graphics\VulkanWrappers\VulkanDebug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Game\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modules\Graphics\Core\Pipeline.cpp">
+      <Filter>Source Files\Graphics\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modules\Graphics\Core\Renderer.cpp">
+      <Filter>Source Files\Graphics\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modules\Graphics\Core\VulkanDebug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Modules\Graphics\Core\default_renderpasses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -129,12 +132,6 @@
     </ClInclude>
     <ClInclude Include="include\Modules\Math\Matrices.h">
       <Filter>Header Files\Libraries\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\Pipeline.h">
-      <Filter>Header Files\Graphics\Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\Renderer.h">
-      <Filter>Header Files\Graphics\Logic</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\ECS\Component.h">
       <Filter>Header Files</Filter>
@@ -165,9 +162,6 @@
     </ClInclude>
     <ClInclude Include="include\Modules\Importers\JSON.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\Camera.h">
-      <Filter>Header Files\Graphics\Logic</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\Systems.h">
       <Filter>Header Files</Filter>
@@ -220,15 +214,6 @@
     <ClInclude Include="include\Modules\Importers\PipelineImporter.h">
       <Filter>Header Files\Libraries\Importers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\Swapchain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanContext.h">
-      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\VulkanWrappers\VulkanDebug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\TypeSizeSum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -250,30 +235,6 @@
     <ClInclude Include="include\Modules\Memory\Pool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Attributes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Vec2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Vec3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\UniformBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\Uniforms.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\GPUBuffer.h">
-      <Filter>Header Files\Graphics\Data\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\Shader.h">
-      <Filter>Header Files\Graphics\Data\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\OrderedTuple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -284,9 +245,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Components\Scale2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\Frame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\ECSFactory\ECSFactory.h">
@@ -311,9 +269,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Components\Dummy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Logic\default_renderpasses.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\physics_system.h">
@@ -357,6 +312,54 @@
     </ClInclude>
     <ClInclude Include="include\Game\Components\score.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\Camera.h">
+      <Filter>Header Files\Graphics\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\default_renderpasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\Frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\Pipeline.h">
+      <Filter>Header Files\Graphics\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\Renderer.h">
+      <Filter>Header Files\Graphics\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\Swapchain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\VulkanContext.h">
+      <Filter>Header Files\Graphics\VulkanWrappers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\VulkanDebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\Buffer.h">
+      <Filter>Header Files\Graphics\Data\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Attributes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Vec2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Attributes\Vec3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\UniformBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\Uniforms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Shader.h">
+      <Filter>Header Files\Graphics\Data\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

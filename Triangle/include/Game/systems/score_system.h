@@ -44,7 +44,7 @@ namespace systems
 					auto& shader = ecs.getComponent<Components::sprite_shader>(entity);
 					auto& scale = ecs.getComponent<Components::Scale2D>(entity);
 
-					auto& vert_data = shader.attribute_data().vertex_data().data;
+					auto& vert_data = shader.attributes().data();
 
 					auto update_digit = [&](int digit_index, char character) {
 						fnt::character& char_info = text_file.get_character(character);
@@ -70,7 +70,7 @@ namespace systems
 
 						vert_data.at(vert_data_index + 3).rest.data.x = right_x;
 						vert_data.at(vert_data_index + 3).rest.data.y = bottom_y;
-						shader.attribute_data().vertex_data().upload(context);
+						shader.attributes().upload(context);
 					};
 
 					update_digit(2, '0' + (score.count % 10));

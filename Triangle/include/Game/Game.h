@@ -1,6 +1,6 @@
 #pragma once
 #include "ECSConfig.h"
-#include "Modules/Graphics/Logic/Renderer.h"
+#include "Modules/Graphics/Core/Renderer.h"
 #include "EventConfig.h"
 
 class Game

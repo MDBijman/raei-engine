@@ -1,5 +1,5 @@
 #pragma once
-#include "../VulkanWrappers/VulkanContext.h"
+#include "VulkanContext.h"
 #include "Renderer.h"
 #include <vector>
 

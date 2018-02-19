@@ -1,6 +1,5 @@
-#pragma once
-#include <vulkan/vulkan.hpp>
-#include "../VulkanWrappers/VulkanContext.h"
+#include "stdafx.h"
+#include "Modules/Graphics/Core/default_renderpasses.h"
 
 namespace speck::graphics
 {

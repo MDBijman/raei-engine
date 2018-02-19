@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/Graphics/Shaders/GPUBuffer.h"
+#include "Modules/Graphics/Core/Buffer.h"
 #include "Modules/TemplateUtils/ForEachInTuple.h"
 
 namespace graphics

@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
+#include "Modules/Graphics/Core/VulkanContext.h"
 
 typedef struct _SwapChainBuffers
 {

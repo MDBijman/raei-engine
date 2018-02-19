@@ -1,78 +1,101 @@
 #pragma once
+#include "Modules/Graphics/Core/Buffer.h"
 #include "Modules/Graphics/Shaders/Attributes/Attributes.h"
 #include "Modules/Graphics/Shaders/Uniforms/Uniforms.h"
 #include "Modules/Graphics/Shaders/Uniforms/Texture.h"
 #include "Modules/TemplateUtils/OrderedTuple.h"
 
 #include <vulkan/vulkan.hpp>
+#include <vector>
 
 namespace graphics
 {
 	template<class A, class U>
-	class shader_blueprint;
+	class shader;
 
 	template<class... A, class... U>
-	class shader_blueprint<data::Attributes<A...>, data::Uniforms<U...>>
+	class shader<data::attributes<A...>, data::Uniforms<U...>>
 	{
 	public:
-		using attributes_t = data::Attributes<A...>;
+		using attributes_t = data::attributes<A...>;
+		using indices_t = data::indices;
 		using uniforms_t = data::Uniforms<U...>;
 
-		static std::vector<vk::VertexInputAttributeDescription> attribute_descriptions = {
-			A::getAttributeDescription()...
-		};
-	};
-
-	template<class A, class U>
-	class shader_instance;
-
-	template<class... A, class... U>
-	class shader_instance<data::Attributes<A...>, data::Uniforms<U...>>
-	{
-		using blueprint_t = shader_blueprint<data::Attributes<A...>, data::Uniforms<U...>>;
-
-	public:
-		using attributes_t = typename blueprint_t::attributes_t;
-		using uniforms_t = typename blueprint_t::uniforms_t;
-
 	private:
-		attributes_t attributes;
-		uniforms_t uniforms;
+		attributes_t attributes_;
+		std::optional<indices_t> indices_;
+		uniforms_t uniforms_;
 
 	public:
-		shader_instance(attributes_t attributes, uniforms_t uniforms) : attributes(std::move(attributes)), 
-			uniforms(std::move(uniforms))
+		shader(attributes_t attributes, uniforms_t uniforms) :
+			attributes_(std::move(attributes)),
+			uniforms_(std::move(uniforms)),
+			indices_(std::nullopt)
+		{
+
+		}
+
+		shader(attributes_t attributes, indices_t indices, uniforms_t uniforms) :
+			attributes_(std::move(attributes)),
+			uniforms_(std::move(uniforms)),
+			indices_(std::move(indices))
+		{
+
+		}
+
+		shader(shader&& o) :
+			attributes_(std::move(o.attributes_)),
+			indices_(std::move(o.indices_)),
+			uniforms_(std::move(o.uniforms_))
 		{
 
 		}
 
 		void allocate(VulkanContext& context)
 		{
-			uniforms.allocate(context);
-			attributes.allocate(context);
+			uniforms_.allocate(context);
+
+			attributes_.allocate(context);
+			attributes_.upload(context);
+
+			if (is_indexed())
+			{
+				indices_.value().allocate(context);
+				indices_.value().upload(context);
+			}
 		}
 
 		void draw(vk::CommandBuffer& cmdBuffer)
 		{
-			if (attributes.is_indexed())
-				cmdBuffer.bindIndexBuffer(attributes.index_data().value().buffer, 0, vk::IndexType::eUint32);
+			if (is_indexed())
+				cmdBuffer.bindIndexBuffer(indices_.value().vk_buffer(), 0, vk::IndexType::eUint32);
 
-			cmdBuffer.bindVertexBuffers(0, attributes.vertex_data().buffer, { 0 });
+			cmdBuffer.bindVertexBuffers(0, attributes_.vk_buffer(), { 0 });
 
-			if (attributes.is_indexed())
-				cmdBuffer.drawIndexed(static_cast<uint32_t>(attributes.index_data().value().data.size()), 1, 0, 0, 0);
+			if (is_indexed())
+				cmdBuffer.drawIndexed(static_cast<uint32_t>(indices_.value().data().size()), 1, 0, 0, 0);
 			else
-				cmdBuffer.draw(static_cast<uint32_t>(attributes.vertex_data().data.size()), 1, 0, 0);
+				cmdBuffer.draw(static_cast<uint32_t>(attributes_.data().size()), 1, 0, 0);
 		}
 
-		attributes_t& attribute_data()
+		bool is_indexed()
 		{
-			return attributes;
+			return indices_.has_value();
 		}
 
-		uniforms_t& uniform_data()
+		std::optional<indices_t>& indices()
 		{
-			return uniforms;
+			return indices_;
+		}
+
+		attributes_t& attributes()
+		{
+			return attributes_;
+		}
+
+		uniforms_t& uniforms()
+		{
+			return uniforms_;
 		}
 	};
 }

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Modules/Graphics/Logic/Pipeline.h"
+#include "Modules/Graphics/Core/Pipeline.h"
 
 namespace graphics
 {

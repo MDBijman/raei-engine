@@ -1,6 +1,6 @@
 #pragma once
 #include "Modules/ECS/System.h"
-#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
+#include "Modules/Graphics/Core/VulkanContext.h"
 #include "Game/Components/SpriteShader.h"
 #include "Game/Components/Position2D.h"
 #include "Game/Components/Scale2D.h"
@@ -37,7 +37,7 @@ namespace Systems
 				auto model = translate * scale;
 
 				glm::mat4 mvp = pv * model;
-				shader.uniform_data().upload<0>(context, mvp);
+				shader.uniforms().upload<0>(context, mvp);
 			}
 		}
 
