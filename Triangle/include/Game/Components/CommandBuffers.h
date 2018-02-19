@@ -61,7 +61,8 @@ namespace Components
 				buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 				buffer.setViewport(0, viewport);
 				buffer.setScissor(0, scissor);
-				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader.getUniforms().getDescriptorSet(), nullptr);
+				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0,
+					shader.uniform_data().getDescriptorSet(), nullptr);
 				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
 				shader.draw(buffer);
 				buffer.endRenderPass();

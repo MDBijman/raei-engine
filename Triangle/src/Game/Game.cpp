@@ -33,7 +33,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		ecs->addComponent(sprite, Components::Scale2D(.2, 0.05));
 		ecs->addComponent(sprite, Components::Input(1.0f));
 
-		auto spriteData = Components::SpriteAttributes{
+		auto spriteData = Components::sprite_attributes{
 			{
 				{
 					{ -.5f, -.5f },
@@ -55,7 +55,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			{ 0, 1, 2, 2, 1, 3 }
 		};
 
-		auto uniform = Components::SpriteUniforms(*graphics.context, {
+		auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 
 					*graphics.context
@@ -66,7 +66,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 				}
 			});
 
-		auto& shader = ecs->addComponent(sprite, Components::SpriteShader{ std::move(spriteData), std::move(uniform) });
+		auto& shader = ecs->addComponent(sprite, Components::sprite_shader{ std::move(spriteData), std::move(uniform) });
 		shader.allocate(*graphics.context);
 
 		auto& pipeline = ecs->addComponent(sprite, Components::Pipeline{
@@ -86,7 +86,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		ecs->addComponent(ball, Components::Velocity2D(0.0, 1.6));
 		ecs->addComponent(ball, Components::Scale2D(.03, .03));
 
-		auto ballData = Components::SpriteAttributes{
+		auto ballData = Components::sprite_attributes{
 			{
 				{
 					{ -.5f, -.5f },
@@ -108,7 +108,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			{ 0, 1, 2, 2, 1, 3 }
 		};
 
-		auto uniform = Components::SpriteUniforms(*graphics.context, {
+		auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 
 					*graphics.context
@@ -119,7 +119,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 				}
 			});
 
-		auto& shader = ecs->addComponent(ball, Components::SpriteShader{ std::move(ballData), std::move(uniform) });
+		auto& shader = ecs->addComponent(ball, Components::sprite_shader{ std::move(ballData), std::move(uniform) });
 		shader.allocate(*graphics.context);
 
 		auto& pipeline = ecs->addComponent(ball, Components::Pipeline{
@@ -152,7 +152,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			));
 			auto& scale = ecs->addComponent(block, Components::Scale2D(width, 1.0f / 15.0f));
 
-			auto spriteData = Components::SpriteAttributes{
+			auto spriteData = Components::sprite_attributes{
 				{
 					{
 						{ -.5f, -.5f },
@@ -174,7 +174,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 				{ 0, 1, 2, 2, 1, 3 }
 			};
 
-			auto uniform = Components::SpriteUniforms(*graphics.context, {
+			auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 					*graphics.context
@@ -185,7 +185,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 				}
 				});
 
-			auto& shader = ecs->addComponent(block, Components::SpriteShader{
+			auto& shader = ecs->addComponent(block, Components::sprite_shader{
 				std::move(spriteData), std::move(uniform)
 				});
 
@@ -211,7 +211,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		auto& pos = ecs->addComponent(top_wall, Components::Position2D(0.0, -1.0));
 		auto& scale = ecs->addComponent(top_wall, Components::Scale2D(2.0, 1.0 / 15.0));
 
-		auto spriteData = Components::SpriteAttributes{
+		auto spriteData = Components::sprite_attributes{
 			{
 				{
 					{ -.5f, -.5f },
@@ -233,7 +233,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			{ 0, 1, 2, 2, 1, 3 }
 		};
 
-		auto uniform = Components::SpriteUniforms(*graphics.context, {
+		auto uniform = Components::sprite_uniforms(*graphics.context, {
 			graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 				camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 				*graphics.context
@@ -244,7 +244,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			}
 			});
 
-		auto& shader = ecs->addComponent(top_wall, Components::SpriteShader{
+		auto& shader = ecs->addComponent(top_wall, Components::sprite_shader{
 			std::move(spriteData), std::move(uniform)
 			});
 
@@ -268,7 +268,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		auto& pos = ecs->addComponent(left_wall, Components::Position2D(-1.0, 0.0));
 		auto& scale = ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
 
-		auto spriteData = Components::SpriteAttributes{
+		auto spriteData = Components::sprite_attributes{
 			{
 				{
 					{ -.5f, -.5f },
@@ -290,7 +290,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			{ 0, 1, 2, 2, 1, 3 }
 		};
 
-		auto uniform = Components::SpriteUniforms(*graphics.context, {
+		auto uniform = Components::sprite_uniforms(*graphics.context, {
 			graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 				camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 				*graphics.context
@@ -301,7 +301,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			}
 			});
 
-		auto& shader = ecs->addComponent(left_wall, Components::SpriteShader{
+		auto& shader = ecs->addComponent(left_wall, Components::sprite_shader{
 			std::move(spriteData), std::move(uniform)
 			});
 
@@ -325,7 +325,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		auto& pos = ecs->addComponent(left_wall, Components::Position2D(1.0, 0.0));
 		auto& scale = ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
 
-		auto spriteData = Components::SpriteAttributes{
+		auto spriteData = Components::sprite_attributes{
 			{
 				{
 					{ -.5f, -.5f },
@@ -347,7 +347,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			{ 0, 1, 2, 2, 1, 3 }
 		};
 
-		auto uniform = Components::SpriteUniforms(*graphics.context, {
+		auto uniform = Components::sprite_uniforms(*graphics.context, {
 			graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 				camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 				*graphics.context
@@ -358,7 +358,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 			}
 			});
 
-		auto& shader = ecs->addComponent(left_wall, Components::SpriteShader{
+		auto& shader = ecs->addComponent(left_wall, Components::sprite_shader{
 			std::move(spriteData), std::move(uniform)
 			});
 
@@ -384,8 +384,8 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 		auto& pos = ecs->addComponent(score, Components::Position2D(-1.8361, -.99));
 		auto& scale = ecs->addComponent(score, Components::Scale2D(.3, .1));
 
-		auto& shader = ecs->addComponent(score, Components::SpriteShader(
-			Components::SpriteAttributes({
+		auto& shader = ecs->addComponent(score, Components::sprite_shader(
+			Components::sprite_attributes({
 				// Quad 1
 				{
 					{ 0.0f, 0.0f },
@@ -446,7 +446,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 				// Quad 3
 				8, 9, 10, 10, 9, 11,
 			}),
-			Components::SpriteUniforms(*graphics.context, {
+			Components::sprite_uniforms(*graphics.context, {
 				graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex> {
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(),
 					*graphics.context

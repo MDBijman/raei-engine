@@ -24,11 +24,11 @@ namespace Systems
 				pv = camera.camera.getMatrices().view_projection;
 			}
 
-			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>>();
+			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::sprite_shader, Components::Position2D, Components::Scale2D>>();
 
 			for (auto entity : entities)
 			{
-				auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
+				auto& shader = ecs.getComponent<Components::sprite_shader>(entity);
 				auto& pos = ecs.getComponent<Components::Position2D>(entity);
 				auto& scale2d = ecs.getComponent<Components::Scale2D>(entity);
 
@@ -37,7 +37,7 @@ namespace Systems
 				auto model = translate * scale;
 
 				glm::mat4 mvp = pv * model;
-				shader.getUniforms().upload<0>(context, mvp);
+				shader.uniform_data().upload<0>(context, mvp);
 			}
 		}
 

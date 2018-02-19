@@ -33,7 +33,7 @@ namespace systems
 			first_change = false;
 
 			{
-				auto&[lock, entities] = ecs.filterEntities<ecs::filter<components::score, Components::SpriteShader,
+				auto&[lock, entities] = ecs.filterEntities<ecs::filter<components::score, Components::sprite_shader,
 					Components::Scale2D>>();
 
 				for (auto entity : entities)
@@ -41,10 +41,10 @@ namespace systems
 					auto& score = ecs.getComponent<components::score>(entity);
 					score.count += count;
 
-					auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
+					auto& shader = ecs.getComponent<Components::sprite_shader>(entity);
 					auto& scale = ecs.getComponent<Components::Scale2D>(entity);
 
-					auto& vert_data = shader.getAttributes().getVertices().data;
+					auto& vert_data = shader.attribute_data().vertex_data().data;
 
 					auto update_digit = [&](int digit_index, char character) {
 						fnt::character& char_info = text_file.get_character(character);
@@ -70,7 +70,7 @@ namespace systems
 
 						vert_data.at(vert_data_index + 3).rest.data.x = right_x;
 						vert_data.at(vert_data_index + 3).rest.data.y = bottom_y;
-						shader.getAttributes().getVertices().upload(context);
+						shader.attribute_data().vertex_data().upload(context);
 					};
 
 					update_digit(2, '0' + (score.count % 10));
