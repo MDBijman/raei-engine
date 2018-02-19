@@ -113,7 +113,7 @@
     <ClCompile Include="src\Modules\Graphics\Core\VulkanDebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modules\Graphics\Core\default_renderpasses.cpp">
+    <ClCompile Include="src\Modules\Graphics\Core\DefaultRenderpasses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -274,14 +274,8 @@
     <ClInclude Include="include\Modules\Fonts\FntLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Components\score.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Core\Camera.h">
       <Filter>Header Files\Graphics\Logic</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Core\default_renderpasses.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Core\Frame.h">
       <Filter>Header Files</Filter>
@@ -325,19 +319,10 @@
     <ClInclude Include="include\Modules\Graphics\Shaders\Shader.h">
       <Filter>Header Files\Graphics\Data\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Systems\brick_event_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\Systems\CameraSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\Exit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\fps_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\game_rule_systems.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\GraphicsInterface.h">
@@ -349,16 +334,31 @@
     <ClInclude Include="include\Game\Systems\Movement2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Systems\physics_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\score_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\Systems.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Score.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\systems\BrickEventSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\systems\FpsSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\systems\GameRuleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\systems\ScoreSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Core\DefaultRenderpasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\systems\PhysicsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

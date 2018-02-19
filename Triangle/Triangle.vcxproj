@@ -183,7 +183,7 @@
   <ItemGroup>
     <ClCompile Include="src\Game\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Modules\Graphics\Core\default_renderpasses.cpp" />
+    <ClCompile Include="src\Modules\Graphics\Core\DefaultRenderpasses.cpp" />
     <ClCompile Include="src\Modules\Graphics\Core\Pipeline.cpp" />
     <ClCompile Include="src\Modules\Graphics\Core\Renderer.cpp" />
     <ClCompile Include="src\Modules\Graphics\Core\VulkanDebug.cpp" />
@@ -212,7 +212,7 @@
     <ClInclude Include="include\Game\Components\Position3D.h" />
     <ClInclude Include="include\Game\Components\ComponentShader.h" />
     <ClInclude Include="include\Game\Components\Scale2D.h" />
-    <ClInclude Include="include\Game\Components\score.h" />
+    <ClInclude Include="include\Game\Components\Score.h" />
     <ClInclude Include="include\Game\Components\SpriteShader.h" />
     <ClInclude Include="include\Game\Components\Texture.h" />
     <ClInclude Include="include\Game\Components\Velocity2D.h" />
@@ -220,14 +220,14 @@
     <ClInclude Include="include\Game\EventConfig.h" />
     <ClInclude Include="include\Game\ECSConfig.h" />
     <ClInclude Include="include\Game\Events\BrickEvents.h" />
-    <ClInclude Include="include\Game\Systems\brick_event_system.h" />
-    <ClInclude Include="include\Game\Systems\fps_system.h" />
-    <ClInclude Include="include\Game\Systems\game_rule_systems.h" />
-    <ClInclude Include="include\Game\Systems\physics_system.h" />
-    <ClInclude Include="include\Game\Systems\score_system.h" />
+    <ClInclude Include="include\Game\systems\BrickEventSystem.h" />
+    <ClInclude Include="include\Game\systems\FpsSystem.h" />
+    <ClInclude Include="include\Game\systems\GameRuleSystem.h" />
+    <ClInclude Include="include\Game\systems\PhysicsSystem.h" />
+    <ClInclude Include="include\Game\systems\ScoreSystem.h" />
     <ClInclude Include="include\Modules\Events\EventManager.h" />
     <ClInclude Include="include\Modules\Fonts\FntLoader.h" />
-    <ClInclude Include="include\Modules\Graphics\Core\default_renderpasses.h" />
+    <ClInclude Include="include\Modules\Graphics\Core\DefaultRenderpasses.h" />
     <ClInclude Include="include\Modules\Memory\safe_queue.h" />
     <ClInclude Include="include\Modules\TemplateUtils\IsElementOfPack.h" />
     <ClInclude Include="include\Modules\Memory\safe_dynamic_queue.h" />

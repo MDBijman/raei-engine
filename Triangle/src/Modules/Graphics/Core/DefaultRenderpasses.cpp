@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Modules/Graphics/Core/default_renderpasses.h"
+#include "Modules/Graphics/Core/DefaultRenderpasses.h"
 
 namespace speck::graphics
 {

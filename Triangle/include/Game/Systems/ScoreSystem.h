@@ -3,7 +3,7 @@
 #include "Game/Components/score.h"
 #include "Game/EventConfig.h"
 #include "Modules/Fonts/FntLoader.h"
-#include "brick_event_system.h"
+#include "BrickEventSystem.h"
 
 namespace systems
 {
