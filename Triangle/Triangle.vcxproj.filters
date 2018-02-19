@@ -163,9 +163,6 @@
     <ClInclude Include="include\Modules\Importers\JSON.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Systems\Systems.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\Components\Position2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -184,22 +181,10 @@
     <ClInclude Include="include\Game\Components\Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Systems\Exit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\Input.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\Movement2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\Components\Camera2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Components\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\GraphicsInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Components\CameraID.h">
@@ -229,9 +214,6 @@
     <ClInclude Include="include\Game\Components\SpriteShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Memory\Pool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -239,9 +221,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Memory\Queue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\CameraSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Components\Scale2D.h">
@@ -271,12 +250,6 @@
     <ClInclude Include="include\Game\Components\Dummy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Systems\physics_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\game_rule_systems.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Events\EventManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -298,16 +271,7 @@
     <ClInclude Include="include\Modules\Memory\safe_dynamic_queue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\systems\brick_event_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\systems\fps_system.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Fonts\FntLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\systems\score_system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Components\score.h">
@@ -360,6 +324,42 @@
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Shaders\Shader.h">
       <Filter>Header Files\Graphics\Data\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\brick_event_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\CameraSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\Exit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\fps_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\game_rule_systems.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\GraphicsInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\Movement2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\physics_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\score_system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\Systems.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -80,13 +80,4 @@ namespace fnt
 			return char_id;
 		}
 	};
-
-	class image
-	{
-		image(std::string filename) : texture(gli::load(filename))
-		{
-		}
-
-		gli::texture2D texture;
-	};
 }
