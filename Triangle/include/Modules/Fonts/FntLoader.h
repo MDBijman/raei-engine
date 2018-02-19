@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <gli/gli.hpp>
 
 namespace fnt
 {
