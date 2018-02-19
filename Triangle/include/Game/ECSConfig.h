@@ -13,7 +13,6 @@
 #include "Components/Pipeline.h"
 #include "Components/CommandBuffers.h"
 #include "Components/Scale2D.h"
-#include "Components/Dummy.h"
 #include "Components/score.h"
 
 using component_list = std::tuple<

@@ -9,8 +9,10 @@ namespace graphics
 		template<class... T>
 		class Uniforms
 		{
+			using concrete_t = std::tuple<typename T::concrete_t...>;
 		public:
-			Uniforms(graphics::VulkanContext& context, std::tuple<T...>&& d) : data(std::move(d))
+			Uniforms(graphics::VulkanContext& context, concrete_t&& d) : 
+				data(std::move(d))
 			{
 				/*
 					Descriptor Set Layout Initialization
@@ -126,7 +128,7 @@ namespace graphics
 			vk::DescriptorPool          descriptorPool;
 			vk::DescriptorSet           descriptorSet;
 
-			std::tuple<T...> data;
+			concrete_t data;
 		};
 	}
 }

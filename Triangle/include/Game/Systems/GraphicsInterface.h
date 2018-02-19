@@ -1,7 +1,7 @@
 #pragma once
 #include "Modules/ECS/ECSManager.h"
 #include "Game/Components/CommandBuffers.h"
-namespace graphics { class Renderer; }
+#include "Modules/Graphics/Core/Renderer.h"
 #include <vector>
 
 namespace Systems

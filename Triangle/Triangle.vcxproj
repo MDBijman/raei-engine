@@ -204,7 +204,7 @@
     <ClInclude Include="include\Game\Components\CameraID.h" />
     <ClInclude Include="include\Game\Components\CommandBuffers.h" />
     <ClInclude Include="include\Game\Components\Camera2D.h" />
-    <ClInclude Include="include\Game\Components\Dummy.h" />
+    <ClInclude Include="include\Game\Components\Drawable.h" />
     <ClInclude Include="include\Game\Components\Input.h" />
     <ClInclude Include="include\Game\Components\Orientation3D.h" />
     <ClInclude Include="include\Game\Components\Pipeline.h" />
@@ -220,6 +220,7 @@
     <ClInclude Include="include\Game\EventConfig.h" />
     <ClInclude Include="include\Game\ECSConfig.h" />
     <ClInclude Include="include\Game\Events\BrickEvents.h" />
+    <ClInclude Include="include\Game\Levels\MainLevel.h" />
     <ClInclude Include="include\Game\systems\BrickEventSystem.h" />
     <ClInclude Include="include\Game\systems\FpsSystem.h" />
     <ClInclude Include="include\Game\systems\GameRuleSystem.h" />
@@ -227,6 +228,7 @@
     <ClInclude Include="include\Game\systems\ScoreSystem.h" />
     <ClInclude Include="include\Modules\Events\EventManager.h" />
     <ClInclude Include="include\Modules\Fonts\FntLoader.h" />
+    <ClInclude Include="include\Modules\Graphics\Core\Resources.h" />
     <ClInclude Include="include\Modules\Graphics\Core\DefaultRenderpasses.h" />
     <ClInclude Include="include\Modules\Memory\safe_queue.h" />
     <ClInclude Include="include\Modules\TemplateUtils\IsElementOfPack.h" />
@@ -239,11 +241,8 @@
     <ClInclude Include="include\Game\Systems\Systems.h" />
     <ClInclude Include="include\Game\Systems\Exit.h" />
     <ClInclude Include="include\Game\Systems\Input.h" />
-    <ClInclude Include="include\Modules\ECSFactory\Traits.h" />
     <ClInclude Include="include\Modules\ECS\Traits.h" />
     <ClInclude Include="include\Modules\Graphics\Core\Frame.h" />
-    <ClInclude Include="include\Modules\ECSFactory\ECSFactory.h" />
-    <ClInclude Include="include\Modules\LuaECS\LuaECS.h" />
     <ClInclude Include="include\Modules\Memory\Pool.h" />
     <ClInclude Include="include\Modules\Memory\Queue.h" />
     <ClInclude Include="include\Modules\ECS\Component.h" />

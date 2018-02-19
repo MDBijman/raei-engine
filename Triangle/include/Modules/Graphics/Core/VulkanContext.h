@@ -84,6 +84,8 @@ namespace graphics
 		vk::Instance instance;
 		vk::PhysicalDevice physicalDevice;
 		vk::Device device;
+		vk::CommandPool cmdPool;
+		std::shared_ptr<vk::Queue> queue;
 		uint32_t graphicsQueueIndex;
 
 	private:

@@ -3,6 +3,7 @@
 #include "Core/Pipeline.h"
 #include "Core/Renderer.h"
 #include "Core/Swapchain.h"
+#include "Core/Resources.h"
 #include "Core/Buffer.h"
 #include "Core/Frame.h"
 #include "Core/DefaultRenderpasses.h"

@@ -15,8 +15,8 @@ namespace Components
 	using sprite_indices = typename graphics::data::indices;
 
 	using sprite_uniforms = graphics::data::Uniforms<
-		graphics::data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex>, 
-		graphics::data::Texture<1, vk::ShaderStageFlagBits::eFragment>
+		graphics::data::buffer_template<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex>, 
+		graphics::data::texture_template<1, vk::ShaderStageFlagBits::eFragment>
 	>;
 
 	using sprite_shader = Components::ComponentShader<sprite_attributes, sprite_uniforms>;

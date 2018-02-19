@@ -3,16 +3,29 @@
 #include <gli/gli.hpp>
 #include <vulkan/VULKAN.HPP>
 
-
 namespace graphics
 {
 	namespace data
 	{
-		template<int BINDING, vk::ShaderStageFlagBits STAGE>
-		class Texture
+		class texture
 		{
+			int binding_;
+			vk::ShaderStageFlagBits stage_;
+
+			vk::Sampler sampler;
+			vk::Image image;
+			vk::ImageLayout imageLayout;
+			vk::DeviceMemory deviceMemory;
+			vk::ImageView view;
+			uint32_t width, height;
+			uint32_t mipLevels;
+			vk::DescriptorImageInfo* textureDescriptor;
+
 		public:
-			Texture(const char* filename, vk::Format format, vk::PhysicalDevice& physicalDevice, vk::Device& device, vk::CommandPool& pool, vk::Queue& queue)
+			texture(std::string filename, int binding, vk::ShaderStageFlagBits stage, vk::Format format, 
+				vk::PhysicalDevice& physicalDevice, vk::Device& device, vk::CommandPool& pool, vk::Queue& queue) :
+				binding_(binding),
+				stage_(stage)
 			{
 				load(filename, format, physicalDevice, device, pool, queue);
 				textureDescriptor = new vk::DescriptorImageInfo();
@@ -21,7 +34,7 @@ namespace graphics
 					.setImageView(view);
 			}
 
-			Texture(Texture&& other)
+			texture(texture&& other)
 			{
 				this->textureDescriptor = other.textureDescriptor;
 				other.textureDescriptor = nullptr;
@@ -33,6 +46,8 @@ namespace graphics
 				width = other.width;
 				height = other.height;
 				mipLevels = other.mipLevels;
+				binding_ = other.binding_;
+				stage_ = other.stage_;
 			}
 
 			void allocate(VulkanContext& context) 
@@ -49,36 +64,12 @@ namespace graphics
 					.setDescriptorCount(1)
 					.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 					.setPImageInfo(textureDescriptor)
-					.setDstBinding(BINDING);
+					.setDstBinding(binding_);
 			}
-
-			static vk::DescriptorSetLayoutBinding getDescriptorSetLayoutBinding()
-			{
-				return vk::DescriptorSetLayoutBinding()
-					.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-					.setDescriptorCount(1)
-					.setBinding(BINDING)
-					.setStageFlags(STAGE);
-			}
-
-			static vk::DescriptorPoolSize getDescriptorPoolSize()
-			{
-				return vk::DescriptorPoolSize()
-					.setType(vk::DescriptorType::eCombinedImageSampler)
-					.setDescriptorCount(1);
-			}
-
-			vk::Sampler sampler;
-			vk::Image image;
-			vk::ImageLayout imageLayout;
-			vk::DeviceMemory deviceMemory;
-			vk::ImageView view;
-			uint32_t width, height;
-			uint32_t mipLevels;
-			vk::DescriptorImageInfo* textureDescriptor;
 
 			// Get appropriate memory type index for a memory allocation
-			uint32_t getMemoryType(uint32_t typeBits, VkFlags properties, VkPhysicalDeviceMemoryProperties deviceMemoryProperties)
+			uint32_t getMemoryType(uint32_t typeBits, VkFlags properties, 
+				VkPhysicalDeviceMemoryProperties deviceMemoryProperties)
 			{
 				for(uint32_t i = 0; i < 32; i++)
 				{
@@ -95,7 +86,8 @@ namespace graphics
 				return 0;
 			}
 		
-			void load(const char* filename, vk::Format format, vk::PhysicalDevice& physicalDevice, vk::Device& device, vk::CommandPool& pool, vk::Queue& queue)
+			void load(std::string filename, vk::Format format, vk::PhysicalDevice& physicalDevice, vk::Device& device,
+				vk::CommandPool& pool, vk::Queue& queue)
 			{
 				// Create command buffer for submitting image barriers
 				// and converting tilings
@@ -414,8 +406,35 @@ namespace graphics
 				view2.image = image;
 				view = device.createImageView(view2);
 			}
+		};
 
+		template<int Binding, vk::ShaderStageFlagBits Stage>
+		class texture_template
+		{
+		public:
+			using concrete_t = texture;
 
+			static vk::DescriptorSetLayoutBinding getDescriptorSetLayoutBinding()
+			{
+				return vk::DescriptorSetLayoutBinding()
+					.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+					.setDescriptorCount(1)
+					.setBinding(Binding)
+					.setStageFlags(Stage);
+			}
+
+			static vk::DescriptorPoolSize getDescriptorPoolSize()
+			{
+				return vk::DescriptorPoolSize()
+					.setType(vk::DescriptorType::eCombinedImageSampler)
+					.setDescriptorCount(1);
+			}
+
+			static texture create(std::string filename, vk::Format format, vk::PhysicalDevice& physicalDevice, 
+				vk::Device& device, vk::CommandPool& pool, vk::Queue& queue)
+			{
+				return texture(filename, Binding, Stage, format, physicalDevice, device, pool, queue);
+			}
 		};
 	}
 }

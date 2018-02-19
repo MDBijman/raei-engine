@@ -4,6 +4,9 @@
 #include "Swapchain.h"
 #include "Frame.h"
 #include "VulkanContext.h"
+#include "Resources.h"
+#include "../Shaders/Uniforms/Texture.h"
+
 
 namespace graphics
 {
@@ -21,18 +24,13 @@ namespace graphics
 	public:
 		Renderer(WindowsContext context);
 
-		void prepare();
-		void submit(vk::CommandBuffer* buffer) const;
-		void present();
-
 		std::shared_ptr<VulkanContext> context;
 		std::shared_ptr<VulkanSwapChain> swapchain;
-		std::shared_ptr<vk::Queue> queue;
+		speck::graphics::ResourceLoader resources;
 
 		vk::Format depthFormat;
 		vk::Format colorformat = vk::Format::eB8G8R8A8Unorm;
 
-		vk::CommandPool cmdPool;
 		vk::RenderPass renderPass;
 		vk::RenderPass drawPass;
 
@@ -45,12 +43,17 @@ namespace graphics
 		void submitFrame(Frame* frame);
 
 	private:
+		void prepare();
+		void submit(vk::CommandBuffer* buffer) const;
+		void present();
+
 		struct
 		{
 			vk::Image        image;
 			vk::DeviceMemory mem;
 			vk::ImageView    view;
 		} depthStencil;
+
 		vk::PipelineStageFlags submitPipelineStages = vk::PipelineStageFlagBits::eBottomOfPipe;
 
 		const glm::vec2 SCREEN_DIMENSIONS;

@@ -4,11 +4,13 @@
 
 namespace graphics
 {
-	Renderer::Renderer(WindowsContext windows) : context(new VulkanContext("triangle"))
+	Renderer::Renderer(WindowsContext windows) : 
+		context(new VulkanContext("triangle")),
+		resources(*context)
 	{
 		swapchain = std::make_shared<VulkanSwapChain>(*context);
 
-		queue = std::make_unique<vk::Queue>(context->device.getQueue(context->graphicsQueueIndex, 0));
+		context->queue = std::make_unique<vk::Queue>(context->device.getQueue(context->graphicsQueueIndex, 0));
 
 		// Find supported depth format
 		// We prefer 24 bits of depth and 8 bits of stencil, but that may not be supported by all implementations
@@ -27,12 +29,12 @@ namespace graphics
 		vk::CommandPoolCreateInfo cmdPoolInfo = vk::CommandPoolCreateInfo()
 			.setQueueFamilyIndex(swapchain->queueNodeIndex)
 			.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-		cmdPool = context->device.createCommandPool(cmdPoolInfo);
+		context->cmdPool = context->device.createCommandPool(cmdPoolInfo);
 
 		vk::CommandBufferBeginInfo cmdBufferBeginInfo = vk::CommandBufferBeginInfo();
 		vk::CommandBuffer setupCmdBuffer;
 		vk::CommandBufferAllocateInfo info = vk::CommandBufferAllocateInfo()
-			.setCommandPool(cmdPool)
+			.setCommandPool(context->cmdPool)
 			.setLevel(vk::CommandBufferLevel::ePrimary)
 			.setCommandBufferCount(1);
 
@@ -50,13 +52,13 @@ namespace graphics
 			.setCommandBufferCount(1)
 			.setPCommandBuffers(&setupCmdBuffer);
 
-		queue->submit(1, &submitInfo, nullptr);
-		queue->waitIdle();
+		context->queue->submit(1, &submitInfo, nullptr);
+		context->queue->waitIdle();
 
-		context->device.freeCommandBuffers(cmdPool, 1, &setupCmdBuffer);
+		context->device.freeCommandBuffers(context->cmdPool, 1, &setupCmdBuffer);
 
 		vk::CommandBufferAllocateInfo info2;
-		info2.setCommandPool(cmdPool)
+		info2.setCommandPool(context->cmdPool)
 			.setLevel(vk::CommandBufferLevel::ePrimary)
 			.setCommandBufferCount(1);
 
@@ -191,7 +193,7 @@ namespace graphics
 			.setCommandBufferCount(1)
 			.setPCommandBuffers(buffer);
 
-		queue->submit(1, &submitInfo, nullptr);
+		context->queue->submit(1, &submitInfo, nullptr);
 	}
 
 	void Renderer::prepare()
@@ -208,7 +210,7 @@ namespace graphics
 			submit(buffer);
 		}
 
-		queue->waitIdle();
+		context->queue->waitIdle();
 
 		present();
 	}
@@ -217,9 +219,9 @@ namespace graphics
 	{
 		submitPrePresentBarrier(swapchain->images[currentBuffer]);
 
-		swapchain->queuePresent(*queue, &currentBuffer, renderComplete);
+		swapchain->queuePresent(*context->queue, &currentBuffer, renderComplete);
 
-		queue->waitIdle();
+		context->queue->waitIdle();
 	}
 
 	void Renderer::submitPostPresentBarrier(vk::Image image) const
@@ -312,7 +314,7 @@ namespace graphics
 		vk::SubmitInfo submitInfo = vk::SubmitInfo()
 			.setCommandBufferCount(1)
 			.setPCommandBuffers(&postPresentCmdBuffer);
-		queue->submit(1, &submitInfo, nullptr);
+		context->queue->submit(1, &submitInfo, nullptr);
 	}
 
 	void Renderer::submitPrePresentBarrier(vk::Image image) const
@@ -348,6 +350,6 @@ namespace graphics
 			.setCommandBufferCount(1)
 			.setPCommandBuffers(&prePresentCmdBuffer);
 
-		queue->submit(1, &submitInfo, nullptr);
+		context->queue->submit(1, &submitInfo, nullptr);
 	}
 }
