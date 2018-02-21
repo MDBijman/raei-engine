@@ -5,9 +5,38 @@
 #include "Game/Events/BrickEvents.h"
 
 #include "Modules/Graphics/Core/Camera.h"
+#include "Modules/TemplateUtils/OrderedTuple.h"
 
 namespace game
 {
+	namespace detail
+	{
+		std::vector<graphics::data::OrderedTuple<
+			graphics::data::Vec2<0, 0>,
+			graphics::data::Vec2<1, sizeof(float) * 2>>
+			> create_block()
+		{
+			return {
+				{
+					{ -.5f, -.5f },
+					{ 0.0f, 0.0f }
+				},
+				{
+					{ -.5f, .5f },
+					{ 0.0f, 1.0f }
+				},
+				{
+					{ .5f, -.5f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ .5f, .5f },
+					{ 1.0f, 1.0f }
+				}
+			};
+		}
+	}
+
 	void load(std::shared_ptr<ecs_manager> ecs, std::shared_ptr<event_manager>& events,
 		graphics::Camera& graphics_camera, graphics::Renderer& graphics)
 	{
@@ -24,27 +53,8 @@ namespace game
 			ecs->addComponent(sprite, Components::Scale2D(.2, 0.05));
 			ecs->addComponent(sprite, Components::Input(1.0f));
 
-			auto spriteData = Components::sprite_attributes({
-					{
-						{ -.5f, -.5f },
-						{ 0.0f, 0.0f }
-					},
-					{
-						{ -.5f, .5f },
-						{ 0.0f, 1.0f }
-					},
-					{
-						{ .5f, -.5f },
-						{ 1.0f, 0.0f }
-					},
-					{
-						{ .5f, .5f },
-						{ 1.0f, 1.0f }
-					}
-				});
-
+			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-
 			auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics.resources.create_buffer<glm::mat4>(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
@@ -52,14 +62,13 @@ namespace game
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& shader = ecs->addComponent(sprite, Components::sprite_shader(std::move(spriteData),
-				std::move(indices), std::move(uniform)));
+			auto& shader = ecs->addComponent(sprite, Components::sprite_shader(
+				std::move(attributes), std::move(indices), std::move(uniform)));
+
 			shader.allocate(*graphics.context);
 
-			auto& pipeline = ecs->addComponent(sprite, Components::Pipeline{
-				"./res/shaders/sprite-pipeline.json", graphics.drawPass, graphics.pipelineCache,
-				graphics.context->device, shader
-				});
+			auto& pipeline = ecs->addComponent(sprite, Components::Pipeline(
+				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
 
 			ecs->addComponent(sprite, Components::CommandBuffers{
 				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),
@@ -73,27 +82,8 @@ namespace game
 			ecs->addComponent(ball, Components::Velocity2D(0.0, 1.6));
 			ecs->addComponent(ball, Components::Scale2D(.03, .03));
 
-			auto spriteData = Components::sprite_attributes({
-					{
-						{ -.5f, -.5f },
-						{ 0.0f, 0.0f }
-					},
-					{
-						{ -.5f, .5f },
-						{ 0.0f, 1.0f }
-					},
-					{
-						{ .5f, -.5f },
-						{ 1.0f, 0.0f }
-					},
-					{
-						{ .5f, .5f },
-						{ 1.0f, 1.0f }
-					}
-				});
-
+			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-
 			auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics.resources.create_buffer<glm::mat4>(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
@@ -101,14 +91,12 @@ namespace game
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& shader = ecs->addComponent(ball, Components::sprite_shader(std::move(spriteData),
+			auto& shader = ecs->addComponent(ball, Components::sprite_shader(std::move(attributes),
 				std::move(indices), std::move(uniform)));
 			shader.allocate(*graphics.context);
 
-			auto& pipeline = ecs->addComponent(ball, Components::Pipeline{
-				"./res/shaders/sprite-pipeline.json", graphics.drawPass, graphics.pipelineCache,
-				graphics.context->device, shader
-				});
+			auto& pipeline = ecs->addComponent(ball, Components::Pipeline(
+				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
 
 			ecs->addComponent(ball, Components::CommandBuffers{
 				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),
@@ -129,56 +117,34 @@ namespace game
 				float width = 0.135f;
 				float gap = 0.05f;
 
-				auto& pos = ecs->addComponent(block, Components::Position2D(
+				ecs->addComponent(block, Components::Position2D(
 					-0.9 + (width + gap) * i + 0.5f * width,
 					-0.9 + (double)j / 8.0
 				));
-				auto& scale = ecs->addComponent(block, Components::Scale2D(width, 1.0f / 15.0f));
+				ecs->addComponent(block, Components::Scale2D(width, 1.0f / 15.0f));
 
-				auto spriteData = Components::sprite_attributes({
-						{
-							{ -.5f, -.5f },
-							{ 0.0f, 0.0f }
-						},
-						{
-							{ -.5f, .5f },
-							{ 0.0f, 1.0f }
-						},
-						{
-							{ .5f, -.5f },
-							{ 1.0f, 0.0f }
-						},
-						{
-							{ .5f, .5f },
-							{ 1.0f, 1.0f }
-						}
-					});
-
+				auto attributes = Components::sprite_attributes(detail::create_block());
 				auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-
 				auto uniform = Components::sprite_uniforms(*graphics.context, {
-				graphics.resources.create_buffer<glm::mat4>(
-					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
-				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
-					vk::ShaderStageFlagBits::eFragment)
+					graphics.resources.create_buffer<glm::mat4>(
+						camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
+					graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
+						vk::ShaderStageFlagBits::eFragment)
 					});
 
 				auto& shader = ecs->addComponent(block, Components::sprite_shader{
-					std::move(spriteData), std::move(indices), std::move(uniform)
+					std::move(attributes), std::move(indices), std::move(uniform)
 					});
 
 				shader.allocate(*graphics.context);
 
-				auto& pipeline = ecs->addComponent(block, Components::Pipeline{
-					"./res/shaders/sprite-pipeline.json", graphics.drawPass, graphics.pipelineCache,
-					graphics.context->device, shader
-					});
+				auto& pipeline = ecs->addComponent(block, Components::Pipeline(
+					graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
 
 				ecs->addComponent(block, Components::CommandBuffers{
 					graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
 					graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
 					});
-
 			}
 		}
 
@@ -186,30 +152,11 @@ namespace game
 		{
 			auto top_wall = ecs->createEntity();
 
-			auto& pos = ecs->addComponent(top_wall, Components::Position2D(0.0, -1.0));
-			auto& scale = ecs->addComponent(top_wall, Components::Scale2D(2.0, 1.0 / 15.0));
+			ecs->addComponent(top_wall, Components::Position2D(0.0, -1.0));
+			ecs->addComponent(top_wall, Components::Scale2D(2.0, 1.0 / 15.0));
 
-			auto spriteData = Components::sprite_attributes({
-					{
-						{ -.5f, -.5f },
-						{ 0.0f, 0.0f }
-					},
-					{
-						{ -.5f, .5f },
-						{ 0.0f, 1.0f }
-					},
-					{
-						{ .5f, -.5f },
-						{ 1.0f, 0.0f }
-					},
-					{
-						{ .5f, .5f },
-						{ 1.0f, 1.0f }
-					}
-				});
-
+			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-
 			auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics.resources.create_buffer<glm::mat4>(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
@@ -218,15 +165,14 @@ namespace game
 				});
 
 			auto& shader = ecs->addComponent(top_wall, Components::sprite_shader{
-				std::move(spriteData), std::move(indices), std::move(uniform)
+				std::move(attributes), std::move(indices), std::move(uniform)
 				});
 
 			shader.allocate(*graphics.context);
 
-			auto& pipeline = ecs->addComponent(top_wall, Components::Pipeline{
-				"./res/shaders/sprite-pipeline.json", graphics.drawPass, graphics.pipelineCache,
-				graphics.context->device, shader
-				});
+			auto& pipeline = ecs->addComponent(top_wall, Components::Pipeline(
+				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
+
 
 			ecs->addComponent(top_wall, Components::CommandBuffers{
 				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
@@ -238,30 +184,11 @@ namespace game
 		{
 			auto left_wall = ecs->createEntity();
 
-			auto& pos = ecs->addComponent(left_wall, Components::Position2D(-1.0, 0.0));
-			auto& scale = ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
+			ecs->addComponent(left_wall, Components::Position2D(-1.0, 0.0));
+			ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
 
-			auto spriteData = Components::sprite_attributes({
-					{
-						{ -.5f, -.5f },
-						{ 0.0f, 0.0f }
-					},
-					{
-						{ -.5f, .5f },
-						{ 0.0f, 1.0f }
-					},
-					{
-						{ .5f, -.5f },
-						{ 1.0f, 0.0f }
-					},
-					{
-						{ .5f, .5f },
-						{ 1.0f, 1.0f }
-					}
-				});
-
+			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-
 			auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics.resources.create_buffer<glm::mat4>(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
@@ -269,51 +196,24 @@ namespace game
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& shader = ecs->addComponent(left_wall, Components::sprite_shader{
-				std::move(spriteData), std::move(indices), std::move(uniform)
-				});
+			auto& drawable = ecs->addComponent(left_wall, components::drawable<sprite_shader>(
+				graphics.resources.create_drawable(
+					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
+					graphics.drawPass, graphics.frameBuffers
+				)));
 
-			shader.allocate(*graphics.context);
-
-			auto& pipeline = ecs->addComponent(left_wall, Components::Pipeline{
-				"./res/shaders/sprite-pipeline.json", graphics.drawPass, graphics.pipelineCache,
-				graphics.context->device, shader
-				});
-
-			ecs->addComponent(left_wall, Components::CommandBuffers{
-				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
-				graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
-				});
+			drawable.shader().allocate(*graphics.context);
 		}
 
 		// Right Wall
 		{
 			auto left_wall = ecs->createEntity();
 
-			auto& pos = ecs->addComponent(left_wall, Components::Position2D(1.0, 0.0));
-			auto& scale = ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
+			ecs->addComponent(left_wall, Components::Position2D(1.0, 0.0));
+			ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
 
-			auto spriteData = Components::sprite_attributes({
-					{
-						{ -.5f, -.5f },
-						{ 0.0f, 0.0f }
-					},
-					{
-						{ -.5f, .5f },
-						{ 0.0f, 1.0f }
-					},
-					{
-						{ .5f, -.5f },
-						{ 1.0f, 0.0f }
-					},
-					{
-						{ .5f, .5f },
-						{ 1.0f, 1.0f }
-					}
-				});
-
+			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-
 			auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics.resources.create_buffer<glm::mat4>(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
@@ -322,15 +222,13 @@ namespace game
 				});
 
 			auto& shader = ecs->addComponent(left_wall, Components::sprite_shader(
-				std::move(spriteData), std::move(indices), std::move(uniform)
+				std::move(attributes), std::move(indices), std::move(uniform)
 			));
 
 			shader.allocate(*graphics.context);
 
-			auto& pipeline = ecs->addComponent(left_wall, Components::Pipeline{
-				"./res/shaders/sprite-pipeline.json", graphics.drawPass, graphics.pipelineCache,
-				graphics.context->device, shader
-				});
+			auto& pipeline = ecs->addComponent(left_wall, Components::Pipeline(
+				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
 
 			ecs->addComponent(left_wall, Components::CommandBuffers{
 				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
@@ -342,10 +240,9 @@ namespace game
 		{
 			auto score = ecs->createEntity();
 
-			ecs->addComponent<components::score>(score, components::score());
-
-			auto& pos = ecs->addComponent(score, Components::Position2D(-1.8361, -.99));
-			auto& scale = ecs->addComponent(score, Components::Scale2D(.3, .1));
+			ecs->addComponent(score, components::score());
+			ecs->addComponent(score, Components::Position2D(-1.8361, -.99));
+			ecs->addComponent(score, Components::Scale2D(.3, .1));
 
 			auto uniform = Components::sprite_uniforms(*graphics.context, {
 				graphics.resources.create_buffer<glm::mat4>(
@@ -421,10 +318,8 @@ namespace game
 
 			shader.allocate(*graphics.context);
 
-			auto& pipeline = ecs->addComponent(score, Components::Pipeline{
-				"./res/shaders/sprite-pipeline.json", graphics.drawPass, graphics.pipelineCache,
-				graphics.context->device, shader
-				});
+			auto& pipeline = ecs->addComponent(score, Components::Pipeline(
+				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
 
 			ecs->addComponent(score, Components::CommandBuffers{
 				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),

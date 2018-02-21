@@ -26,15 +26,12 @@ namespace graphics
 
 		std::shared_ptr<VulkanContext> context;
 		std::shared_ptr<VulkanSwapChain> swapchain;
-		speck::graphics::ResourceLoader resources;
+		speck::graphics::resource_loader resources;
 
 		vk::Format depthFormat;
-		vk::Format colorformat = vk::Format::eB8G8R8A8Unorm;
 
-		vk::RenderPass renderPass;
 		vk::RenderPass drawPass;
 
-		vk::PipelineCache pipelineCache;
 		std::vector<vk::Framebuffer> frameBuffers;
 
 		uint32_t getCurrentBuffer() const;

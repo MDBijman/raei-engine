@@ -32,9 +32,7 @@ namespace graphics
 				buffer_(std::move(o.buffer_)),
 				memory(std::move(o.memory)),
 				usage_bits_(std::move(o.usage_bits_))
-			{
-
-			}
+			{}
 
 			virtual ~buffer() {}
 

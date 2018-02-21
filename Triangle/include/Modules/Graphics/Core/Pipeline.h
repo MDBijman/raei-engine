@@ -9,8 +9,9 @@ namespace graphics
 		Pipeline() : vk(nullptr) {}
 		Pipeline(vk::Pipeline pipeline, vk::PipelineLayout pipelineLayout);
 
-		vk::Pipeline vk;
 
+
+		vk::Pipeline vk;
 		vk::PipelineLayout layout;
 
 		std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachmentStates;

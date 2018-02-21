@@ -6,10 +6,9 @@ namespace graphics
 {
 	Renderer::Renderer(WindowsContext windows) : 
 		context(new VulkanContext("triangle")),
-		resources(*context)
+		swapchain(std::make_shared<VulkanSwapChain>(*context)),
+		resources(*context, *swapchain)
 	{
-		swapchain = std::make_shared<VulkanSwapChain>(*context);
-
 		context->queue = std::make_unique<vk::Queue>(context->device.getQueue(context->graphicsQueueIndex, 0));
 
 		// Find supported depth format
@@ -119,14 +118,13 @@ namespace graphics
 
 	void Renderer::prepareRenderPass()
 	{
-		renderPass = speck::graphics::get_clear_pass(*context, depthFormat, colorformat);
-		drawPass = speck::graphics::get_draw_pass(*context, depthFormat, colorformat);
+		drawPass = speck::graphics::get_draw_pass(*context, depthFormat, swapchain->colorFormat);
 	}
 
 	void Renderer::preparePipelineCache()
 	{
 		vk::PipelineCacheCreateInfo pipelineCacheCreateInfo;
-		pipelineCache = context->device.createPipelineCache(pipelineCacheCreateInfo);
+		context->pipeline_cache = context->device.createPipelineCache(pipelineCacheCreateInfo);
 	}
 
 	void Renderer::prepareFramebuffers(uint32_t width, uint32_t height)

@@ -28,28 +28,16 @@ namespace graphics
 
 	public:
 		shader(attributes_t attributes, uniforms_t uniforms) :
-			attributes_(std::move(attributes)),
-			uniforms_(std::move(uniforms)),
-			indices_(std::nullopt)
-		{
-
-		}
+			shader(std::move(attributes), std::nullopt, std::move(uniforms)) {}
 
 		shader(attributes_t attributes, indices_t indices, uniforms_t uniforms) :
-			attributes_(std::move(attributes)),
-			uniforms_(std::move(uniforms)),
-			indices_(std::move(indices))
-		{
-
-		}
+			shader(std::move(attributes), std::optional<indices_t>(std::move(indices)), std::move(uniforms)) {}
 
 		shader(shader&& o) :
 			attributes_(std::move(o.attributes_)),
 			indices_(std::move(o.indices_)),
 			uniforms_(std::move(o.uniforms_))
-		{
-
-		}
+		{}
 
 		void allocate(VulkanContext& context)
 		{
@@ -97,5 +85,12 @@ namespace graphics
 		{
 			return uniforms_;
 		}
+
+	private:
+		shader(attributes_t attributes, std::optional<indices_t> indices, uniforms_t uniforms) :
+			attributes_(std::move(attributes)),
+			indices_(std::move(indices)),
+			uniforms_(std::move(uniforms))
+		{}
 	};
 }
