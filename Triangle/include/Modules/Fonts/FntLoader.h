@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-#include <gli/gli.hpp>
 
 namespace fnt
 {
@@ -79,14 +78,5 @@ namespace fnt
 			stream >> char_id;
 			return char_id;
 		}
-	};
-
-	class image
-	{
-		image(std::string filename) : texture(gli::load(filename))
-		{
-		}
-
-		gli::texture2D texture;
 	};
 }

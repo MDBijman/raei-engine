@@ -7,7 +7,17 @@
 
 namespace Components
 {
-	using SpriteAttributes = Graphics::Data::Attributes<Graphics::Data::Vec2<0, 0>, Graphics::Data::Vec2<1, sizeof(float) * 2>>;
-	using SpriteUniforms = Graphics::Data::Uniforms<Graphics::Data::UniformBuffer<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex>, Graphics::Data::Texture<1, vk::ShaderStageFlagBits::eFragment>>;
-	using SpriteShader = ComponentShader<SpriteAttributes, SpriteUniforms>;
+	using sprite_attributes = graphics::data::attributes<
+		graphics::data::Vec2<0, 0>, 
+		graphics::data::Vec2<1, sizeof(float) * 2>
+	>;
+
+	using sprite_indices = typename graphics::data::indices;
+
+	using sprite_uniforms = graphics::data::Uniforms<
+		graphics::data::buffer_template<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex>, 
+		graphics::data::texture_template<1, vk::ShaderStageFlagBits::eFragment>
+	>;
+
+	using sprite_shader = Components::ComponentShader<sprite_attributes, sprite_uniforms>;
 }

@@ -1,9 +1,9 @@
 #pragma once
 
 // TODO fix these namespaces
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
 		template<class... T>
 		struct OrderedTuple

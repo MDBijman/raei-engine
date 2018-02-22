@@ -3,12 +3,13 @@
 #include <vulkan/VULKAN.HPP>
 #include <iostream>
 
-namespace Graphics
+namespace graphics
 {
 	class VulkanContext
 	{
 	public:
-		explicit VulkanContext(std::string name)
+		explicit VulkanContext(std::string name) :
+			screen_dimensions(1272, 689)
 		{
 			uint32_t layerCount = 0;
 			std::vector<vk::LayerProperties> layerPropertyList = vk::enumerateInstanceLayerProperties();
@@ -28,7 +29,7 @@ namespace Graphics
 
 			// Layers we want
 			std::vector<const char*> layers = {
-				//"VK_LAYER_LUNARG_standard_validation",
+				"VK_LAYER_LUNARG_standard_validation",
 			};
 
 			vk::ApplicationInfo applicationInfo = vk::ApplicationInfo()
@@ -84,7 +85,12 @@ namespace Graphics
 		vk::Instance instance;
 		vk::PhysicalDevice physicalDevice;
 		vk::Device device;
+		vk::CommandPool cmdPool;
+		std::shared_ptr<vk::Queue> queue;
 		uint32_t graphicsQueueIndex;
+		vk::PipelineCache pipeline_cache;
+
+		glm::vec2 screen_dimensions;
 
 	private:
 		VulkanDebug debug;

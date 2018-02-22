@@ -1,10 +1,9 @@
-#pragma once
-#include <vulkan/vulkan.hpp>
-#include "../VulkanWrappers/VulkanContext.h"
+#include "stdafx.h"
+#include "Modules/Graphics/Core/DefaultRenderpasses.h"
 
 namespace speck::graphics
 {
-	vk::RenderPass get_clear_pass(Graphics::VulkanContext& context, vk::Format& depthFormat, vk::Format& colorFormat)
+	vk::RenderPass get_clear_pass(::graphics::VulkanContext& context, vk::Format& depthFormat, vk::Format& colorFormat)
 	{
 		// Attachments
 		// Color attachment
@@ -61,7 +60,7 @@ namespace speck::graphics
 		return context.device.createRenderPass(renderPassInfo);
 	}
 
-	vk::RenderPass get_draw_pass(Graphics::VulkanContext& context, vk::Format& depthFormat, vk::Format& colorFormat)
+	vk::RenderPass get_draw_pass(::graphics::VulkanContext& context, vk::Format& depthFormat, vk::Format& colorFormat)
 	{
 		// Attachments
 		// Color attachment

@@ -1,210 +1,71 @@
 #pragma once
-#include "Modules/Graphics/Shaders/GPUBuffer.h"
-#include "Modules/TemplateUtils/TemplatePackSize.h"
+#include <memory>
+
+#include "Modules/Graphics/Core/Buffer.h"
 #include "Modules/TemplateUtils/OrderedTuple.h"
-#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
 
-#include <optional>
-
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
-		template<class... T>
-		class Attributes
+		template<class... Ts>
+		class attributes : public gpu::buffer<OrderedTuple<Ts...>>
 		{
+			static std::vector<vk::VertexInputAttributeDescription> attribute_descriptions() {
+				return {
+					Ts::getAttributeDescription()...
+				};
+			};
+
+			using item_t = OrderedTuple<Ts...>;
+
+			static constexpr size_t item_size = sizeof(item_t);
+
+			std::unique_ptr<std::vector<vk::VertexInputBindingDescription>> binding_desc_;
+			std::unique_ptr<std::vector<vk::VertexInputAttributeDescription>> attribute_desc_;
+			vk::PipelineVertexInputStateCreateInfo vi_;
+
 		public:
-			Attributes(std::vector<OrderedTuple<T...>>&& vertices, std::vector<uint32_t>&& indices) : vertices(std::move(vertices)), indices(std::move(indices))
+			attributes(std::vector<OrderedTuple<Ts...>> data) :
+				buffer<OrderedTuple<Ts...>>(vk::BufferUsageFlagBits::eVertexBuffer, std::move(data)),
+				binding_desc_(std::make_unique<std::vector<vk::VertexInputBindingDescription>>()),
+				attribute_desc_(std::make_unique<std::vector<vk::VertexInputAttributeDescription>>(
+					attribute_descriptions()))
 			{
-				initialize();
-			}
-
-			Attributes(std::vector<OrderedTuple<T...>>&& vertices) : vertices(std::move(vertices)) 
-			{
-				initialize();
-			}
-
-			Attributes(Attributes&& other) : vertices(std::move(other.vertices)), indices(std::move(other.indices)) {}
-
-			void bind(vk::CommandBuffer& cmdBuffer)
-			{
-				if(isIndexed())
-					cmdBuffer.bindIndexBuffer(indices.value().buffer, 0, vk::IndexType::eUint32);
-
-				cmdBuffer.bindVertexBuffers(0, vertices.buffer, { 0 });
-			}
-
-			void allocate(VulkanContext& context)
-			{
-				vertices.allocate(context);
-				vertices.upload(context);
-				if(isIndexed())
-				{
-					indices.value().allocate(context);
-					indices.value().upload(context);
-				}
-			}
-
-			bool isIndexed()
-			{
-				return indices.has_value();
-			}
-
-			auto& getIndices()
-			{
-				return indices;
-			}
-
-			auto& getVertices()
-			{
-				return vertices;
-			}
-
-		private:
-			void initialize()
-			{
-				vertices.bindingDescriptions = new std::vector<vk::VertexInputBindingDescription>();
-				vertices.bindingDescriptions->push_back(vk::VertexInputBindingDescription()
+				binding_desc_->push_back(vk::VertexInputBindingDescription()
 					.setBinding(0)
-					.setStride(packSize<T...>::value)
+					.setStride(item_size)
 					.setInputRate(vk::VertexInputRate::eVertex));
 
-				vertices.vi
-					.setVertexBindingDescriptionCount(static_cast<uint32_t>(vertices.bindingDescriptions->size()))
-					.setPVertexBindingDescriptions(vertices.bindingDescriptions->data());
-
-				vertices.attributeDescriptions = new std::vector<vk::VertexInputAttributeDescription>(getAttributeDescriptions());
-				vertices.vi
-					.setVertexAttributeDescriptionCount(static_cast<uint32_t>(vertices.attributeDescriptions->size()))
-					.setPVertexAttributeDescriptions(vertices.attributeDescriptions->data());
+				vi_
+					.setVertexBindingDescriptionCount(static_cast<uint32_t>(binding_desc_->size()))
+					.setPVertexBindingDescriptions(binding_desc_->data());
+				vi_
+					.setVertexAttributeDescriptionCount(static_cast<uint32_t>(attribute_desc_->size()))
+					.setPVertexAttributeDescriptions(attribute_desc_->data());
 			}
 
-			std::vector<vk::VertexInputAttributeDescription> getAttributeDescriptions()
+			attributes(attributes&& o) :
+				buffer<OrderedTuple<Ts...>>(std::move(o)),
+				binding_desc_(std::move(o.binding_desc_)),
+				attribute_desc_(std::move(o.attribute_desc_)),
+				vi_(std::move(o.vi_))
+			{}
+
+			vk::PipelineVertexInputStateCreateInfo& vi()
 			{
-				return{
-					T::getAttributeDescription()...
-				};
+				return vi_;
 			}
-
-			// TODO upload code duplication
-
-			struct Vertices
-			{
-				Vertices(std::vector<OrderedTuple<T...>>&& d) : data(d) {}
-
-				void allocate(VulkanContext& context)
-				{
-					size_t dataSize = data.size() * sizeof(std::tuple<T...>);
-
-					vk::BufferCreateInfo bufInfo;
-					bufInfo
-						.setSize(dataSize)
-						.setUsage(vk::BufferUsageFlagBits::eVertexBuffer);
-
-					//	Copy data to VRAM
-					buffer = context.device.createBuffer(bufInfo);
-					vk::MemoryRequirements memReqs = context.device.getBufferMemoryRequirements(buffer);
-
-					uint32_t memoryTypeIndex = -1;
-
-					auto properties = context.physicalDevice.getMemoryProperties();
-					for(uint32_t i = 0; i < 32; i++)
-					{
-						if(memReqs.memoryTypeBits & 1)
-						{
-							if(properties.memoryTypes[i].propertyFlags & vk::MemoryPropertyFlagBits::eHostVisible)
-							{
-								memoryTypeIndex = i;
-								break;
-							}
-						}
-						memReqs.memoryTypeBits >>= 1;
-					}
-
-					memAlloc
-						.setAllocationSize(memReqs.size)
-						.setMemoryTypeIndex(memoryTypeIndex);
-
-					memory = context.device.allocateMemory(memAlloc);
-				}
-
-				void upload(VulkanContext& context)
-				{
-					void *mappedMemory;
-					mappedMemory = context.device.mapMemory(memory, 0, memAlloc.allocationSize);
-					size_t dataSize = data.size() * sizeof(std::tuple<T...>);
-					memcpy(mappedMemory, data.data(), dataSize);
-					context.device.unmapMemory(memory);
-					context.device.bindBufferMemory(buffer, memory, 0);
-				}
-
-				std::vector<vk::VertexInputBindingDescription>* bindingDescriptions;
-				std::vector<vk::VertexInputAttributeDescription>* attributeDescriptions;
-
-				vk::PipelineVertexInputStateCreateInfo vi;
-				std::vector<OrderedTuple<T...>> data;
-
-				vk::MemoryAllocateInfo memAlloc;
-				vk::Buffer buffer;
-				vk::DeviceMemory memory;
-			} vertices;
-
-			struct Indices
-			{
-				Indices(std::vector<uint32_t>&& i) : data(i) {}
-
-				void allocate(VulkanContext& context)
-				{
-					vk::BufferCreateInfo indexBufferInfo;
-					indexBufferInfo
-						.setSize(static_cast<uint32_t>(data.size()) * sizeof(uint32_t))
-						.setUsage(vk::BufferUsageFlagBits::eIndexBuffer);
-
-					// Copy index data to VRAM
-					buffer = context.device.createBuffer(indexBufferInfo);
-					vk::MemoryRequirements memReqs = context.device.getBufferMemoryRequirements(buffer);
-
-					uint32_t memoryTypeIndex = -1;
-
-					auto properties = context.physicalDevice.getMemoryProperties();
-					for(uint32_t i = 0; i < 32; i++)
-					{
-						if(memReqs.memoryTypeBits & 1)
-						{
-							if(properties.memoryTypes[i].propertyFlags & vk::MemoryPropertyFlagBits::eHostVisible)
-							{
-								memoryTypeIndex = i;
-								break;
-							}
-						}
-						memReqs.memoryTypeBits >>= 1;
-					}
-
-					memAlloc
-						.setAllocationSize(memReqs.size)
-						.setMemoryTypeIndex(memoryTypeIndex);
-
-					memory = context.device.allocateMemory(memAlloc);
-				}
-
-				void upload(VulkanContext& context)
-				{
-					void *mappedMemory;
-					mappedMemory = context.device.mapMemory(memory, 0, data.size() * sizeof(uint32_t));
-					memcpy(mappedMemory, data.data(), data.size() * sizeof(uint32_t));
-					context.device.unmapMemory(memory);
-					context.device.bindBufferMemory(buffer, memory, 0);
-				}
-
-				vk::MemoryAllocateInfo memAlloc;
-				vk::Buffer buffer;
-				vk::DeviceMemory memory;
-
-				std::vector<uint32_t> data;
-			};
-			std::optional<Indices> indices;
 		};
 
+		class indices : public gpu::buffer<uint32_t>
+		{
+		public:
+			indices(std::vector<uint32_t> data) :
+				buffer<uint32_t>(vk::BufferUsageFlagBits::eIndexBuffer, std::move(data)) {}
 
+			indices(indices&& o) :
+				buffer<uint32_t>(std::move(o)) {}
+		};
 	}
 }

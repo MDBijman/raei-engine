@@ -13,8 +13,18 @@
 #include "Components/Pipeline.h"
 #include "Components/CommandBuffers.h"
 #include "Components/Scale2D.h"
-#include "Components/Dummy.h"
 #include "Components/score.h"
+#include "Components/Drawable.h"
+
+using sprite_attributes = graphics::data::attributes<
+	graphics::data::Vec2<0, 0>,
+	graphics::data::Vec2<1, sizeof(float) * 2>
+>;
+using sprite_uniforms = graphics::data::Uniforms<
+	graphics::data::buffer_template<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex>,
+	graphics::data::texture_template<1, vk::ShaderStageFlagBits::eFragment>
+>;
+using sprite_shader = graphics::shader<sprite_attributes, sprite_uniforms>;
 
 using component_list = std::tuple<
 	Components::Position2D,
@@ -26,13 +36,14 @@ using component_list = std::tuple<
 	Components::CameraID,
 	Components::Pipeline,
 	Components::CommandBuffers,
-	Components::SpriteShader,
+	Components::sprite_shader,
 	Components::Input,
 	Components::Scale2D,
-	components::score
+	components::score,
+	components::drawable<graphics::shader<sprite_attributes, sprite_uniforms>>
 >;
 
-using filter_list = std::tuple<
+using filter_list = std::tuple <
 	// Movement
 	ecs::filter<Components::Position2D, Components::Velocity2D>,
 
@@ -40,11 +51,10 @@ using filter_list = std::tuple<
 	ecs::filter<Components::Input, Components::Position2D>,
 
 	// Rendering
-	ecs::filter<Components::CommandBuffers>,
-
+	ecs::filter<components::drawable<sprite_shader>>,
 	// Sprite uniform updates
-	ecs::filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>,
-	
+	ecs::filter<components::drawable<sprite_shader>, Components::Position2D, Components::Scale2D>,
+
 	// Camera Finding
 	ecs::filter<Components::Camera2D>,
 
@@ -55,8 +65,8 @@ using filter_list = std::tuple<
 	ecs::filter<Components::Position2D, Components::Scale2D>,
 
 	// Score
-	ecs::filter<components::score, Components::SpriteShader, Components::Scale2D>
->;
+	ecs::filter<components::score, components::drawable<sprite_shader>, Components::Scale2D>
+> ;
 
 using ecs_manager = ecs::base_manager<component_list, filter_list>;
 using MySystem = ecs::System<component_list, filter_list>;

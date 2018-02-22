@@ -1,7 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 
-namespace Graphics
+namespace graphics
 {
 	class Pipeline
 	{
@@ -9,8 +9,9 @@ namespace Graphics
 		Pipeline() : vk(nullptr) {}
 		Pipeline(vk::Pipeline pipeline, vk::PipelineLayout pipelineLayout);
 
-		vk::Pipeline vk;
 
+
+		vk::Pipeline vk;
 		vk::PipelineLayout layout;
 
 		std::vector<vk::PipelineColorBlendAttachmentState> colorBlendAttachmentStates;

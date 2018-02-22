@@ -1,14 +1,15 @@
 #include "stdafx.h"
-#include "Modules/Graphics/Logic/Renderer.h"
-#include "Modules/Graphics/Logic/default_renderpasses.h"
+#include "Modules/Graphics/Core/Renderer.h"
+#include "Modules/Graphics/Core/DefaultRenderpasses.h"
 
-namespace Graphics
+namespace graphics
 {
-	Renderer::Renderer(WindowsContext windows) : context(new VulkanContext("triangle"))
+	Renderer::Renderer(WindowsContext windows) : 
+		context(new VulkanContext("triangle")),
+		swapchain(std::make_shared<VulkanSwapChain>(*context)),
+		resources(*context, *swapchain)
 	{
-		swapchain = std::make_shared<VulkanSwapChain>(*context);
-
-		queue = std::make_unique<vk::Queue>(context->device.getQueue(context->graphicsQueueIndex, 0));
+		context->queue = std::make_unique<vk::Queue>(context->device.getQueue(context->graphicsQueueIndex, 0));
 
 		// Find supported depth format
 		// We prefer 24 bits of depth and 8 bits of stencil, but that may not be supported by all implementations
@@ -27,12 +28,12 @@ namespace Graphics
 		vk::CommandPoolCreateInfo cmdPoolInfo = vk::CommandPoolCreateInfo()
 			.setQueueFamilyIndex(swapchain->queueNodeIndex)
 			.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
-		cmdPool = context->device.createCommandPool(cmdPoolInfo);
+		context->cmdPool = context->device.createCommandPool(cmdPoolInfo);
 
 		vk::CommandBufferBeginInfo cmdBufferBeginInfo = vk::CommandBufferBeginInfo();
 		vk::CommandBuffer setupCmdBuffer;
 		vk::CommandBufferAllocateInfo info = vk::CommandBufferAllocateInfo()
-			.setCommandPool(cmdPool)
+			.setCommandPool(context->cmdPool)
 			.setLevel(vk::CommandBufferLevel::ePrimary)
 			.setCommandBufferCount(1);
 
@@ -50,13 +51,13 @@ namespace Graphics
 			.setCommandBufferCount(1)
 			.setPCommandBuffers(&setupCmdBuffer);
 
-		queue->submit(1, &submitInfo, nullptr);
-		queue->waitIdle();
+		context->queue->submit(1, &submitInfo, nullptr);
+		context->queue->waitIdle();
 
-		context->device.freeCommandBuffers(cmdPool, 1, &setupCmdBuffer);
+		context->device.freeCommandBuffers(context->cmdPool, 1, &setupCmdBuffer);
 
 		vk::CommandBufferAllocateInfo info2;
-		info2.setCommandPool(cmdPool)
+		info2.setCommandPool(context->cmdPool)
 			.setLevel(vk::CommandBufferLevel::ePrimary)
 			.setCommandBufferCount(1);
 
@@ -117,14 +118,13 @@ namespace Graphics
 
 	void Renderer::prepareRenderPass()
 	{
-		renderPass = speck::graphics::get_clear_pass(*context, depthFormat, colorformat);
-		drawPass = speck::graphics::get_draw_pass(*context, depthFormat, colorformat);
+		drawPass = speck::graphics::get_draw_pass(*context, depthFormat, swapchain->colorFormat);
 	}
 
 	void Renderer::preparePipelineCache()
 	{
 		vk::PipelineCacheCreateInfo pipelineCacheCreateInfo;
-		pipelineCache = context->device.createPipelineCache(pipelineCacheCreateInfo);
+		context->pipeline_cache = context->device.createPipelineCache(pipelineCacheCreateInfo);
 	}
 
 	void Renderer::prepareFramebuffers(uint32_t width, uint32_t height)
@@ -191,7 +191,7 @@ namespace Graphics
 			.setCommandBufferCount(1)
 			.setPCommandBuffers(buffer);
 
-		queue->submit(1, &submitInfo, nullptr);
+		context->queue->submit(1, &submitInfo, nullptr);
 	}
 
 	void Renderer::prepare()
@@ -208,7 +208,7 @@ namespace Graphics
 			submit(buffer);
 		}
 
-		queue->waitIdle();
+		context->queue->waitIdle();
 
 		present();
 	}
@@ -217,9 +217,9 @@ namespace Graphics
 	{
 		submitPrePresentBarrier(swapchain->images[currentBuffer]);
 
-		swapchain->queuePresent(*queue, &currentBuffer, renderComplete);
+		swapchain->queuePresent(*context->queue, &currentBuffer, renderComplete);
 
-		queue->waitIdle();
+		context->queue->waitIdle();
 	}
 
 	void Renderer::submitPostPresentBarrier(vk::Image image) const
@@ -312,7 +312,7 @@ namespace Graphics
 		vk::SubmitInfo submitInfo = vk::SubmitInfo()
 			.setCommandBufferCount(1)
 			.setPCommandBuffers(&postPresentCmdBuffer);
-		queue->submit(1, &submitInfo, nullptr);
+		context->queue->submit(1, &submitInfo, nullptr);
 	}
 
 	void Renderer::submitPrePresentBarrier(vk::Image image) const
@@ -348,6 +348,6 @@ namespace Graphics
 			.setCommandBufferCount(1)
 			.setPCommandBuffers(&prePresentCmdBuffer);
 
-		queue->submit(1, &submitInfo, nullptr);
+		context->queue->submit(1, &submitInfo, nullptr);
 	}
 }

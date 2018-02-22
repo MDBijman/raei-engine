@@ -1,6 +1,6 @@
 #pragma once
 #include "Modules/ECS/Component.h"
-#include "Modules/Graphics/Logic/Pipeline.h"
+#include "Modules/Graphics/Core/Pipeline.h"
 #include <glm/glm.hpp>
 
 namespace Components
@@ -10,7 +10,7 @@ namespace Components
 	public:
 		template<class ShaderType>
 		CommandBuffers(vk::CommandPool& cmdPool, VulkanSwapChain& swapchain, vk::Device& device, glm::vec2& dimensions,
-			vk::RenderPass& renderPass, Graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers,
+			vk::RenderPass& renderPass, graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers,
 			ShaderType& shader)
 		{
 			vk::CommandBufferAllocateInfo info;
@@ -61,7 +61,8 @@ namespace Components
 				buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 				buffer.setViewport(0, viewport);
 				buffer.setScissor(0, scissor);
-				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0, shader.getUniforms().getDescriptorSet(), nullptr);
+				buffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.layout, 0,
+					shader.uniforms().getDescriptorSet(), nullptr);
 				buffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.vk);
 				shader.draw(buffer);
 				buffer.endRenderPass();

@@ -1,6 +1,6 @@
 #pragma once
 #include "Modules/ECS/System.h"
-#include "Modules/Graphics/VulkanWrappers/VulkanContext.h"
+#include "Modules/Graphics/Core/VulkanContext.h"
 #include "Game/Components/SpriteShader.h"
 #include "Game/Components/Position2D.h"
 #include "Game/Components/Scale2D.h"
@@ -10,7 +10,7 @@ namespace Systems
 	class SpriteShaderSystem : public MySystem
 	{
 	public:
-		SpriteShaderSystem(Graphics::VulkanContext& context) : context(context) {}
+		SpriteShaderSystem(graphics::VulkanContext& context) : context(context) {}
 
 		void update(ecs_manager& ecs) override
 		{
@@ -24,11 +24,12 @@ namespace Systems
 				pv = camera.camera.getMatrices().view_projection;
 			}
 
-			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::SpriteShader, Components::Position2D, Components::Scale2D>>();
+			auto&[lock, entities] = ecs.filterEntities<ecs::filter<components::drawable<sprite_shader>,
+				Components::Position2D, Components::Scale2D >>();
 
 			for (auto entity : entities)
 			{
-				auto& shader = ecs.getComponent<Components::SpriteShader>(entity);
+				auto& drawable = ecs.getComponent<components::drawable<sprite_shader>>(entity);
 				auto& pos = ecs.getComponent<Components::Position2D>(entity);
 				auto& scale2d = ecs.getComponent<Components::Scale2D>(entity);
 
@@ -37,10 +38,11 @@ namespace Systems
 				auto model = translate * scale;
 
 				glm::mat4 mvp = pv * model;
-				shader.getUniforms().upload<0>(context, mvp);
+
+				drawable.shader().uniforms().upload<0>(context, mvp);
 			}
 		}
 
-		Graphics::VulkanContext& context;
+		graphics::VulkanContext& context;
 	};
 }

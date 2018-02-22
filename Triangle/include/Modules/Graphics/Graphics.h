@@ -1,10 +1,16 @@
 #pragma once
-#include "Logic/Camera.h"
-#include "Logic/Pipeline.h"
-#include "Logic/Renderer.h"
-#include "Logic/Swapchain.h"
+#include "Core/Camera.h"
+#include "Core/Pipeline.h"
+#include "Core/Renderer.h"
+#include "Core/Swapchain.h"
+#include "Core/Resources.h"
+#include "Core/Buffer.h"
+#include "Core/Drawable.h"
+#include "Core/Frame.h"
+#include "Core/DefaultRenderpasses.h"
+#include "Core/VulkanContext.h"
+#include "Core/VulkanDebug.h"
 
-#include "Shaders/GPUBuffer.h"
 #include "Shaders/Shader.h"
 
 #include "Shaders/Attributes/Attributes.h"

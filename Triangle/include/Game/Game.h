@@ -1,6 +1,6 @@
 #pragma once
 #include "ECSConfig.h"
-#include "Modules/Graphics/Logic/Renderer.h"
+#include "Modules/Graphics/Core/Renderer.h"
 #include "EventConfig.h"
 
 class Game
@@ -15,8 +15,8 @@ private:
 	std::shared_ptr<ecs_manager> ecs;
 	std::shared_ptr<event_manager> events;
 
-	Graphics::Renderer	graphics;
-	Graphics::Camera	camera;
+	graphics::Renderer	graphics;
+	graphics::Camera	camera;
 
 	enum GameState
 	{

@@ -1,8 +1,8 @@
 #pragma once
 
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
 		template<int LOCATION = 0, int OFFSET = 0>
 		class Vec2

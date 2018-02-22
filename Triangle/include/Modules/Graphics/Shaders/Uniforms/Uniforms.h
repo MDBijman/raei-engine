@@ -1,16 +1,18 @@
 #pragma once
-#include "Modules/Graphics/Shaders/GPUBuffer.h"
+#include "Modules/Graphics/Core/Buffer.h"
 #include "Modules/TemplateUtils/ForEachInTuple.h"
 
-namespace Graphics
+namespace graphics
 {
-	namespace Data
+	namespace data
 	{
 		template<class... T>
 		class Uniforms
 		{
+			using concrete_t = std::tuple<typename T::concrete_t...>;
 		public:
-			Uniforms(Graphics::VulkanContext& context, std::tuple<T...>&& d) : data(std::move(d))
+			Uniforms(graphics::VulkanContext& context, concrete_t&& d) : 
+				data(std::move(d))
 			{
 				/*
 					Descriptor Set Layout Initialization
@@ -126,7 +128,7 @@ namespace Graphics
 			vk::DescriptorPool          descriptorPool;
 			vk::DescriptorSet           descriptorSet;
 
-			std::tuple<T...> data;
+			concrete_t data;
 		};
 	}
 }

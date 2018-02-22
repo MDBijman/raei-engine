@@ -1,8 +1,10 @@
 #include "stdafx.h"
-#include "Modules/Graphics/VulkanWrappers/VulkanDebug.h"
+
 #include <vulkan/VULKAN.HPP>
 #include <iostream>
 #include <sstream>
+
+#include "Modules/Graphics/Core/VulkanDebug.h"
 
 VkBool32 messageCallback(
 	VkDebugReportFlagsEXT flags,
