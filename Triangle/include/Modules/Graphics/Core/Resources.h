@@ -56,6 +56,8 @@ namespace speck::graphics
 		std::vector<vk::CommandBuffer> create_command_buffers(vk::RenderPass& renderPass,
 			::graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers, Shader& shader)
 		{
+			shader.allocate(context_);
+
 			vk::CommandBufferAllocateInfo info;
 			info.setCommandPool(context_.cmdPool)
 				.setLevel(vk::CommandBufferLevel::ePrimary)

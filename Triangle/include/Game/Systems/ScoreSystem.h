@@ -32,23 +32,24 @@ namespace systems
 			first_change = false;
 
 			{
-				auto&[lock, entities] = ecs.filterEntities<ecs::filter<components::score, Components::sprite_shader,
-					Components::Scale2D>>();
+				auto&[lock, entities] = ecs.filterEntities<ecs::filter<components::score, 
+					components::drawable<sprite_shader>, Components::Scale2D>>();
 
 				for (auto entity : entities)
 				{
 					auto& score = ecs.getComponent<components::score>(entity);
 					score.count += count;
 
-					auto& shader = ecs.getComponent<Components::sprite_shader>(entity);
+					auto& drawable = ecs.getComponent<components::drawable<sprite_shader>>(entity);
 					auto& scale = ecs.getComponent<Components::Scale2D>(entity);
 
-					auto& vert_data = shader.attributes().data();
+					auto& vert_data = drawable.shader().attributes().data();
 
 					auto update_digit = [&](int digit_index, char character) {
 						fnt::character& char_info = text_file.get_character(character);
 
-						scale.scale.x = static_cast<float>(char_info.width) / static_cast<float>(char_info.height) * 0.05f;
+						scale.scale.x = static_cast<float>(char_info.width) /
+							static_cast<float>(char_info.height) * 0.05f;
 						scale.scale.y = 0.05f;
 
 						float left_x = static_cast<float>(char_info.x) / 256.0f;
@@ -69,13 +70,12 @@ namespace systems
 
 						vert_data.at(vert_data_index + 3).rest.data.x = right_x;
 						vert_data.at(vert_data_index + 3).rest.data.y = bottom_y;
-						shader.attributes().upload(context);
 					};
 
 					update_digit(2, '0' + (score.count % 10));
 					update_digit(1, '0' + ((score.count / 10) % 10));
 					update_digit(0, '0' + ((score.count / 100) % 10));
-
+					drawable.shader().attributes().upload(context);
 				}
 			}
 		}

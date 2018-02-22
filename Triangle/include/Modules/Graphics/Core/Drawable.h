@@ -31,7 +31,7 @@ namespace speck::graphics
 			return pipeline_;
 		}
 
-		std::vector<vk::CommandBuffer> buffers()
+		std::vector<vk::CommandBuffer>& buffers()
 		{
 			return *buffers_;
 		}

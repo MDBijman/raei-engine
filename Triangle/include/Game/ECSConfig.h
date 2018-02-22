@@ -51,10 +51,9 @@ using filter_list = std::tuple <
 	ecs::filter<Components::Input, Components::Position2D>,
 
 	// Rendering
-	ecs::filter<Components::CommandBuffers>,
-
+	ecs::filter<components::drawable<sprite_shader>>,
 	// Sprite uniform updates
-	ecs::filter<Components::sprite_shader, Components::Position2D, Components::Scale2D>,
+	ecs::filter<components::drawable<sprite_shader>, Components::Position2D, Components::Scale2D>,
 
 	// Camera Finding
 	ecs::filter<Components::Camera2D>,
@@ -66,7 +65,7 @@ using filter_list = std::tuple <
 	ecs::filter<Components::Position2D, Components::Scale2D>,
 
 	// Score
-	ecs::filter<components::score, Components::sprite_shader, Components::Scale2D>
+	ecs::filter<components::score, components::drawable<sprite_shader>, Components::Scale2D>
 > ;
 
 using ecs_manager = ecs::base_manager<component_list, filter_list>;

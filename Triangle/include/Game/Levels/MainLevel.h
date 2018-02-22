@@ -62,18 +62,13 @@ namespace game
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& shader = ecs->addComponent(sprite, Components::sprite_shader(
-				std::move(attributes), std::move(indices), std::move(uniform)));
+			auto& drawable = ecs->addComponent(sprite, components::drawable<sprite_shader>(
+				graphics.resources.create_drawable(
+					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
+					graphics.drawPass, graphics.frameBuffers
+				)));
 
-			shader.allocate(*graphics.context);
-
-			auto& pipeline = ecs->addComponent(sprite, Components::Pipeline(
-				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
-
-			ecs->addComponent(sprite, Components::CommandBuffers{
-				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),
-				graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
-				});
+			drawable.shader().allocate(*graphics.context);
 		}
 
 		auto ball = ecs->createEntity();
@@ -91,20 +86,18 @@ namespace game
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& shader = ecs->addComponent(ball, Components::sprite_shader(std::move(attributes),
-				std::move(indices), std::move(uniform)));
-			shader.allocate(*graphics.context);
+			auto& drawable = ecs->addComponent(ball, components::drawable<sprite_shader>(
+				graphics.resources.create_drawable(
+					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
+					graphics.drawPass, graphics.frameBuffers
+				)));
 
-			auto& pipeline = ecs->addComponent(ball, Components::Pipeline(
-				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
-
-			ecs->addComponent(ball, Components::CommandBuffers{
-				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),
-				graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
-				});
+			drawable.shader().allocate(*graphics.context);
 		}
 
 		std::unordered_set<uint32_t> bricks;
+
+
 
 		// Bricks
 		for (int i = 0; i < 10; i++)
@@ -119,7 +112,7 @@ namespace game
 
 				ecs->addComponent(block, Components::Position2D(
 					-0.9 + (width + gap) * i + 0.5f * width,
-					-0.9 + (double)j / 8.0
+					-0.85 + (double)j / 8.0
 				));
 				ecs->addComponent(block, Components::Scale2D(width, 1.0f / 15.0f));
 
@@ -132,19 +125,13 @@ namespace game
 						vk::ShaderStageFlagBits::eFragment)
 					});
 
-				auto& shader = ecs->addComponent(block, Components::sprite_shader{
-					std::move(attributes), std::move(indices), std::move(uniform)
-					});
+				auto& drawable = ecs->addComponent(block, components::drawable<sprite_shader>(
+					graphics.resources.create_drawable(
+						sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
+						graphics.drawPass, graphics.frameBuffers
+					)));
 
-				shader.allocate(*graphics.context);
-
-				auto& pipeline = ecs->addComponent(block, Components::Pipeline(
-					graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
-
-				ecs->addComponent(block, Components::CommandBuffers{
-					graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
-					graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
-					});
+				drawable.shader().allocate(*graphics.context);
 			}
 		}
 
@@ -164,20 +151,14 @@ namespace game
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& shader = ecs->addComponent(top_wall, Components::sprite_shader{
-				std::move(attributes), std::move(indices), std::move(uniform)
-				});
 
-			shader.allocate(*graphics.context);
+			auto& drawable = ecs->addComponent(top_wall, components::drawable<sprite_shader>(
+				graphics.resources.create_drawable(
+					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
+					graphics.drawPass, graphics.frameBuffers
+				)));
 
-			auto& pipeline = ecs->addComponent(top_wall, Components::Pipeline(
-				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
-
-
-			ecs->addComponent(top_wall, Components::CommandBuffers{
-				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
-				graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
-				});
+			drawable.shader().allocate(*graphics.context);
 		}
 
 		// Left Wall
@@ -221,19 +202,13 @@ namespace game
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& shader = ecs->addComponent(left_wall, Components::sprite_shader(
-				std::move(attributes), std::move(indices), std::move(uniform)
-			));
+			auto& drawable = ecs->addComponent(left_wall, components::drawable<sprite_shader>(
+				graphics.resources.create_drawable(
+					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
+					graphics.drawPass, graphics.frameBuffers
+				)));
 
-			shader.allocate(*graphics.context);
-
-			auto& pipeline = ecs->addComponent(left_wall, Components::Pipeline(
-				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
-
-			ecs->addComponent(left_wall, Components::CommandBuffers{
-				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2{ 1272, 689 },
-				graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
-				});
+			drawable.shader().allocate(*graphics.context);
 		}
 
 		// Score
@@ -251,8 +226,7 @@ namespace game
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& shader = ecs->addComponent(score, Components::sprite_shader(
-				Components::sprite_attributes({
+			auto attributes = Components::sprite_attributes({
 					// Quad 1
 					{
 						{ 0.0f, 0.0f },
@@ -304,27 +278,24 @@ namespace game
 						{ 3.0f, 1.0f },
 						{ 1.0f, 1.0f }
 					}
-					}),
-				Components::sprite_indices({
-					// Quad 1
-					0, 1, 2, 2, 1, 3,
-					// Quad 2 
-					4, 5, 6, 6, 5, 7,
-					// Quad 3
-					8, 9, 10, 10, 9, 11,
-					}),
-					std::move(uniform)
-					));
-
-			shader.allocate(*graphics.context);
-
-			auto& pipeline = ecs->addComponent(score, Components::Pipeline(
-				graphics.resources.create_pipeline("./res/shaders/sprite-pipeline.json", shader, graphics.drawPass)));
-
-			ecs->addComponent(score, Components::CommandBuffers{
-				graphics.context->cmdPool, *graphics.swapchain, graphics.context->device, glm::vec2(1272, 689),
-				graphics.drawPass, pipeline.pipeline, graphics.frameBuffers, shader
 				});
+
+			auto indices = Components::sprite_indices({
+				// Quad 1
+				0, 1, 2, 2, 1, 3,
+				// Quad 2 
+				4, 5, 6, 6, 5, 7,
+				// Quad 3
+				8, 9, 10, 10, 9, 11,
+				});
+
+			auto& drawable = ecs->addComponent(score, components::drawable<sprite_shader>(
+				graphics.resources.create_drawable(
+					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
+					graphics.drawPass, graphics.frameBuffers
+				)));
+
+			//drawable.shader().allocate(*graphics.context);
 		}
 
 		{
