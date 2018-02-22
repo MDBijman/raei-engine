@@ -67,8 +67,6 @@ namespace game
 					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
 					graphics.drawPass, graphics.frameBuffers
 				)));
-
-			drawable.shader().allocate(*graphics.context);
 		}
 
 		auto ball = ecs->createEntity();
@@ -91,8 +89,6 @@ namespace game
 					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
 					graphics.drawPass, graphics.frameBuffers
 				)));
-
-			drawable.shader().allocate(*graphics.context);
 		}
 
 		std::unordered_set<uint32_t> bricks;
@@ -130,8 +126,6 @@ namespace game
 						sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
 						graphics.drawPass, graphics.frameBuffers
 					)));
-
-				drawable.shader().allocate(*graphics.context);
 			}
 		}
 
@@ -157,8 +151,6 @@ namespace game
 					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
 					graphics.drawPass, graphics.frameBuffers
 				)));
-
-			drawable.shader().allocate(*graphics.context);
 		}
 
 		// Left Wall
@@ -182,8 +174,6 @@ namespace game
 					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
 					graphics.drawPass, graphics.frameBuffers
 				)));
-
-			drawable.shader().allocate(*graphics.context);
 		}
 
 		// Right Wall
@@ -207,8 +197,6 @@ namespace game
 					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
 					graphics.drawPass, graphics.frameBuffers
 				)));
-
-			drawable.shader().allocate(*graphics.context);
 		}
 
 		// Score
@@ -294,8 +282,6 @@ namespace game
 					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
 					graphics.drawPass, graphics.frameBuffers
 				)));
-
-			//drawable.shader().allocate(*graphics.context);
 		}
 
 		{
