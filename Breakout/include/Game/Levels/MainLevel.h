@@ -296,7 +296,7 @@ namespace game
 			ecs->get_system_manager().add_to_group(sg, std::make_unique<Systems::Exit>());
 			ecs->get_system_manager().add_to_group(sg, std::make_unique<Systems::Input>());
 			ecs->get_system_manager().add_to_group(sg, std::make_unique<Systems::CameraSystem>());
-			ecs->get_system_manager().add_to_group(sg, std::make_unique<systems::game_rule_system>(ball));
+			ecs->get_system_manager().add_to_group(sg, std::make_unique<systems::game_rule_system>());
 			ecs->get_system_manager().add_to_group(sg, std::make_unique<systems::fps_system>());
 
 			auto render_thread = ecs->get_system_manager().create_group();

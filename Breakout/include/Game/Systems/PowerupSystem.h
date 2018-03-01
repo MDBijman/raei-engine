@@ -109,6 +109,47 @@ namespace systems
 
 		void on_powerup_hit(ecs_manager& ecs, uint32_t powerup_id)
 		{
+			auto powerup_position = ecs.getComponent<Components::Position2D>(powerup_id);
+
+			auto ball = ecs.createEntity();
+			ecs.addComponent(ball, Components::Position2D(powerup_position));
+			ecs.addComponent(ball, Components::Velocity2D(0.0, -1.6));
+			ecs.addComponent(ball, Components::Scale2D(.03, .03));
+			ecs.addComponent(ball, components::collider());
+			ecs.addComponent(ball, components::ball());
+
+			auto attributes = Components::sprite_attributes({
+				{
+					{ -.5f, -.5f },
+					{ 0.0f, 0.0f }
+				},
+				{
+					{ -.5f, .5f },
+					{ 0.0f, 1.0f }
+				},
+				{
+					{ .5f, -.5f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ .5f, .5f },
+					{ 1.0f, 1.0f }
+				}
+				});
+			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
+			auto uniform = Components::sprite_uniforms(*graphics.context, {
+				graphics.resources.create_buffer<glm::mat4>(
+					camera.getMatrices().projection * camera.getMatrices().view * glm::mat4(), 0),
+				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
+					vk::ShaderStageFlagBits::eFragment)
+				});
+
+			auto& drawable = ecs.addComponent(ball, components::drawable<sprite_shader>(
+				graphics.resources.create_drawable(
+					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
+					graphics.drawPass, graphics.frameBuffers
+				)));
+
 			std::cout << "caught powerup\n";
 			ecs.removeEntity(powerup_id);
 		}
