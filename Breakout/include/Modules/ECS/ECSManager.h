@@ -243,8 +243,7 @@ namespace ecs
 		template<class C1, class C2, class... Cs>
 		struct filter_helper<filter<C1, C2, Cs...>>
 		{
-			template<class T>
-			static bool update(T& entities, uint32_t e)
+			static bool update(std::unordered_map<uint32_t, Entity<Components...>>& entities, uint32_t e)
 			{
 				return entities.at(e).template hasComponents<C1, C2, Cs...>();
 			}
@@ -272,8 +271,7 @@ namespace ecs
 		template<class C>
 		struct filter_helper<filter<C>>
 		{
-			template<class T>
-			static bool update(T& entities, uint32_t e)
+			static bool update(std::unordered_map<uint32_t, Entity<Components...>>& entities, uint32_t e)
 			{
 				return entities.at(e).template hasComponents<C>();
 			}
