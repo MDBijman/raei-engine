@@ -14,14 +14,14 @@ namespace systems
 
 		void update(ecs_manager& ecs) override
 		{
-			auto&[lock, bricks] = ecs.filterEntities<ecs::filter<components::brick>>();
+			auto bricks = ecs.filterEntities<ecs::filter<components::brick>>();
 
 			while (subscriber.size() > 0)
 			{
 				auto hit = subscriber.pop();
-				if (bricks.find(hit->b) != bricks.end())
+				if (bricks.entities.find(hit->b) != bricks.entities.end())
 					ecs.removeEntity(hit->b, ecs::option::defered);
-				else if (bricks.find(hit->a) != bricks.end())
+				else if (bricks.entities.find(hit->a) != bricks.entities.end())
 					ecs.removeEntity(hit->a, ecs::option::defered);
 			}
 		}

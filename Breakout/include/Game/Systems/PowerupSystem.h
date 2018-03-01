@@ -20,29 +20,31 @@ namespace systems
 
 		void update(ecs_manager& ecs) override
 		{
-			auto&[lock, bricks] = ecs.filterEntities<ecs::filter<components::brick>>();
-			auto&[lock2, balls] = ecs.filterEntities<ecs::filter<components::ball>>();
-			auto&[lock3, paddles] = ecs.filterEntities<ecs::filter<components::paddle>>();
+			auto bricks = ecs.filterEntities<ecs::filter<components::brick>>();
+			auto balls = ecs.filterEntities<ecs::filter<components::ball>>();
+			auto paddles = ecs.filterEntities<ecs::filter<components::paddle>>();
 
 			while (collision_subscriber.size() > 0)
 			{
 				auto collision = collision_subscriber.pop();
 				// Bricks
-				if (balls.find(collision->a) != balls.end() && bricks.find(collision->b) != bricks.end())
+				if (balls.entities.find(collision->a) != balls.entities.end() 
+					&& bricks.entities.find(collision->b) != bricks.entities.end())
 				{
 					on_brick_hit(ecs, collision->b);
 				}
-				else if (balls.find(collision->b) != balls.end() && bricks.find(collision->a) != bricks.end())
+				else if (balls.entities.find(collision->b) != balls.entities.end()
+					&& bricks.entities.find(collision->a) != bricks.entities.end())
 				{
 					on_brick_hit(ecs, collision->a);
 				}
 				// Powerups
-				else if (paddles.find(collision->b) != paddles.end()
+				else if (paddles.entities.find(collision->b) != paddles.entities.end()
 					&& live_powerups.find(collision->a) != live_powerups.end())
 				{
 					on_powerup_hit(ecs, collision->a);
 				}
-				else if (paddles.find(collision->a) != paddles.end()
+				else if (paddles.entities.find(collision->a) != paddles.entities.end()
 					&& live_powerups.find(collision->b) != live_powerups.end())
 				{
 					on_powerup_hit(ecs, collision->b);

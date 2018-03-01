@@ -8,9 +8,10 @@ namespace Systems
 	public:
 		void update(ecs_manager& ecs) override
 		{
-			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>>();
+			auto result = ecs.filterEntities<ecs::filter<Components::Camera2D, Components::Position3D,
+				Components::Orientation3D>>();
 			
-			for(auto entity : entities)
+			for(auto entity : result.entities)
 			{
 				auto& camera = ecs.getComponent<Components::Camera2D>(entity);
 				auto& position = ecs.getComponent<Components::Position3D>(entity);

@@ -22,13 +22,16 @@ namespace systems
 			int count = 0;
 			static bool first_change = true;
 			bool change = false;
-			auto&[lock, bricks] = ecs.filterEntities<ecs::filter<components::brick>>();
+			auto bricks = ecs.filterEntities<ecs::filter<components::brick>>();
 
 			while (this->subscriber.size() > 0)
 			{
 				auto collision = subscriber.pop();
-				if (bricks.find(collision->a) == bricks.end() && bricks.find(collision->b) == bricks.end())
+				if (bricks.entities.find(collision->a) == bricks.entities.end()
+					&& bricks.entities.find(collision->b) == bricks.entities.end())
+				{
 					continue;
+				}
 
 				change = true;
 				count++;
@@ -38,10 +41,10 @@ namespace systems
 			first_change = false;
 
 			{
-				auto&[lock1, entities] = ecs.filterEntities<ecs::filter<components::score,
+				auto result = ecs.filterEntities<ecs::filter<components::score,
 					components::drawable<sprite_shader>, Components::Scale2D>>();
 
-				for (auto entity : entities)
+				for (auto entity : result.entities)
 				{
 					auto& score = ecs.getComponent<components::score>(entity);
 					score.count += count;

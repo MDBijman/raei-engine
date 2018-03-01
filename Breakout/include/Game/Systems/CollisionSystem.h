@@ -17,16 +17,16 @@ namespace systems
 
 		void update(ecs_manager& ecs) override
 		{
-			auto&[lock, bricks] = ecs.filterEntities<ecs::filter<components::brick>>();
-			auto&[lock2, walls] = ecs.filterEntities<ecs::filter<components::wall>>();
-			auto&[lock3, powerups] = ecs.filterEntities<ecs::filter<components::powerup>>();
-			auto&[lock4, balls] = ecs.filterEntities<ecs::filter<components::ball>>();
-			auto&[lock5, paddles] = ecs.filterEntities<ecs::filter<components::paddle>>();
+			auto bricks = ecs.filterEntities<ecs::filter<components::brick>>();
+			auto walls = ecs.filterEntities<ecs::filter<components::wall>>();
+			auto powerups = ecs.filterEntities<ecs::filter<components::powerup>>();
+			auto balls = ecs.filterEntities<ecs::filter<components::ball>>();
+			auto paddles = ecs.filterEntities<ecs::filter<components::paddle>>();
 
-			for (auto ball : balls) check_collisions_for(ecs, ball, walls);
-			for (auto ball : balls) check_collisions_for(ecs, ball, bricks);
-			for (auto paddle : paddles) check_collisions_for(ecs, paddle, balls);
-			for (auto paddle : paddles) check_collisions_for(ecs, paddle, powerups);
+			for (auto ball : balls.entities) check_collisions_for(ecs, ball, walls.entities);
+			for (auto ball : balls.entities) check_collisions_for(ecs, ball, bricks.entities);
+			for (auto paddle : paddles.entities) check_collisions_for(ecs, paddle, balls.entities);
+			for (auto paddle : paddles.entities) check_collisions_for(ecs, paddle, powerups.entities);
 		}
 
 	private:
