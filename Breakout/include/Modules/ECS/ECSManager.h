@@ -43,6 +43,12 @@ namespace ecs
 		std::unordered_set<uint32_t> entities;
 	};
 
+	enum class option
+	{
+		defered,
+		immediate,
+	};
+
 	/*
 	* System Manager
 	*/
@@ -230,13 +236,12 @@ namespace ecs
 		{
 			filter_lock(base_manager<component_tuple, filter_tuple>& ecs) : ecs(ecs)
 			{
-				std::lock_guard<std::mutex> l(ecs.master_component_mutex);
-				FilterHelper<ComponentCount, filter<Components...>>::lock(ecs.component_mutexes);
+				filter_helper<ComponentCount, filter<Components...>>::lock(ecs.component_mutexes);
 			};
 			~filter_lock()
 			{
 				if (!moved)
-					FilterHelper<ComponentCount, filter<Components...>>::unlock(ecs.component_mutexes);
+					filter_helper<ComponentCount, filter<Components...>>::unlock(ecs.component_mutexes);
 			};
 			filter_lock(const filter_lock&) = delete;
 			filter_lock(filter_lock&& o) : ecs(o.ecs)
@@ -264,25 +269,52 @@ namespace ecs
 		* Helper struct for checkFilters().
 		*/
 		template<int ComponentCount, class Filter>
-		struct FilterHelper {};
+		struct filter_helper{};
 
-		template<int ComponentCount, class... ComponentTypes>
-		struct FilterHelper<ComponentCount, filter<ComponentTypes...>>
+		template<int ComponentCount, class C1, class C2, class... Cs>
+		struct filter_helper<ComponentCount, filter<C1, C2, Cs...>>
 		{
 			template<class T>
 			static bool update(T& entities, uint32_t e)
 			{
-				return entities.at(e).template hasComponents<ComponentTypes...>();
+				return entities.at(e).template hasComponents<C1, C2, Cs...>();
 			}
 
 			static void lock(std::array<std::mutex, ComponentCount>& locks)
 			{
-				(locks.at(type_index<ComponentTypes, Components...>::value).lock(), ...);
+				std::lock(
+					locks.at(type_index<C1, Components...>::value),
+					locks.at(type_index<C2, Components...>::value),
+					locks.at(type_index<Cs, Components...>::value)...
+				);
 			}
 
 			static void unlock(std::array<std::mutex, ComponentCount>& locks)
 			{
-				(locks.at(type_index<ComponentTypes, Components...>::value).unlock(), ...);
+				locks.at(type_index<C1, Components...>::value).unlock();
+				locks.at(type_index<C2, Components...>::value).unlock();
+				(locks.at(type_index<Cs, Components...>::value).unlock(), ...);
+			}
+		};
+
+		template<int ComponentCount, class C>
+		struct filter_helper<ComponentCount, filter<C>>
+		{
+			template<class T>
+			static bool update(T& entities, uint32_t e)
+			{
+				return entities.at(e).template hasComponents<C>();
+			}
+
+			// Fails when components size is one
+			static void lock(std::array<std::mutex, ComponentCount>& locks)
+			{
+				locks.at(type_index<C, Components...>::value).lock();
+			}
+
+			static void unlock(std::array<std::mutex, ComponentCount>& locks)
+			{
+				locks.at(type_index<C, Components...>::value).unlock();
 			}
 		};
 
@@ -298,11 +330,18 @@ namespace ecs
 			return entityCount;
 		}
 
-		void removeEntity(uint32_t e)
+		void removeEntity(uint32_t e, option o = option::immediate)
 		{
-			removeComponents<Components...>(e);
-			updateFilters<Filters...>(e);
-			entities.erase(e);
+			if (o == option::defered)
+			{
+				to_remove_entities.insert(e);
+			}
+			else
+			{
+				removeComponents<Components...>(e);
+				updateFilters<Filters...>(e);
+				entities.erase(e);
+			}
 		}
 
 		/* Component Methods */
@@ -361,6 +400,9 @@ namespace ecs
 		void update()
 		{
 			this->child_system_manager.update();
+
+			for (auto e : to_remove_entities) this->removeEntity(e);
+			to_remove_entities.clear();
 		}
 
 	private:
@@ -383,7 +425,7 @@ namespace ecs
 		template<class filter>
 		void updateFilter(uint32_t e)
 		{
-			bool res = FilterHelper<ComponentCount, filter>::update(entities, e);
+			bool res = filter_helper<ComponentCount, filter>::update(entities, e);
 
 			// Index of filter in the list of filter types
 			constexpr size_t index = type_index<filter, Filters...>::value;
@@ -411,6 +453,8 @@ namespace ecs
 		/*
 		* Containers
 		*/
+
+		std::unordered_set<uint32_t> to_remove_entities;
 
 		// Tuple for each filter type
 		std::tuple<Filters...> filters;

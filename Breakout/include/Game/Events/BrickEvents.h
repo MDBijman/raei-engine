@@ -3,9 +3,9 @@
 
 namespace events
 {
-	struct brick_hit
+	struct collision
 	{
-		brick_hit(uint32_t brick, uint32_t ball) : brick_id(brick), ball_id(ball) {}
-		uint32_t brick_id, ball_id;
+		uint32_t a, b;
+		collision(uint32_t a, uint32_t b) : a(a), b(b) {}
 	};
 }

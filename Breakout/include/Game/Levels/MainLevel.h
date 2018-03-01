@@ -52,6 +52,8 @@ namespace game
 			ecs->addComponent(sprite, Components::Velocity2D(0.0, 0.0));
 			ecs->addComponent(sprite, Components::Scale2D(.2, 0.05));
 			ecs->addComponent(sprite, Components::Input(1.0f));
+			ecs->addComponent(sprite, components::collider());
+			ecs->addComponent(sprite, components::paddle());
 
 			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
@@ -74,6 +76,8 @@ namespace game
 			ecs->addComponent(ball, Components::Position2D(0.0, 0.7));
 			ecs->addComponent(ball, Components::Velocity2D(0.0, 1.6));
 			ecs->addComponent(ball, Components::Scale2D(.03, .03));
+			ecs->addComponent(ball, components::collider());
+			ecs->addComponent(ball, components::ball());
 
 			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
@@ -91,17 +95,12 @@ namespace game
 				)));
 		}
 
-		std::unordered_set<uint32_t> bricks;
-
-
-
 		// Bricks
 		for (int i = 0; i < 10; i++)
 		{
 			for (int j = 0; j < 10; j++)
 			{
 				auto block = ecs->createEntity();
-				bricks.insert(block);
 
 				float width = 0.135f;
 				float gap = 0.05f;
@@ -111,6 +110,8 @@ namespace game
 					-0.85 + (double)j / 8.0
 				));
 				ecs->addComponent(block, Components::Scale2D(width, 1.0f / 15.0f));
+				ecs->addComponent(block, components::collider());
+				ecs->addComponent(block, components::brick());
 
 				auto attributes = Components::sprite_attributes(detail::create_block());
 				auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
@@ -135,6 +136,8 @@ namespace game
 
 			ecs->addComponent(top_wall, Components::Position2D(0.0, -1.0));
 			ecs->addComponent(top_wall, Components::Scale2D(2.0, 1.0 / 15.0));
+			ecs->addComponent(top_wall, components::collider());
+			ecs->addComponent(top_wall, components::wall());
 
 			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
@@ -159,6 +162,8 @@ namespace game
 
 			ecs->addComponent(left_wall, Components::Position2D(-1.0, 0.0));
 			ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
+			ecs->addComponent(left_wall, components::collider());
+			ecs->addComponent(left_wall, components::wall());
 
 			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
@@ -182,6 +187,8 @@ namespace game
 
 			ecs->addComponent(left_wall, Components::Position2D(1.0, 0.0));
 			ecs->addComponent(left_wall, Components::Scale2D(1.0 / 15.0, 2.0));
+			ecs->addComponent(left_wall, components::collider());
+			ecs->addComponent(left_wall, components::wall());
 
 			auto attributes = Components::sprite_attributes(detail::create_block());
 			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
@@ -215,57 +222,57 @@ namespace game
 				});
 
 			auto attributes = Components::sprite_attributes({
-					// Quad 1
-					{
-						{ 0.0f, 0.0f },
-						{ 0.0f, 0.0f }
-					},
-					{
-						{ 0.0f, 1.0f },
-						{ 0.0f, 1.0f }
-					},
-					{
-						{ 1.0f, 0.0f },
-						{ 1.0f, 0.0f }
-					},
-					{
-						{ 1.0f, 1.0f },
-						{ 1.0f, 1.0f }
-					},
-					// Quad 2
-					{
-						{ 1.0f, 0.0f },
-						{ 0.0f, 0.0f }
-					},
-					{
-						{ 1.0f, 1.0f },
-						{ 0.0f, 1.0f }
-					},
-					{
-						{ 2.0f, 0.0f },
-						{ 1.0f, 0.0f }
-					},
-					{
-						{ 2.0f, 1.0f },
-						{ 1.0f, 1.0f }
-					},
-					// Quad 4 
-					{
-						{ 2.0f, 0.0f },
-						{ 0.0f, 0.0f }
-					},
-					{
-						{ 2.0f, 1.0f },
-						{ 0.0f, 1.0f }
-					},
-					{
-						{ 3.0f, 0.0f },
-						{ 1.0f, 0.0f }
-					},
-					{
-						{ 3.0f, 1.0f },
-						{ 1.0f, 1.0f }
-					}
+				// Quad 1
+				{
+					{ 0.0f, 0.0f },
+					{ 0.0f, 0.0f }
+				},
+				{
+					{ 0.0f, 1.0f },
+					{ 0.0f, 1.0f }
+				},
+				{
+					{ 1.0f, 0.0f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ 1.0f, 1.0f },
+					{ 1.0f, 1.0f }
+				},
+				// Quad 2
+				{
+					{ 1.0f, 0.0f },
+					{ 0.0f, 0.0f }
+				},
+				{
+					{ 1.0f, 1.0f },
+					{ 0.0f, 1.0f }
+				},
+				{
+					{ 2.0f, 0.0f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ 2.0f, 1.0f },
+					{ 1.0f, 1.0f }
+				},
+				// Quad 4 
+				{
+					{ 2.0f, 0.0f },
+					{ 0.0f, 0.0f }
+				},
+				{
+					{ 2.0f, 1.0f },
+					{ 0.0f, 1.0f }
+				},
+				{
+					{ 3.0f, 0.0f },
+					{ 1.0f, 0.0f }
+				},
+				{
+					{ 3.0f, 1.0f },
+					{ 1.0f, 1.0f }
+				}
 				});
 
 			auto indices = Components::sprite_indices({
@@ -293,19 +300,25 @@ namespace game
 			ecs->get_system_manager().add_to_group(sg, std::make_unique<systems::fps_system>());
 
 			auto render_thread = ecs->get_system_manager().create_group();
-			ecs->get_system_manager().add_to_group(render_thread, std::make_unique<Systems::GraphicsInterface>(&graphics));
-			ecs->get_system_manager().add_to_group(render_thread, std::make_unique<Systems::SpriteShaderSystem>(*graphics.context));
+			ecs->get_system_manager().add_to_group(render_thread, 
+				std::make_unique<Systems::GraphicsInterface>(&graphics));
+			ecs->get_system_manager().add_to_group(render_thread, 
+				std::make_unique<Systems::SpriteShaderSystem>(*graphics.context));
 
 			auto pt = ecs->get_system_manager().create_group();
 			ecs->get_system_manager().add_to_group(pt, std::make_unique<Systems::Movement2D>());
-			ecs->get_system_manager().add_to_group(pt,
-				std::make_unique<systems::physics_system>(events->new_publisher<events::brick_hit>(), ball, sprite, bricks));
+			ecs->get_system_manager().add_to_group(pt, std::make_unique<systems::collision_system>(
+				events->new_publisher<events::collision>()));
 
-			auto event_handler_group = ecs->get_system_manager().create_group();
-			ecs->get_system_manager().add_to_group(event_handler_group,
-				std::make_unique<systems::brick_event_system>(events->new_subscriber<events::brick_hit>()));
-			ecs->get_system_manager().add_to_group(event_handler_group,
-				std::make_unique<systems::score_system>(events->new_subscriber<events::brick_hit>(), *graphics.context));
+			auto post_collisions = ecs->get_system_manager().create_group();
+			ecs->get_system_manager().add_to_group(post_collisions, std::make_unique<systems::brick_system>(
+				events->new_subscriber<events::collision>()));
+			ecs->get_system_manager().add_to_group(post_collisions, std::make_unique<systems::score_system>(
+				events->new_subscriber<events::collision>(), *graphics.context));
+			ecs->get_system_manager().add_to_group(post_collisions, std::make_unique<systems::ball_system>(
+				events->new_subscriber<events::collision>()));
+			ecs->get_system_manager().add_to_group(post_collisions, std::make_unique<systems::powerup_system>(
+				events->new_subscriber<events::collision>(), graphics, camera.camera));
 		}
 	}
 }

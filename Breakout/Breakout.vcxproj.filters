@@ -331,9 +331,6 @@
     <ClInclude Include="include\Game\Components\Score.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\systems\BrickEventSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\systems\FpsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -346,9 +343,6 @@
     <ClInclude Include="include\Modules\Graphics\Core\DefaultRenderpasses.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\systems\PhysicsSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\Levels\MainLevel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -359,6 +353,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Core\Drawable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Collider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\PowerupSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\systems\CollisionSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\BrickSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\BallSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Components\Tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

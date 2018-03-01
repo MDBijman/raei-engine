@@ -3,5 +3,5 @@
 #include "Game/Events/BrickEvents.h"
 
 using event_manager = events::base_manager<
-	events::brick_hit
+	events::collision
 >;
