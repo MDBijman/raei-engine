@@ -289,46 +289,6 @@ namespace ecs
 		};
 
 		/*
-		* Filter Lock is a helper for controlling component mutexes. When the destructor is called, the mutexes are
-		* unlocked and become available for other threads.
-		*/
-		template<class... Components>
-		struct filter_lock {};
-
-		template<class... Components>
-		struct filter_lock<filter<Components...>>
-		{
-			filter_lock(base_manager<component_tuple, filter_tuple>& ecs) : ecs(ecs)
-			{
-				filter_helper<filter<Components...>>::lock(ecs.component_mutexes);
-			};
-			~filter_lock()
-			{
-				if (!moved)
-					filter_helper<filter<Components...>>::unlock(ecs.component_mutexes);
-			};
-			filter_lock(const filter_lock&) = delete;
-			filter_lock(filter_lock&& o) : ecs(o.ecs)
-			{
-				o.moved = true;
-				moved = false;
-			}
-			void operator=(const filter_lock&) = delete;
-			void operator=(filter_lock&& o)
-			{
-				o.moved = true;
-				moved = false;
-			};
-
-		private:
-			bool moved = false;
-			base_manager<component_tuple, filter_tuple>& ecs;
-		};
-
-		template<class... Components>
-		friend struct filter_lock;
-
-		/*
 		* Filter Result is a helper for controlling component mutexes and filter results. 
 		* The struct contains the result of a filter operation, and the filter components are locked upon creation.
 		* When the destructor is called, the mutexes are unlocked and become available for other threads.
