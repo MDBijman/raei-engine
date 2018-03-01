@@ -8,31 +8,37 @@ namespace systems
 {
 	class score_system : public MySystem
 	{
-		events::subscriber<events::brick_hit>& subscriber;
+		events::subscriber<events::collision>& subscriber;
 		graphics::VulkanContext& context;
 		fnt::file text_file;
 
 	public:
-		score_system(events::subscriber<events::brick_hit>& sub, graphics::VulkanContext& context) : context(context),
-			subscriber(sub), text_file("./res/fonts/vcr_osd_mono.fnt") {}
+		score_system(events::subscriber<events::collision>& sub, graphics::VulkanContext& context) : 
+			context(context), subscriber(sub), text_file("./res/fonts/vcr_osd_mono.fnt")
+		{}
 
 		void update(ecs_manager& ecs) override
 		{
 			int count = 0;
 			static bool first_change = true;
 			bool change = false;
+			auto&[lock, bricks] = ecs.filterEntities<ecs::filter<components::brick>>();
+
 			while (this->subscriber.size() > 0)
 			{
+				auto collision = subscriber.pop();
+				if (bricks.find(collision->a) == bricks.end() && bricks.find(collision->b) == bricks.end())
+					continue;
+
 				change = true;
 				count++;
-				subscriber.pop();
 			}
 
 			if (!change && !first_change) return;
 			first_change = false;
 
 			{
-				auto&[lock, entities] = ecs.filterEntities<ecs::filter<components::score, 
+				auto&[lock1, entities] = ecs.filterEntities<ecs::filter<components::score,
 					components::drawable<sprite_shader>, Components::Scale2D>>();
 
 				for (auto entity : entities)

@@ -15,6 +15,8 @@
 #include "Components/Scale2D.h"
 #include "Components/score.h"
 #include "Components/Drawable.h"
+#include "Components/Collider.h"
+#include "Components/Tag.h"
 
 using sprite_attributes = graphics::data::attributes<
 	graphics::data::Vec2<0, 0>,
@@ -40,10 +42,16 @@ using component_list = std::tuple<
 	Components::Input,
 	Components::Scale2D,
 	components::score,
-	components::drawable<graphics::shader<sprite_attributes, sprite_uniforms>>
+	components::drawable<graphics::shader<sprite_attributes, sprite_uniforms>>,
+	components::collider,
+	components::brick,
+	components::paddle,
+	components::ball,
+	components::wall,
+	components::powerup
 >;
 
-using filter_list = std::tuple <
+using filter_list = std::tuple<
 	// Movement
 	ecs::filter<Components::Position2D, Components::Velocity2D>,
 
@@ -52,6 +60,7 @@ using filter_list = std::tuple <
 
 	// Rendering
 	ecs::filter<components::drawable<sprite_shader>>,
+
 	// Sprite uniform updates
 	ecs::filter<components::drawable<sprite_shader>, Components::Position2D, Components::Scale2D>,
 
@@ -62,11 +71,18 @@ using filter_list = std::tuple <
 	ecs::filter<Components::Camera2D, Components::Position3D, Components::Orientation3D>,
 
 	// Physics
-	ecs::filter<Components::Position2D, Components::Scale2D>,
+	ecs::filter<components::collider, Components::Position2D, Components::Scale2D>,
 
 	// Score
-	ecs::filter<components::score, components::drawable<sprite_shader>, Components::Scale2D>
-> ;
+	ecs::filter<components::score, components::drawable<sprite_shader>, Components::Scale2D>,
+
+	// Tags
+	ecs::filter<components::brick>,
+	ecs::filter<components::paddle>,
+	ecs::filter<components::wall>,
+	ecs::filter<components::powerup>,
+	ecs::filter<components::ball>
+>;
 
 using ecs_manager = ecs::base_manager<component_list, filter_list>;
 using MySystem = ecs::System<component_list, filter_list>;
