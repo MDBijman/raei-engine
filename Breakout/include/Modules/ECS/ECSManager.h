@@ -328,6 +328,50 @@ namespace ecs
 		template<class... Components>
 		friend struct filter_lock;
 
+		/*
+		* Filter Result is a helper for controlling component mutexes and filter results. 
+		* The struct contains the result of a filter operation, and the filter components are locked upon creation.
+		* When the destructor is called, the mutexes are unlocked and become available for other threads.
+		*/
+		template<class... Components>
+		struct filter_result {};
+
+		template<class... Components>
+		struct filter_result<filter<Components...>>
+		{
+			filter_result(const std::unordered_set<uint32_t>& es, base_manager<component_tuple, filter_tuple>& ecs) : 
+				entities(es), 
+				ecs(ecs)
+			{
+				filter_helper<filter<Components...>>::lock(ecs.component_mutexes);
+			}
+			~filter_result()
+			{
+				if (owns) filter_helper<filter<Components...>>::unlock(ecs.component_mutexes);
+			}
+
+			filter_result(const filter_lock&) = delete;
+			filter_result(filter_lock&& o) : entities(o.entities), ecs(o.ecs), owns(true)
+			{
+				o.owns = false;
+			}
+
+			void operator=(const filter_result&) = delete;
+			void operator=(filter_result&& o)
+			{
+				o.owns = false;
+				owns = true;
+				entities = o.entities;
+				ecs = o.ecs;
+			};
+
+			const std::unordered_set<uint32_t>& entities;
+
+		private:
+			bool owns = false;
+			base_manager<component_tuple, filter_tuple>& ecs;
+		};
+
 	private: // Fields
 
 		/*
@@ -394,7 +438,8 @@ namespace ecs
 		* Sets the parent of the given component and adds it to the vector of components of that type.
 		*/
 		template<class ComponentType>
-		std::enable_if_t<std::is_base_of_v<Component, ComponentType>, ComponentType&> addComponent(uint32_t entityId, ComponentType&& c)
+		std::enable_if_t<std::is_base_of_v<Component, ComponentType>, ComponentType&> addComponent(uint32_t entityId,
+			ComponentType&& c)
 		{
 			// Set the parent of the component
 			c.parent = entityId;
