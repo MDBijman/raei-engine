@@ -16,18 +16,18 @@ namespace Systems
 		{
 			glm::mat4 pv;
 			{
-				auto&[lock1, cameras] = ecs.filterEntities<ecs::filter<Components::Camera2D>>();
-				if (cameras.size() == 0)
+				auto result = ecs.filterEntities<ecs::filter<Components::Camera2D>>();
+				if (result.entities.size() == 0)
 					return;
 
-				auto& camera = ecs.getComponent<Components::Camera2D>(*cameras.begin());
+				auto& camera = ecs.getComponent<Components::Camera2D>(*result.entities.begin());
 				pv = camera.camera.getMatrices().view_projection;
 			}
 
-			auto&[lock, entities] = ecs.filterEntities<ecs::filter<components::drawable<sprite_shader>,
-				Components::Position2D, Components::Scale2D >>();
+			auto result = ecs.filterEntities<ecs::filter<components::drawable<sprite_shader>, Components::Position2D,
+				Components::Scale2D >>();
 
-			for (auto entity : entities)
+			for (auto entity : result.entities)
 			{
 				auto& drawable = ecs.getComponent<components::drawable<sprite_shader>>(entity);
 				auto& pos = ecs.getComponent<Components::Position2D>(entity);

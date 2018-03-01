@@ -11,20 +11,20 @@ namespace systems
 
 		void update(ecs_manager& ecs) override
 		{
-			auto&[lock, balls] = ecs.filterEntities<ecs::filter<components::ball>>();
+			auto balls = ecs.filterEntities<ecs::filter<components::ball>>();
 
 			while (subscriber.size() > 0)
 			{
 				std::shared_ptr<const events::collision> collision = subscriber.pop();
 
-				if (balls.find(collision->a) != balls.end()) bounce(ecs, collision->b, collision->a);
-				if (balls.find(collision->b) != balls.end()) bounce(ecs, collision->a, collision->b);
+				if (balls.entities.find(collision->a) != balls.entities.end()) bounce(ecs, collision->b, collision->a);
+				if (balls.entities.find(collision->b) != balls.entities.end()) bounce(ecs, collision->a, collision->b);
 			}
 		}
 
 		void bounce(ecs_manager& ecs, uint32_t block, uint32_t ball)
 		{
-			auto&[lock, paddles] = ecs.filterEntities<ecs::filter<components::paddle>>();
+			auto paddles = ecs.filterEntities<ecs::filter<components::paddle>>();
 
 			std::array<glm::vec2, 4> other_cube = {
 					glm::vec2{ -.5f, -.5f },
@@ -99,7 +99,7 @@ namespace systems
 							if (glm::dot(normal, ball_velocity.vel) < 0)
 							{
 								auto l = glm::length(ball_velocity.vel);
-								if (paddles.find(block) != paddles.end())
+								if (paddles.entities.find(block) != paddles.entities.end())
 								{
 									auto paddle_offset = ball_position.pos.x - other_pos.pos.x;
 									ball_velocity.vel.x += paddle_offset;

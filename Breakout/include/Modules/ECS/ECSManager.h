@@ -350,8 +350,8 @@ namespace ecs
 				if (owns) filter_helper<filter<Components...>>::unlock(ecs.component_mutexes);
 			}
 
-			filter_result(const filter_lock&) = delete;
-			filter_result(filter_lock&& o) : entities(o.entities), ecs(o.ecs), owns(true)
+			filter_result(const filter_result&) = delete;
+			filter_result(filter_result&& o) : entities(o.entities), ecs(o.ecs), owns(true)
 			{
 				o.owns = false;
 			}
@@ -368,9 +368,12 @@ namespace ecs
 			const std::unordered_set<uint32_t>& entities;
 
 		private:
-			bool owns = false;
+			bool owns = true;
 			base_manager<component_tuple, filter_tuple>& ecs;
 		};
+
+		template<class... Components>
+		friend struct filter_result;
 
 	private: // Fields
 
@@ -462,13 +465,13 @@ namespace ecs
 		* Returns all entities that match the signature.
 		*/
 		template<class Filter>
-		std::pair<filter_lock<Filter>, const std::unordered_set<uint32_t>&> filterEntities()
+		//std::pair<filter_lock<Filter>, const std::unordered_set<uint32_t>&> filterEntities()
+		filter_result<Filter> filterEntities()
 		{
 			// We can only create components that derive from Component class
 			constexpr size_t index = type_index<Filter, Filters...>::value;
 
-			return std::pair<filter_lock<Filter>, const std::unordered_set<uint32_t>&>(filter_lock<Filter>(*this),
-				std::get<index>(filters).entities);
+			return filter_result<Filter>(std::get<index>(filters).entities, *this);
 		}
 
 		system_manager& get_system_manager()

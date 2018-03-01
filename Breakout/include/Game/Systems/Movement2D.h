@@ -22,8 +22,8 @@ namespace Systems
 		void update(ecs_manager& ecs) override
 		{
 			using namespace Components;
-			auto&[lock, entities] = ecs.filterEntities<ecs::filter<Position2D, Velocity2D>>();
-			for (auto& entity : entities)
+			auto result = ecs.filterEntities<ecs::filter<Position2D, Velocity2D>>();
+			for (auto& entity : result.entities)
 			{
 				auto& pos = ecs.getComponent<Position2D>(entity);
 				auto& vel = ecs.getComponent<Velocity2D>(entity);
