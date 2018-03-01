@@ -65,8 +65,8 @@ namespace ecs
 		struct group_thread
 		{
 			group_thread(std::shared_ptr<std::atomic_bool> keep_running, std::shared_ptr<std::atomic_int> workers_running,
-				std::shared_ptr<memory::safe_queue<10, system*>> queue, ecs& parent_ecs) : 
-				parent_ecs(parent_ecs), keep_running(keep_running), workers_running(workers_running), work_queue(queue), 
+				std::shared_ptr<memory::safe_queue<10, system*>> queue, ecs& parent_ecs) :
+				parent_ecs(parent_ecs), keep_running(keep_running), workers_running(workers_running), work_queue(queue),
 				thread(&group_thread::run, this) {}
 
 			std::shared_ptr<std::atomic_bool> keep_running;
@@ -119,7 +119,7 @@ namespace ecs
 				systems(std::move(o.systems)), workers_running(std::move(o.workers_running)),
 				keep_running(std::move(o.keep_running)), work_queue(std::move(o.work_queue)),
 				threads(std::move(o.threads))
-				{}
+			{}
 
 			void update()
 			{
@@ -219,7 +219,8 @@ namespace ecs
 	template<class... Components, class... Filters>
 	class base_manager<std::tuple<Components...>, std::tuple<Filters...>>
 	{
-	private:
+	private: // Type declarations and helper structs
+
 		using component_tuple = std::tuple<Components...>;
 		using filter_tuple = std::tuple<Filters...>;
 
@@ -228,51 +229,19 @@ namespace ecs
 
 		static constexpr int ComponentCount = sizeof...(Components);
 
-		template<class... Components>
-		struct filter_lock {};
-
-		template<class... Components>
-		struct filter_lock<filter<Components...>>
-		{
-			filter_lock(base_manager<component_tuple, filter_tuple>& ecs) : ecs(ecs)
-			{
-				filter_helper<ComponentCount, filter<Components...>>::lock(ecs.component_mutexes);
-			};
-			~filter_lock()
-			{
-				if (!moved)
-					filter_helper<ComponentCount, filter<Components...>>::unlock(ecs.component_mutexes);
-			};
-			filter_lock(const filter_lock&) = delete;
-			filter_lock(filter_lock&& o) : ecs(o.ecs)
-			{
-				o.moved = true;
-				moved = false;
-			}
-			void operator=(const filter_lock&) = delete;
-			void operator=(filter_lock&& o)
-			{
-				o.moved = true;
-				moved = false;
-			};
-
-		private:
-			bool moved = false;
-			base_manager<component_tuple, filter_tuple>& ecs;
-		};
-
-		template<class... Components>
-		friend struct filter_lock;
+		/*
+		* Provides helper functionality for:
+		* - locking mutexes corresponding to components of a filter through lock()
+		* - checking if an entity contains all components of a filter through update()
+		*/
+		template<class Filter>
+		struct filter_helper {};
 
 		/*
-		* Checks filters for the given entity to see if it matches, if so, update.
-		* Helper struct for checkFilters().
+		* Filter Helper specialization for filters with 2+ components
 		*/
-		template<int ComponentCount, class Filter>
-		struct filter_helper{};
-
-		template<int ComponentCount, class C1, class C2, class... Cs>
-		struct filter_helper<ComponentCount, filter<C1, C2, Cs...>>
+		template<class C1, class C2, class... Cs>
+		struct filter_helper<filter<C1, C2, Cs...>>
 		{
 			template<class T>
 			static bool update(T& entities, uint32_t e)
@@ -297,8 +266,11 @@ namespace ecs
 			}
 		};
 
-		template<int ComponentCount, class C>
-		struct filter_helper<ComponentCount, filter<C>>
+		/*
+		* Filter Helper specialization for filters with a single component
+		*/
+		template<class C>
+		struct filter_helper<filter<C>>
 		{
 			template<class T>
 			static bool update(T& entities, uint32_t e)
@@ -318,7 +290,71 @@ namespace ecs
 			}
 		};
 
-	public:
+		/*
+		* Filter Lock is a helper for controlling component mutexes. When the destructor is called, the mutexes are
+		* unlocked and become available for other threads.
+		*/
+		template<class... Components>
+		struct filter_lock {};
+
+		template<class... Components>
+		struct filter_lock<filter<Components...>>
+		{
+			filter_lock(base_manager<component_tuple, filter_tuple>& ecs) : ecs(ecs)
+			{
+				filter_helper<filter<Components...>>::lock(ecs.component_mutexes);
+			};
+			~filter_lock()
+			{
+				if (!moved)
+					filter_helper<filter<Components...>>::unlock(ecs.component_mutexes);
+			};
+			filter_lock(const filter_lock&) = delete;
+			filter_lock(filter_lock&& o) : ecs(o.ecs)
+			{
+				o.moved = true;
+				moved = false;
+			}
+			void operator=(const filter_lock&) = delete;
+			void operator=(filter_lock&& o)
+			{
+				o.moved = true;
+				moved = false;
+			};
+
+		private:
+			bool moved = false;
+			base_manager<component_tuple, filter_tuple>& ecs;
+		};
+
+		template<class... Components>
+		friend struct filter_lock;
+
+	private: // Fields
+
+		/*
+		* Containers
+		*/
+		system_manager child_system_manager;
+
+		std::unordered_set<uint32_t> to_remove_entities;
+
+		// Tuple for each filter type
+		std::tuple<Filters...> filters;
+
+		// Tuple of maps for each component type
+		std::tuple<std::unordered_map<uint32_t, Components>...> components;
+
+		// For each component a mutex
+		std::mutex master_component_mutex;
+		std::array<std::mutex, sizeof...(Components)> component_mutexes;
+
+		// Map of entity ids to entities
+		std::unordered_map<uint32_t, Entity<Components...>> entities;
+
+		uint32_t entityCount = 0;
+
+	public: // Methods
 		base_manager() : child_system_manager(*this) { }
 
 		/* Entity Methods */
@@ -397,6 +433,9 @@ namespace ecs
 			return this->child_system_manager;
 		}
 
+		/*
+		* Runs all system groups and then executes defered entity removals.
+		*/
 		void update()
 		{
 			this->child_system_manager.update();
@@ -405,9 +444,11 @@ namespace ecs
 			to_remove_entities.clear();
 		}
 
-	private:
-		system_manager child_system_manager;
-
+	private: // Methods
+		/*
+		* Removes the component of type Component from entity e.
+		* This also updates the bitfield of the entity.
+		*/
 		template<class Component>
 		void removeComponent(uint32_t e)
 		{
@@ -416,19 +457,27 @@ namespace ecs
 			entities.at(e).removeComponent<Component>();
 		}
 
+		/*
+		* Removes the components of types Components... from entity e.
+		* This also updates the bitfield of the entity.
+		*/
 		template<class... Components>
 		void removeComponents(uint32_t e)
 		{
 			(removeComponent<Components>(e), ...);
 		}
 
-		template<class filter>
+		/*
+		* Updates the filter of type Filter for the given entity. This checks if the entity e has all components
+		* of the filter, and if so adds the entity to the filter.
+		*/
+		template<class Filter>
 		void updateFilter(uint32_t e)
 		{
-			bool res = filter_helper<ComponentCount, filter>::update(entities, e);
+			bool res = filter_helper<Filter>::update(entities, e);
 
 			// Index of filter in the list of filter types
-			constexpr size_t index = type_index<filter, Filters...>::value;
+			constexpr size_t index = type_index<Filter, Filters...>::value;
 
 			auto& filter = std::get<index>(filters);
 
@@ -449,26 +498,5 @@ namespace ecs
 		{
 			(updateFilter<Filters>(e), ...);
 		}
-
-		/*
-		* Containers
-		*/
-
-		std::unordered_set<uint32_t> to_remove_entities;
-
-		// Tuple for each filter type
-		std::tuple<Filters...> filters;
-
-		// Tuple of maps for each component type
-		std::tuple<std::unordered_map<uint32_t, Components>...> components;
-
-		// For each component a mutex
-		std::mutex master_component_mutex;
-		std::array<std::mutex, sizeof...(Components)> component_mutexes;
-
-		// Map of entity ids to entities
-		std::unordered_map<uint32_t, Entity<Components...>> entities;
-
-		uint32_t entityCount = 0;
 	};
 }
