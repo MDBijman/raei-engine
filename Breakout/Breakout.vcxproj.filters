@@ -373,6 +373,12 @@
     <ClInclude Include="include\Game\Components\Tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Game\Levels\Menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Assets\AssetManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\game.json">

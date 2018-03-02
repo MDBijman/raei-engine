@@ -30,7 +30,6 @@ namespace graphics
 
 		vk::Format depthFormat;
 
-		vk::RenderPass drawPass;
 
 		std::vector<vk::Framebuffer> frameBuffers;
 
@@ -44,6 +43,7 @@ namespace graphics
 		void submit(vk::CommandBuffer* buffer) const;
 		void present();
 
+		vk::RenderPass drawPass;
 		struct
 		{
 			vk::Image        image;

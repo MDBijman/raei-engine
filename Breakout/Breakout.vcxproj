@@ -223,6 +223,7 @@
     <ClInclude Include="include\Game\ECSConfig.h" />
     <ClInclude Include="include\Game\Events\BrickEvents.h" />
     <ClInclude Include="include\Game\Levels\MainLevel.h" />
+    <ClInclude Include="include\Game\Levels\Menu.h" />
     <ClInclude Include="include\Game\Systems\BallSystem.h" />
     <ClInclude Include="include\Game\Systems\BrickSystem.h" />
     <ClInclude Include="include\Game\systems\FpsSystem.h" />
@@ -230,6 +231,7 @@
     <ClInclude Include="include\Game\systems\CollisionSystem.h" />
     <ClInclude Include="include\Game\Systems\PowerupSystem.h" />
     <ClInclude Include="include\Game\systems\ScoreSystem.h" />
+    <ClInclude Include="include\Modules\Assets\AssetManager.h" />
     <ClInclude Include="include\Modules\Events\EventManager.h" />
     <ClInclude Include="include\Modules\Fonts\FntLoader.h" />
     <ClInclude Include="include\Modules\Graphics\Core\Drawable.h" />

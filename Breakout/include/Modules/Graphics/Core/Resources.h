@@ -14,16 +14,19 @@ namespace speck::graphics
 	{
 		::graphics::VulkanContext& context_;
 		VulkanSwapChain& swapchain_;
+		std::vector<vk::Framebuffer>& framebuffers_;
+		vk::RenderPass& renderpass_;
 
 	public:
-		resource_loader(::graphics::VulkanContext& context, VulkanSwapChain& swapchain) : 
-			context_(context),
-			swapchain_(swapchain)
+		resource_loader(::graphics::VulkanContext& ctx, VulkanSwapChain& swp, vk::RenderPass& rp,
+			std::vector<vk::Framebuffer>& fbs) : context_(ctx), swapchain_(swp), framebuffers_(fbs), renderpass_(rp)
 		{}
 
 		resource_loader(resource_loader&& o) :
 			context_(o.context_),
-			swapchain_(o.swapchain_)
+			swapchain_(o.swapchain_),
+			framebuffers_(std::move(o.framebuffers_)),
+			renderpass_(o.renderpass_)
 		{}
 
 		::graphics::data::texture create_texture(std::string location, vk::Format format, int binding, 
@@ -40,7 +43,7 @@ namespace speck::graphics
 		}
 
 		template<class Shader>
-		::graphics::Pipeline create_pipeline(std::string location, Shader& shader, vk::RenderPass& renderpass)
+		::graphics::Pipeline create_pipeline(std::string location, Shader& shader)
 		{
 			vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 			pipelineLayoutCreateInfo
@@ -48,13 +51,12 @@ namespace speck::graphics
 				.setSetLayoutCount(1);
 			vk::PipelineLayout layout = context_.device.createPipelineLayout(pipelineLayoutCreateInfo);
 
-			return Importers::Pipeline::load(location, layout, shader.attributes().vi(), renderpass,
+			return Importers::Pipeline::load(location, layout, shader.attributes().vi(), renderpass_,
 				context_.pipeline_cache, context_.device);
 		}
 
 		template<class Shader>
-		std::vector<vk::CommandBuffer> create_command_buffers(vk::RenderPass& renderPass,
-			::graphics::Pipeline& pipeline, std::vector<vk::Framebuffer>& framebuffers, Shader& shader)
+		std::vector<vk::CommandBuffer> create_command_buffers(::graphics::Pipeline& pipeline, Shader& shader)
 		{
 			shader.allocate(context_);
 
@@ -74,13 +76,13 @@ namespace speck::graphics
 
 			vk::RenderPassBeginInfo renderPassBeginInfo;
 			renderPassBeginInfo
-				.setRenderPass(renderPass)
+				.setRenderPass(renderpass_)
 				.setRenderArea(renderArea);
 
 			for (int32_t i = 0; i < commandBuffers.size(); ++i)
 			{
 				// Set target frame buffer, std::vector<VkFramebuffer>& framebuffers
-				renderPassBeginInfo.setFramebuffer(framebuffers.at(i));
+				renderPassBeginInfo.setFramebuffer(framebuffers_.at(i));
 
 				// Vulkan object preparation
 
@@ -119,11 +121,11 @@ namespace speck::graphics
 		}
 
 		template<class Shader>
-		drawable<Shader> create_drawable(Shader shader, vk::RenderPass& render_pass, std::vector<vk::Framebuffer>& fb)
+		drawable<Shader> create_drawable(Shader shader)
 		{
 			shader.allocate(context_);
-			auto pipeline = create_pipeline("./res/shaders/sprite-pipeline.json", shader, render_pass);
-			auto command_buffers = create_command_buffers(render_pass, pipeline, fb, shader);
+			auto pipeline = create_pipeline("./res/shaders/sprite-pipeline.json", shader );
+			auto command_buffers = create_command_buffers(pipeline, shader);
 
 			return drawable<Shader>(std::move(shader), std::move(pipeline), std::move(command_buffers));
 		}

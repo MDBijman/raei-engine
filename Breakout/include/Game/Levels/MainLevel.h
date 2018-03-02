@@ -65,10 +65,10 @@ namespace game
 				});
 
 			auto& drawable = ecs->addComponent(sprite, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-					graphics.drawPass, graphics.frameBuffers
-				)));
+				graphics.resources.create_drawable(sprite_shader(
+					std::move(attributes), 
+					std::move(indices), 
+					std::move(uniform)))));
 		}
 
 		auto ball = ecs->createEntity();
@@ -89,10 +89,10 @@ namespace game
 				});
 
 			auto& drawable = ecs->addComponent(ball, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-					graphics.drawPass, graphics.frameBuffers
-				)));
+				graphics.resources.create_drawable(sprite_shader(
+					std::move(attributes), 
+					std::move(indices), 
+					std::move(uniform)))));
 		}
 
 		// Bricks
@@ -123,10 +123,10 @@ namespace game
 					});
 
 				auto& drawable = ecs->addComponent(block, components::drawable<sprite_shader>(
-					graphics.resources.create_drawable(
-						sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-						graphics.drawPass, graphics.frameBuffers
-					)));
+					graphics.resources.create_drawable(sprite_shader(
+						std::move(attributes), 
+						std::move(indices), 
+						std::move(uniform)))));
 			}
 		}
 
@@ -150,10 +150,10 @@ namespace game
 
 
 			auto& drawable = ecs->addComponent(top_wall, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-					graphics.drawPass, graphics.frameBuffers
-				)));
+				graphics.resources.create_drawable(sprite_shader(
+					std::move(attributes),
+					std::move(indices),
+					std::move(uniform)))));
 		}
 
 		// Left Wall
@@ -175,10 +175,10 @@ namespace game
 				});
 
 			auto& drawable = ecs->addComponent(left_wall, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-					graphics.drawPass, graphics.frameBuffers
-				)));
+				graphics.resources.create_drawable(sprite_shader(
+					std::move(attributes),
+					std::move(indices),
+					std::move(uniform)))));
 		}
 
 		// Right Wall
@@ -200,10 +200,10 @@ namespace game
 				});
 
 			auto& drawable = ecs->addComponent(left_wall, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-					graphics.drawPass, graphics.frameBuffers
-				)));
+				graphics.resources.create_drawable(sprite_shader(
+					std::move(attributes),
+					std::move(indices),
+					std::move(uniform)))));
 		}
 
 		// Score
@@ -285,10 +285,10 @@ namespace game
 				});
 
 			auto& drawable = ecs->addComponent(score, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-					graphics.drawPass, graphics.frameBuffers
-				)));
+				graphics.resources.create_drawable(sprite_shader(
+					std::move(attributes), 
+					std::move(indices), 
+					std::move(uniform)))));
 		}
 
 		{

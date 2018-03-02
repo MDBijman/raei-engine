@@ -98,10 +98,10 @@ namespace systems
 					});
 
 				auto& drawable = ecs.addComponent(new_powerup, components::drawable<sprite_shader>(
-					graphics.resources.create_drawable(
-						sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-						graphics.drawPass, graphics.frameBuffers
-					)));
+					graphics.resources.create_drawable(sprite_shader(
+						std::move(attributes), 
+						std::move(indices), 
+						std::move(uniform)))));
 
 				std::cout << "new powerup\n";
 			}
@@ -145,10 +145,10 @@ namespace systems
 				});
 
 			auto& drawable = ecs.addComponent(ball, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-					graphics.drawPass, graphics.frameBuffers
-				)));
+				graphics.resources.create_drawable(sprite_shader(
+					std::move(attributes),
+					std::move(indices),
+					std::move(uniform)))));
 
 			std::cout << "caught powerup\n";
 			ecs.removeEntity(powerup_id);

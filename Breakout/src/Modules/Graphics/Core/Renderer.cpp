@@ -7,7 +7,7 @@ namespace graphics
 	Renderer::Renderer(WindowsContext windows) : 
 		context(new VulkanContext("triangle")),
 		swapchain(std::make_shared<VulkanSwapChain>(*context)),
-		resources(*context, *swapchain)
+		resources(*context, *swapchain, drawPass, frameBuffers)
 	{
 		context->queue = std::make_unique<vk::Queue>(context->device.getQueue(context->graphicsQueueIndex, 0));
 
