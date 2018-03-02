@@ -1,6 +1,7 @@
 #pragma once
 #include "ECSConfig.h"
 #include "Modules/Graphics/Core/Renderer.h"
+#include "Modules/Assets/AssetManager.h"
 #include "EventConfig.h"
 
 class Game
@@ -17,6 +18,7 @@ private:
 
 	graphics::Renderer	graphics;
 	graphics::Camera	camera;
+	assets::manager		asset_manager;
 
 	enum GameState
 	{

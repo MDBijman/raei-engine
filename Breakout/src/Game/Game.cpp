@@ -16,7 +16,8 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	events(std::make_shared<event_manager>()),
 	graphics({ hInstance, window, "triangle", 1280, 720 }),
 	gameState(PAUSED),
-	camera(-1272.f / 689.f, 1272.f / 689.f, -1.0f, 1.0f, 0.1f, 100.0f)
+	camera(-1272.f / 689.f, 1272.f / 689.f, -1.0f, 1.0f, 0.1f, 100.0f),
+	asset_manager("./res/")
 {
 	game::load(ecs, events, camera, graphics);
 }
