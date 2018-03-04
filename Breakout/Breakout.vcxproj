@@ -211,12 +211,10 @@
     <ClInclude Include="include\Game\Components\Pipeline.h" />
     <ClInclude Include="include\Game\Components\Position2D.h" />
     <ClInclude Include="include\Game\Components\Position3D.h" />
-    <ClInclude Include="include\Game\Components\ComponentShader.h" />
     <ClInclude Include="include\Game\Components\Scale2D.h" />
     <ClInclude Include="include\Game\Components\Score.h" />
     <ClInclude Include="include\Game\Components\SpriteShader.h" />
     <ClInclude Include="include\Game\Components\Tag.h" />
-    <ClInclude Include="include\Game\Components\Texture.h" />
     <ClInclude Include="include\Game\Components\Velocity2D.h" />
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
     <ClInclude Include="include\Game\EventConfig.h" />
@@ -237,6 +235,8 @@
     <ClInclude Include="include\Modules\Graphics\Core\Drawable.h" />
     <ClInclude Include="include\Modules\Graphics\Core\Resources.h" />
     <ClInclude Include="include\Modules\Graphics\Core\DefaultRenderpasses.h" />
+    <ClInclude Include="include\Modules\Graphics\Drawables\DrawableFactory.h" />
+    <ClInclude Include="include\Modules\Graphics\Drawables\Text.h" />
     <ClInclude Include="include\Modules\Memory\safe_queue.h" />
     <ClInclude Include="include\Modules\TemplateUtils\IsElementOfPack.h" />
     <ClInclude Include="include\Modules\Memory\safe_dynamic_queue.h" />

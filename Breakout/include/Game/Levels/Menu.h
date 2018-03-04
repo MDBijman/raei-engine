@@ -13,7 +13,7 @@ namespace game
 		{
 			ecs->addComponent(title, Components::Position2D(0.0, 0.0));
 			ecs->addComponent(title, Components::Scale2D(.3, .3));
-			auto attributes = Components::sprite_attributes({
+			auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>({
 				{
 					{ -.5f, -.5f },
 					{ 0.0f, 0.0f }
@@ -31,8 +31,8 @@ namespace game
 					{ 1.0f, 1.0f }
 				}
 				});
-			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = Components::sprite_uniforms(*graphics.context, {
+			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
+			auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
 				graphics.resources.create_buffer<glm::mat4>(
 					graphics_camera.getMatrices().projection * graphics_camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
@@ -41,8 +41,7 @@ namespace game
 
 			auto& drawable = ecs->addComponent(title, components::drawable<sprite_shader>(
 				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform)),
-					graphics.drawPass, graphics.frameBuffers
+					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform))
 				)));
 		}
 	}

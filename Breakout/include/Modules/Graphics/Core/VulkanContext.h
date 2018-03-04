@@ -8,8 +8,9 @@ namespace graphics
 	class VulkanContext
 	{
 	public:
-		explicit VulkanContext(std::string name) :
-			screen_dimensions(1272, 689)
+		explicit VulkanContext() :
+			screen_dimensions(1272, 689),
+			name("speck")
 		{
 			uint32_t layerCount = 0;
 			std::vector<vk::LayerProperties> layerPropertyList = vk::enumerateInstanceLayerProperties();
@@ -90,7 +91,8 @@ namespace graphics
 		uint32_t graphicsQueueIndex;
 		vk::PipelineCache pipeline_cache;
 
-		glm::vec2 screen_dimensions;
+		const glm::vec2 screen_dimensions;
+		const std::string name;
 
 	private:
 		VulkanDebug debug;

@@ -6,6 +6,7 @@
 #include "VulkanContext.h"
 #include "Resources.h"
 #include "../Shaders/Uniforms/Texture.h"
+#include "../Drawables/DrawableFactory.h"
 
 
 namespace graphics
@@ -27,9 +28,9 @@ namespace graphics
 		std::shared_ptr<VulkanContext> context;
 		std::shared_ptr<VulkanSwapChain> swapchain;
 		speck::graphics::resource_loader resources;
+		speck::graphics::drawable_factory factory;
 
 		vk::Format depthFormat;
-
 
 		std::vector<vk::Framebuffer> frameBuffers;
 

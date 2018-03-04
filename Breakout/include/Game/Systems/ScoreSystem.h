@@ -3,18 +3,17 @@
 #include "Game/Components/score.h"
 #include "Game/EventConfig.h"
 #include "Modules/Fonts/FntLoader.h"
+#include "Modules/Graphics/Drawables/Text.h"
 
 namespace systems
 {
 	class score_system : public MySystem
 	{
 		events::subscriber<events::collision>& subscriber;
-		graphics::VulkanContext& context;
-		fnt::file text_file;
 
 	public:
-		score_system(events::subscriber<events::collision>& sub, graphics::VulkanContext& context) : 
-			context(context), subscriber(sub), text_file("./res/fonts/vcr_osd_mono.fnt")
+		score_system(events::subscriber<events::collision>& sub) : 
+			 subscriber(sub)
 		{}
 
 		void update(ecs_manager& ecs) override
@@ -41,50 +40,42 @@ namespace systems
 			first_change = false;
 
 			{
-				auto result = ecs.filterEntities<ecs::filter<components::score,
-					components::drawable<sprite_shader>, Components::Scale2D>>();
+				glm::mat4 pv;
+				{
+					auto result = ecs.filterEntities<ecs::filter<Components::Camera2D>>();
+					if (result.entities.size() == 0)
+						return;
+
+					auto& camera = ecs.getComponent<Components::Camera2D>(*result.entities.begin());
+					pv = camera.camera.getMatrices().view_projection;
+				}
+
+				auto result = ecs.filterEntities<ecs::filter<components::score, Components::Scale2D,
+					Components::Position2D>>();
 
 				for (auto entity : result.entities)
 				{
 					auto& score = ecs.getComponent<components::score>(entity);
+					auto& scale2d = ecs.getComponent<Components::Scale2D>(entity);
+					auto& pos = ecs.getComponent<Components::Position2D>(entity);
+
 					score.count += count;
 
-					auto& drawable = ecs.getComponent<components::drawable<sprite_shader>>(entity);
-					auto& scale = ecs.getComponent<Components::Scale2D>(entity);
+					std::string score_text;
+					score_text.resize(3);
+					score_text.at(2) = '0' + (score.count % 10);
+					score_text.at(1) = '0' + ((score.count / 10) % 10);
+					score_text.at(0) = '0' + ((score.count / 100) % 10);
 
-					auto& vert_data = drawable.shader().attributes().data();
+					score.set_content(std::move(score_text));
 
-					auto update_digit = [&](int digit_index, char character) {
-						fnt::character& char_info = text_file.get_character(character);
+					auto scale = glm::scale(glm::mat4(), glm::vec3(scale2d.scale, 1.0f));
+					auto translate = glm::translate(glm::mat4(), glm::vec3(pos.pos, 0.0f));
+					auto model = translate * scale;
 
-						scale.scale.x = static_cast<float>(char_info.width) /
-							static_cast<float>(char_info.height) * 0.05f;
-						scale.scale.y = 0.05f;
+					glm::mat4 mvp = pv * model;
 
-						float left_x = static_cast<float>(char_info.x) / 256.0f;
-						float right_x = static_cast<float>(char_info.x + char_info.width) / 256.0f;
-						float top_y = static_cast<float>(char_info.y) / 256.0f;
-						float bottom_y = static_cast<float>(char_info.y + char_info.height) / 256.0f;
-
-						auto vert_data_index = digit_index * 4;
-
-						vert_data.at(vert_data_index).rest.data.x = left_x;
-						vert_data.at(vert_data_index).rest.data.y = top_y;
-
-						vert_data.at(vert_data_index + 1).rest.data.x = left_x;
-						vert_data.at(vert_data_index + 1).rest.data.y = bottom_y;
-
-						vert_data.at(vert_data_index + 2).rest.data.x = right_x;
-						vert_data.at(vert_data_index + 2).rest.data.y = top_y;
-
-						vert_data.at(vert_data_index + 3).rest.data.x = right_x;
-						vert_data.at(vert_data_index + 3).rest.data.y = bottom_y;
-					};
-
-					update_digit(2, '0' + (score.count % 10));
-					update_digit(1, '0' + ((score.count / 10) % 10));
-					update_digit(0, '0' + ((score.count / 100) % 10));
-					drawable.shader().attributes().upload(context);
+					score.shader().uniforms().upload<0>(mvp);
 				}
 			}
 		}

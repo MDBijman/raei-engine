@@ -1,9 +1,10 @@
 #pragma once
-#include "ComponentShader.h"
 #include "Modules/Graphics/Shaders/Attributes/Vec2.h"
 #include "Modules/Graphics/Shaders/Uniforms/UniformBuffer.h"
 #include "Modules/Graphics/Shaders/Attributes/Attributes.h"
 #include "Modules/Graphics/Shaders/Uniforms/Uniforms.h"
+#include "Modules/Graphics/Shaders/Uniforms/Texture.h"
+#include "Modules/Graphics/Shaders/Shader.h"
 
 namespace Components
 {
@@ -19,5 +20,5 @@ namespace Components
 		graphics::data::texture_template<1, vk::ShaderStageFlagBits::eFragment>
 	>;
 
-	using sprite_shader = Components::ComponentShader<sprite_attributes, sprite_uniforms>;
+	using sprite_shader = graphics::shader<sprite_attributes, sprite_uniforms>;
 }

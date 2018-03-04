@@ -6,7 +6,9 @@
 #include "Drawable.h"
 #include "../Shaders/Uniforms/Texture.h"
 #include "../Shaders/Uniforms/UniformBuffer.h"
+#include "../Shaders/Attributes/Attributes.h"
 #include "Pipeline.h"
+#include "Modules/Importers/PipelineImporter.h"
 
 namespace speck::graphics
 {
@@ -29,10 +31,10 @@ namespace speck::graphics
 			renderpass_(o.renderpass_)
 		{}
 
-		::graphics::data::texture create_texture(std::string location, vk::Format format, int binding, 
+		::graphics::data::texture create_texture(std::string location, vk::Format format, int binding,
 			vk::ShaderStageFlagBits flag_bits)
 		{
-			return ::graphics::data::texture(location, binding, flag_bits, format, context_.physicalDevice, 
+			return ::graphics::data::texture(location, binding, flag_bits, format, context_.physicalDevice,
 				context_.device, context_.cmdPool, *context_.queue);
 		}
 
@@ -40,6 +42,12 @@ namespace speck::graphics
 		::graphics::data::buffer<T> create_buffer(T t, int binding)
 		{
 			return ::graphics::data::buffer<T>(std::move(t), binding, context_);
+		}
+
+		template<class T>
+		T create_uniform(typename T::data_t data)
+		{
+			return T(context_, std::move(data));
 		}
 
 		template<class Shader>
@@ -120,11 +128,22 @@ namespace speck::graphics
 			return commandBuffers;
 		}
 
+		::graphics::data::indices create_indices(const std::vector<uint32_t>& data)
+		{
+			return ::graphics::data::indices(context_, data);
+		}
+
+		template<class T>
+		T create_attributes(const std::vector<typename T::item_t>& data)
+		{
+			return T(context_, data);
+		}
+
 		template<class Shader>
 		drawable<Shader> create_drawable(Shader shader)
 		{
 			shader.allocate(context_);
-			auto pipeline = create_pipeline("./res/shaders/sprite-pipeline.json", shader );
+			auto pipeline = create_pipeline("./res/shaders/sprite-pipeline.json", shader);
 			auto command_buffers = create_command_buffers(pipeline, shader);
 
 			return drawable<Shader>(std::move(shader), std::move(pipeline), std::move(command_buffers));

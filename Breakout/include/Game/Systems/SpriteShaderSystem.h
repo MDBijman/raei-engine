@@ -10,8 +10,6 @@ namespace Systems
 	class SpriteShaderSystem : public MySystem
 	{
 	public:
-		SpriteShaderSystem(graphics::VulkanContext& context) : context(context) {}
-
 		void update(ecs_manager& ecs) override
 		{
 			glm::mat4 pv;
@@ -39,10 +37,8 @@ namespace Systems
 
 				glm::mat4 mvp = pv * model;
 
-				drawable.shader().uniforms().upload<0>(context, mvp);
+				drawable.shader().uniforms().upload<0>(mvp);
 			}
 		}
-
-		graphics::VulkanContext& context;
 	};
 }

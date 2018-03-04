@@ -1,5 +1,5 @@
 #pragma once
-#include "Modules/Graphics/Core/VulkanContext.h"
+#include "../../Core/VulkanContext.h"
 #include <gli/gli.hpp>
 #include <vulkan/VULKAN.HPP>
 

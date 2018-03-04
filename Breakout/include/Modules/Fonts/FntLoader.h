@@ -52,11 +52,10 @@ namespace fnt
 				characters.push_back(character(id, x, y, width, height, xoffset, yoffset, xadvance, page, chnl));
 
 				file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-				std::cout << std::endl;
 			}
 		}
 
-		character& get_character(char c)
+		const character& get_character(char c) const
 		{
 			int id = static_cast<int>(c);
 			auto pos = std::find_if(characters.begin(), characters.end(), [id](auto& character) {

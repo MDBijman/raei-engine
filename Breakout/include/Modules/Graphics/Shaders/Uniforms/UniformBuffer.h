@@ -1,4 +1,5 @@
 #pragma once
+#include "../../Core/VulkanContext.h"
 
 namespace graphics
 {

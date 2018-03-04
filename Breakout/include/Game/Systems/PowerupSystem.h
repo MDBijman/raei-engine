@@ -71,7 +71,7 @@ namespace systems
 				ecs.addComponent(new_powerup, components::collider());
 				ecs.addComponent(new_powerup, components::powerup());
 
-				auto attributes = Components::sprite_attributes({
+				auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>({
 					{
 						{ -.5f, -.5f },
 						{ 0.0f, 0.0f }
@@ -89,8 +89,8 @@ namespace systems
 						{ 1.0f, 1.0f }
 					}
 					});
-				auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-				auto uniform = Components::sprite_uniforms(*graphics.context, {
+				auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
+				auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
 					graphics.resources.create_buffer<glm::mat4>(
 						camera.getMatrices().projection * camera.getMatrices().view * glm::mat4(), 0),
 					graphics.resources.create_texture("./res/textures/powerup.dds", vk::Format::eBc3UnormBlock, 1,
@@ -118,7 +118,7 @@ namespace systems
 			ecs.addComponent(ball, components::collider());
 			ecs.addComponent(ball, components::ball());
 
-			auto attributes = Components::sprite_attributes({
+			auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>({
 				{
 					{ -.5f, -.5f },
 					{ 0.0f, 0.0f }
@@ -136,8 +136,8 @@ namespace systems
 					{ 1.0f, 1.0f }
 				}
 				});
-			auto indices = Components::sprite_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = Components::sprite_uniforms(*graphics.context, {
+			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
+			auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
 				graphics.resources.create_buffer<glm::mat4>(
 					camera.getMatrices().projection * camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,

@@ -7,6 +7,7 @@
 
 #include <vulkan/vulkan.hpp>
 #include <vector>
+#include <optional>
 
 namespace graphics
 {
@@ -42,15 +43,6 @@ namespace graphics
 		void allocate(VulkanContext& context)
 		{
 			uniforms_.allocate(context);
-
-			attributes_.allocate(context);
-			attributes_.upload(context);
-
-			if (is_indexed())
-			{
-				indices_.value().allocate(context);
-				indices_.value().upload(context);
-			}
 		}
 
 		void draw(vk::CommandBuffer& cmdBuffer)
@@ -61,9 +53,9 @@ namespace graphics
 			cmdBuffer.bindVertexBuffers(0, attributes_.vk_buffer(), { 0 });
 
 			if (is_indexed())
-				cmdBuffer.drawIndexed(static_cast<uint32_t>(indices_.value().data().size()), 1, 0, 0, 0);
+				cmdBuffer.drawIndexed(static_cast<uint32_t>(indices_.value().count()), 1, 0, 0, 0);
 			else
-				cmdBuffer.draw(static_cast<uint32_t>(attributes_.data().size()), 1, 0, 0);
+				cmdBuffer.draw(static_cast<uint32_t>(attributes_.count()), 1, 0, 0);
 		}
 
 		bool is_indexed()

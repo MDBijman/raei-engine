@@ -5,9 +5,10 @@
 namespace graphics
 {
 	Renderer::Renderer(WindowsContext windows) : 
-		context(new VulkanContext("triangle")),
+		context(new VulkanContext()),
 		swapchain(std::make_shared<VulkanSwapChain>(*context)),
-		resources(*context, *swapchain, drawPass, frameBuffers)
+		resources(*context, *swapchain, drawPass, frameBuffers),
+		factory(resources)
 	{
 		context->queue = std::make_unique<vk::Queue>(context->device.getQueue(context->graphicsQueueIndex, 0));
 
@@ -181,7 +182,7 @@ namespace graphics
 		swapchain->acquireNextImage(nullptr, waitImage, &currentBuffer);
 		context->device.waitForFences(waitImage, VK_TRUE, 1000000000000);
 		context->device.resetFences(1, &waitImage);
-		return Frame{};
+		return Frame(getCurrentBuffer());
 	}
 
 	void Renderer::submit(vk::CommandBuffer* buffer) const

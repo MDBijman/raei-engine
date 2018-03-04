@@ -9,7 +9,6 @@
 #include "Components/Orientation3D.h"
 #include "Components/Position3D.h"
 #include "Components/Velocity3D.h"
-#include "Components/Texture.h"
 #include "Components/Pipeline.h"
 #include "Components/CommandBuffers.h"
 #include "Components/Scale2D.h"
@@ -34,15 +33,13 @@ using component_list = std::tuple<
 	Components::Orientation3D,
 	Components::Velocity2D,
 	Components::Camera2D,
-	Components::Texture,
 	Components::CameraID,
 	Components::Pipeline,
 	Components::CommandBuffers,
-	Components::sprite_shader,
 	Components::Input,
 	Components::Scale2D,
 	components::score,
-	components::drawable<graphics::shader<sprite_attributes, sprite_uniforms>>,
+	components::drawable<sprite_shader>,
 	components::collider,
 	components::brick,
 	components::paddle,
@@ -60,6 +57,7 @@ using filter_list = std::tuple<
 
 	// Rendering
 	ecs::filter<components::drawable<sprite_shader>>,
+	ecs::filter<components::score>,
 
 	// Sprite uniform updates
 	ecs::filter<components::drawable<sprite_shader>, Components::Position2D, Components::Scale2D>,
@@ -74,7 +72,7 @@ using filter_list = std::tuple<
 	ecs::filter<components::collider, Components::Position2D, Components::Scale2D>,
 
 	// Score
-	ecs::filter<components::score, components::drawable<sprite_shader>, Components::Scale2D>,
+	ecs::filter<components::score, Components::Scale2D, Components::Position2D>,
 
 	// Tags
 	ecs::filter<components::brick>,
