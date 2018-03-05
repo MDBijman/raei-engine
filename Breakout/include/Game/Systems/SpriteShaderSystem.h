@@ -1,7 +1,6 @@
 #pragma once
 #include "Modules/ECS/System.h"
 #include "Modules/Graphics/Core/VulkanContext.h"
-#include "Game/Components/SpriteShader.h"
 #include "Game/Components/Position2D.h"
 #include "Game/Components/Scale2D.h"
 

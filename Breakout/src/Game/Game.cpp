@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Game/Game.h"
 #include "Game/Levels/MainLevel.h"
+#include "Game/Levels/Menu.h"
 
 // Modules
 #include "Modules/IO/Input.h"

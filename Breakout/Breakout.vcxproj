@@ -203,17 +203,14 @@
   <ItemGroup>
     <ClInclude Include="include\Game\Components\CameraID.h" />
     <ClInclude Include="include\Game\Components\Collider.h" />
-    <ClInclude Include="include\Game\Components\CommandBuffers.h" />
     <ClInclude Include="include\Game\Components\Camera2D.h" />
     <ClInclude Include="include\Game\Components\Drawable.h" />
     <ClInclude Include="include\Game\Components\Input.h" />
     <ClInclude Include="include\Game\Components\Orientation3D.h" />
-    <ClInclude Include="include\Game\Components\Pipeline.h" />
     <ClInclude Include="include\Game\Components\Position2D.h" />
     <ClInclude Include="include\Game\Components\Position3D.h" />
     <ClInclude Include="include\Game\Components\Scale2D.h" />
     <ClInclude Include="include\Game\Components\Score.h" />
-    <ClInclude Include="include\Game\Components\SpriteShader.h" />
     <ClInclude Include="include\Game\Components\Tag.h" />
     <ClInclude Include="include\Game\Components\Velocity2D.h" />
     <ClInclude Include="include\Game\Components\Velocity3D.h" />
@@ -222,6 +219,7 @@
     <ClInclude Include="include\Game\Events\BrickEvents.h" />
     <ClInclude Include="include\Game\Levels\MainLevel.h" />
     <ClInclude Include="include\Game\Levels\Menu.h" />
+    <ClInclude Include="include\Game\Shaders.h" />
     <ClInclude Include="include\Game\Systems\BallSystem.h" />
     <ClInclude Include="include\Game\Systems\BrickSystem.h" />
     <ClInclude Include="include\Game\systems\FpsSystem.h" />

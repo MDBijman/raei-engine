@@ -1,6 +1,5 @@
 #pragma once
 #include "Modules/ECS/ECSManager.h"
-#include "Components/SpriteShader.h"
 #include "Components/Camera2D.h"
 #include "Components/CameraID.h"
 #include "Components/Input.h"
@@ -9,8 +8,6 @@
 #include "Components/Orientation3D.h"
 #include "Components/Position3D.h"
 #include "Components/Velocity3D.h"
-#include "Components/Pipeline.h"
-#include "Components/CommandBuffers.h"
 #include "Components/Scale2D.h"
 #include "Components/score.h"
 #include "Components/Drawable.h"
@@ -34,12 +31,11 @@ using component_list = std::tuple<
 	Components::Velocity2D,
 	Components::Camera2D,
 	Components::CameraID,
-	Components::Pipeline,
-	Components::CommandBuffers,
 	Components::Input,
 	Components::Scale2D,
 	components::score,
 	components::drawable<sprite_shader>,
+	components::drawable<speck::graphics::text>,
 	components::collider,
 	components::brick,
 	components::paddle,

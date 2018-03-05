@@ -11,7 +11,7 @@
 
 namespace speck::graphics
 {
-	namespace details
+	namespace detail
 	{
 		using text_shader_attributes = ::graphics::data::attributes<
 			::graphics::data::Vec2<0, 0>,
@@ -24,10 +24,11 @@ namespace speck::graphics
 			::graphics::data::buffer_template<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex>,
 			::graphics::data::texture_template<1, vk::ShaderStageFlagBits::eFragment>
 		>;
+
+		using text_shader = ::graphics::shader<detail::text_shader_attributes, detail::text_shader_uniforms>;
 	}
 
-	using text_shader = ::graphics::shader<details::text_shader_attributes, details::text_shader_uniforms>;
-	class text : public drawable<text_shader>
+	class text : public detail::text_shader
 	{
 		friend class drawable_factory;
 		
@@ -35,7 +36,7 @@ namespace speck::graphics
 		const fnt::file& font;
 
 	public:
-		text(text&& o) : content(std::move(o.content)), font(o.font), drawable(std::move(o)) {}
+		text(text&& o) : content(std::move(o.content)), font(o.font), detail::text_shader(std::move(o)) {}
 
 		void set_content(std::string s)
 		{
@@ -43,7 +44,7 @@ namespace speck::graphics
 
 			size_t length = content.size();
 
-			std::vector<details::text_shader_attributes::item_t> data;
+			std::vector<attributes_t::item_t> data;
 
 			auto create_character = [&](char character) {
 				const fnt::character& char_info = font.get_character(character);
@@ -93,7 +94,7 @@ namespace speck::graphics
 				create_character(character);
 			}
 
-			this->shader().attributes().set(std::move(data));
+			this->attributes().set(std::move(data));
 		}
 
 		const std::string& get_content()
@@ -102,7 +103,7 @@ namespace speck::graphics
 		}
 
 	private:
-		text(fnt::file& f, std::string txt, drawable<text_shader>&& ts) :
-			font(f), content(txt), drawable(std::move(ts)) {}
+		text(fnt::file& f, std::string txt, detail::text_shader&& ts) :
+			font(f), content(txt), detail::text_shader(std::move(ts)) {}
 	};
 }

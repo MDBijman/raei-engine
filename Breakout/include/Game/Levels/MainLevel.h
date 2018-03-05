@@ -55,11 +55,11 @@ namespace game
 			ecs->addComponent(sprite, components::collider());
 			ecs->addComponent(sprite, components::paddle());
 
-			auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
 
-			auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
@@ -68,8 +68,8 @@ namespace game
 
 			auto& drawable = ecs->addComponent(sprite, components::drawable<sprite_shader>(
 				graphics.resources.create_drawable(sprite_shader(
-					std::move(attributes), 
-					std::move(indices), 
+					std::move(attributes),
+					std::move(indices),
 					std::move(uniform)))));
 		}
 
@@ -81,10 +81,10 @@ namespace game
 			ecs->addComponent(ball, components::collider());
 			ecs->addComponent(ball, components::ball());
 
-			auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
@@ -93,8 +93,8 @@ namespace game
 
 			auto& drawable = ecs->addComponent(ball, components::drawable<sprite_shader>(
 				graphics.resources.create_drawable(sprite_shader(
-					std::move(attributes), 
-					std::move(indices), 
+					std::move(attributes),
+					std::move(indices),
 					std::move(uniform)))));
 		}
 
@@ -116,10 +116,10 @@ namespace game
 				ecs->addComponent(block, components::collider());
 				ecs->addComponent(block, components::brick());
 
-				auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>(
+				auto attributes = graphics.resources.create_attributes<sprite_attributes>(
 					detail::create_block());
 				auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-				auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
+				auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
 					graphics.resources.create_buffer(
 						camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 					graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
@@ -128,8 +128,8 @@ namespace game
 
 				auto& drawable = ecs->addComponent(block, components::drawable<sprite_shader>(
 					graphics.resources.create_drawable(sprite_shader(
-						std::move(attributes), 
-						std::move(indices), 
+						std::move(attributes),
+						std::move(indices),
 						std::move(uniform)))));
 			}
 		}
@@ -143,10 +143,10 @@ namespace game
 			ecs->addComponent(top_wall, components::collider());
 			ecs->addComponent(top_wall, components::wall());
 
-			auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
@@ -170,10 +170,10 @@ namespace game
 			ecs->addComponent(left_wall, components::collider());
 			ecs->addComponent(left_wall, components::wall());
 
-			auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
@@ -196,10 +196,10 @@ namespace game
 			ecs->addComponent(left_wall, components::collider());
 			ecs->addComponent(left_wall, components::wall());
 
-			auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
@@ -231,9 +231,9 @@ namespace game
 			ecs->get_system_manager().add_to_group(sg, std::make_unique<systems::fps_system>());
 
 			auto render_thread = ecs->get_system_manager().create_group();
-			ecs->get_system_manager().add_to_group(render_thread, 
+			ecs->get_system_manager().add_to_group(render_thread,
 				std::make_unique<Systems::GraphicsInterface>(&graphics));
-			ecs->get_system_manager().add_to_group(render_thread, 
+			ecs->get_system_manager().add_to_group(render_thread,
 				std::make_unique<Systems::SpriteShaderSystem>());
 
 			auto pt = ecs->get_system_manager().create_group();

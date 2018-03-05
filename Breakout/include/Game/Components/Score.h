@@ -4,9 +4,10 @@
 
 namespace components
 {
-	struct score : public ecs::Component, public speck::graphics::text
+	struct score : public ecs::Component, public speck::graphics::drawable<speck::graphics::text>
 	{
-		score(int count, speck::graphics::text drawable) : count(count), text(std::move(drawable)) {}
+		score(int count, speck::graphics::drawable<speck::graphics::text> drawable) :
+			count(count), drawable(std::move(drawable)) {}
 
 		int count;
 	};

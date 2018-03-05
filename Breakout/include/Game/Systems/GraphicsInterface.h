@@ -3,7 +3,6 @@
 #include "Modules/ECS/ECSManager.h"
 #include "Modules/Graphics/Core/Renderer.h"
 #include "Modules/Graphics/Drawables/Text.h"
-#include "Game/Components/CommandBuffers.h"
 #include "Game/ECSConfig.h"
 
 namespace Systems

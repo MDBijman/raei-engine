@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 #include "Modules/Graphics/Graphics.h"
+#include "Modules/Graphics/Drawables/Text.h"
+#include "../Systems/Systems.h"
 #include "../ECSConfig.h"
 #include "../EventConfig.h"
 
@@ -13,36 +15,16 @@ namespace game
 		{
 			ecs->addComponent(title, Components::Position2D(0.0, 0.0));
 			ecs->addComponent(title, Components::Scale2D(.3, .3));
-			auto attributes = graphics.resources.create_attributes<Components::sprite_attributes>({
-				{
-					{ -.5f, -.5f },
-					{ 0.0f, 0.0f }
-				},
-				{
-					{ -.5f, .5f },
-					{ 0.0f, 1.0f }
-				},
-				{
-					{ .5f, -.5f },
-					{ 1.0f, 0.0f }
-				},
-				{
-					{ .5f, .5f },
-					{ 1.0f, 1.0f }
-				}
-				});
-			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<Components::sprite_uniforms>({
-				graphics.resources.create_buffer<glm::mat4>(
-					graphics_camera.getMatrices().projection * graphics_camera.getMatrices().view * glm::mat4(), 0),
-				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
-					vk::ShaderStageFlagBits::eFragment)
-				});
+			ecs->addComponent(title, components::drawable<speck::graphics::text>(
+				graphics.factory.create_text("ASD", graphics_camera)));
+		}
 
-			auto& drawable = ecs->addComponent(title, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(
-					sprite_shader(std::move(attributes), std::move(indices), std::move(uniform))
-				)));
+		{
+			auto render_group = ecs->get_system_manager().create_group();
+			ecs->get_system_manager().add_to_group(render_group, std::make_unique<Systems::GraphicsInterface>(
+				Systems::GraphicsInterface(&graphics)));
+			ecs->get_system_manager().add_to_group(render_group, std::make_unique<Systems::Exit>(
+				Systems::Exit()));
 		}
 	}
 }

@@ -67,7 +67,7 @@ namespace systems
 					score_text.at(1) = '0' + ((score.count / 10) % 10);
 					score_text.at(0) = '0' + ((score.count / 100) % 10);
 
-					score.set_content(std::move(score_text));
+					score.shader().set_content(std::move(score_text));
 
 					auto scale = glm::scale(glm::mat4(), glm::vec3(scale2d.scale, 1.0f));
 					auto translate = glm::translate(glm::mat4(), glm::vec3(pos.pos, 0.0f));

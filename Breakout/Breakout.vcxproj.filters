@@ -187,12 +187,6 @@
     <ClInclude Include="include\Game\Components\CameraID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Components\Pipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Components\CommandBuffers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Importers\PipelineImporter.h">
       <Filter>Header Files\Libraries\Importers</Filter>
     </ClInclude>
@@ -203,9 +197,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\TemplateUtils\ForEachInTuple.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Components\SpriteShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Memory\Pool.h">
@@ -377,6 +368,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\Graphics\Drawables\DrawableFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Shaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
