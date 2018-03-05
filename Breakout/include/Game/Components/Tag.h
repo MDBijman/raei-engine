@@ -8,4 +8,5 @@ namespace components
 	struct ball : ecs::Component {};
 	struct wall : ecs::Component {};
 	struct powerup : ecs::Component {};
+	struct pointer : ecs::Component {};
 }

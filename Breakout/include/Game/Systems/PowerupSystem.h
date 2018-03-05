@@ -98,8 +98,8 @@ namespace systems
 						vk::ShaderStageFlagBits::eFragment)
 					});
 
-				auto& drawable = ecs.addComponent(new_powerup, components::drawable<sprite_shader>(
-					graphics.resources.create_drawable(sprite_shader(
+				auto& drawable = ecs.addComponent(new_powerup, components::drawable<shaders::sprite_shader>(
+					graphics.resources.create_drawable(shaders::sprite_shader(
 						std::move(attributes), 
 						std::move(indices), 
 						std::move(uniform)))));
@@ -145,8 +145,8 @@ namespace systems
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& drawable = ecs.addComponent(ball, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(sprite_shader(
+			auto& drawable = ecs.addComponent(ball, components::drawable<shaders::sprite_shader>(
+				graphics.resources.create_drawable(shaders::sprite_shader(
 					std::move(attributes),
 					std::move(indices),
 					std::move(uniform)))));

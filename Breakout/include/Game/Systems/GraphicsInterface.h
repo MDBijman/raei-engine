@@ -28,13 +28,13 @@ namespace Systems
 
 			{ // We need to put this in its own scope so the component locks are deallocated properly
 				auto sprites = ecs.filterEntities<ecs::filter<
-					components::drawable<sprite_shader>,
+					components::drawable<shaders::sprite_shader>,
 					Components::Position2D,
 					Components::Scale2D
 					>>();
 				for (auto e : sprites.entities)
 				{
-					auto& sprite = ecs.getComponent<components::drawable<sprite_shader>>(e);
+					auto& sprite = ecs.getComponent<components::drawable<shaders::sprite_shader>>(e);
 					auto& pos = ecs.getComponent<Components::Position2D>(e);
 					auto& scale2d = ecs.getComponent<Components::Scale2D>(e);
 
@@ -45,7 +45,7 @@ namespace Systems
 					glm::mat4 mvp = pv * model;
 					sprite.shader().uniforms().upload<0>(mvp);
 
-					frame.add_drawable<sprite_shader>(sprite);
+					frame.add_drawable<shaders::sprite_shader>(sprite);
 				}
 			}
 

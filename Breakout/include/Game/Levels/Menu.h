@@ -80,11 +80,12 @@ namespace game
 			auto pointer = ecs->createEntity();
 			ecs->addComponent(pointer, Components::Position2D(-.5f, -0.2f));
 			ecs->addComponent(pointer, Components::Scale2D(.1f, .1f));
-			ecs->addComponent(pointer, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(sprite_shader(
-					graphics.resources.create_attributes<sprite_attributes>(create_block()),
+			ecs->addComponent(pointer, components::pointer());
+			ecs->addComponent(pointer, components::drawable<shaders::sprite_shader>(
+				graphics.resources.create_drawable(shaders::sprite_shader(
+					graphics.resources.create_attributes<shaders::sprite_attributes>(create_block()),
 					graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 }),
-					graphics.resources.create_uniform<sprite_uniforms>({
+					graphics.resources.create_uniform<shaders::sprite_uniforms>({
 						graphics.resources.create_buffer(graphics_camera.getMatrices().projection *
 							graphics_camera.getMatrices().view * glm::mat4(), 0),
 						graphics.resources.create_texture("./res/textures/pointer.dds", vk::Format::eBc3UnormBlock, 1,

@@ -1,6 +1,7 @@
 #pragma once
 #include "Game/ECSConfig.h"
 #include "Game/EventConfig.h"
+#include "Game/Shaders.h"
 #include "Game/Systems/Systems.h"
 #include "Game/Events/BrickEvents.h"
 
@@ -55,19 +56,19 @@ namespace game
 			ecs->addComponent(sprite, components::collider());
 			ecs->addComponent(sprite, components::paddle());
 
-			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<shaders::sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
 
-			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<shaders::sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& drawable = ecs->addComponent(sprite, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(sprite_shader(
+			auto& drawable = ecs->addComponent(sprite, components::drawable<shaders::sprite_shader>(
+				graphics.resources.create_drawable(shaders::sprite_shader(
 					std::move(attributes),
 					std::move(indices),
 					std::move(uniform)))));
@@ -81,18 +82,18 @@ namespace game
 			ecs->addComponent(ball, components::collider());
 			ecs->addComponent(ball, components::ball());
 
-			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<shaders::sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<shaders::sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& drawable = ecs->addComponent(ball, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(sprite_shader(
+			auto& drawable = ecs->addComponent(ball, components::drawable<shaders::sprite_shader>(
+				graphics.resources.create_drawable(shaders::sprite_shader(
 					std::move(attributes),
 					std::move(indices),
 					std::move(uniform)))));
@@ -116,18 +117,18 @@ namespace game
 				ecs->addComponent(block, components::collider());
 				ecs->addComponent(block, components::brick());
 
-				auto attributes = graphics.resources.create_attributes<sprite_attributes>(
+				auto attributes = graphics.resources.create_attributes<shaders::sprite_attributes>(
 					detail::create_block());
 				auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-				auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
+				auto uniform = graphics.resources.create_uniform<shaders::sprite_uniforms>({
 					graphics.resources.create_buffer(
 						camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 					graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
 						vk::ShaderStageFlagBits::eFragment)
 					});
 
-				auto& drawable = ecs->addComponent(block, components::drawable<sprite_shader>(
-					graphics.resources.create_drawable(sprite_shader(
+				auto& drawable = ecs->addComponent(block, components::drawable<shaders::sprite_shader>(
+					graphics.resources.create_drawable(shaders::sprite_shader(
 						std::move(attributes),
 						std::move(indices),
 						std::move(uniform)))));
@@ -143,10 +144,10 @@ namespace game
 			ecs->addComponent(top_wall, components::collider());
 			ecs->addComponent(top_wall, components::wall());
 
-			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<shaders::sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<shaders::sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
@@ -154,8 +155,8 @@ namespace game
 				});
 
 
-			auto& drawable = ecs->addComponent(top_wall, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(sprite_shader(
+			auto& drawable = ecs->addComponent(top_wall, components::drawable<shaders::sprite_shader>(
+				graphics.resources.create_drawable(shaders::sprite_shader(
 					std::move(attributes),
 					std::move(indices),
 					std::move(uniform)))));
@@ -170,18 +171,18 @@ namespace game
 			ecs->addComponent(left_wall, components::collider());
 			ecs->addComponent(left_wall, components::wall());
 
-			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<shaders::sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<shaders::sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& drawable = ecs->addComponent(left_wall, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(sprite_shader(
+			auto& drawable = ecs->addComponent(left_wall, components::drawable<shaders::sprite_shader>(
+				graphics.resources.create_drawable(shaders::sprite_shader(
 					std::move(attributes),
 					std::move(indices),
 					std::move(uniform)))));
@@ -196,18 +197,18 @@ namespace game
 			ecs->addComponent(left_wall, components::collider());
 			ecs->addComponent(left_wall, components::wall());
 
-			auto attributes = graphics.resources.create_attributes<sprite_attributes>(
+			auto attributes = graphics.resources.create_attributes<shaders::sprite_attributes>(
 				detail::create_block());
 			auto indices = graphics.resources.create_indices({ 0, 1, 2, 2, 1, 3 });
-			auto uniform = graphics.resources.create_uniform<sprite_uniforms>({
+			auto uniform = graphics.resources.create_uniform<shaders::sprite_uniforms>({
 				graphics.resources.create_buffer(
 					camera.camera.getMatrices().projection * camera.camera.getMatrices().view * glm::mat4(), 0),
 				graphics.resources.create_texture("./res/textures/paddle.dds", vk::Format::eBc3UnormBlock, 1,
 					vk::ShaderStageFlagBits::eFragment)
 				});
 
-			auto& drawable = ecs->addComponent(left_wall, components::drawable<sprite_shader>(
-				graphics.resources.create_drawable(sprite_shader(
+			auto& drawable = ecs->addComponent(left_wall, components::drawable<shaders::sprite_shader>(
+				graphics.resources.create_drawable(shaders::sprite_shader(
 					std::move(attributes),
 					std::move(indices),
 					std::move(uniform)))));

@@ -14,34 +14,32 @@
 #include "Components/Collider.h"
 #include "Components/Tag.h"
 
-using sprite_attributes = graphics::data::attributes<
-	graphics::data::Vec2<0, 0>,
-	graphics::data::Vec2<1, sizeof(float) * 2>
->;
-using sprite_uniforms = graphics::data::Uniforms<
-	graphics::data::buffer_template<glm::mat4, 0, vk::ShaderStageFlagBits::eVertex>,
-	graphics::data::texture_template<1, vk::ShaderStageFlagBits::eFragment>
->;
-using sprite_shader = graphics::shader<sprite_attributes, sprite_uniforms>;
+#include "Shaders.h"
 
 using component_list = std::tuple<
-	Components::Position2D,
 	Components::Position3D,
 	Components::Orientation3D,
+
+	Components::Position2D,
 	Components::Velocity2D,
+	Components::Scale2D,
+
 	Components::Camera2D,
 	Components::CameraID,
 	Components::Input,
-	Components::Scale2D,
 	components::score,
-	components::drawable<sprite_shader>,
-	components::drawable<speck::graphics::text>,
 	components::collider,
+
+	components::drawable<shaders::sprite_shader>,
+	components::drawable<speck::graphics::text>,
+
+	// Tags
 	components::brick,
 	components::paddle,
 	components::ball,
 	components::wall,
-	components::powerup
+	components::powerup,
+	components::pointer
 >;
 
 using filter_list = std::tuple<
@@ -52,7 +50,7 @@ using filter_list = std::tuple<
 	ecs::filter<Components::Input, Components::Position2D>,
 
 	// Rendering
-	ecs::filter<components::drawable<sprite_shader>, Components::Position2D, Components::Scale2D>,
+	ecs::filter<components::drawable<shaders::sprite_shader>, Components::Position2D, Components::Scale2D>,
 	ecs::filter<components::drawable<speck::graphics::text>, Components::Position2D, Components::Scale2D>,
 
 	// Camera Finding
@@ -73,7 +71,8 @@ using filter_list = std::tuple<
 	ecs::filter<components::paddle>,
 	ecs::filter<components::wall>,
 	ecs::filter<components::powerup>,
-	ecs::filter<components::ball>
+	ecs::filter<components::ball>,
+	ecs::filter<components::pointer>
 >;
 
 using ecs_manager = ecs::base_manager<component_list, filter_list>;
