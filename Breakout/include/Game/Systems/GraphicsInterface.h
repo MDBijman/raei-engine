@@ -14,20 +14,62 @@ namespace Systems
 
 		void update(ecs_manager& ecs) override
 		{
-			auto frame = graphics->getFrame();
-
-			auto result = ecs.filterEntities<ecs::filter<components::drawable<sprite_shader>>>();
-			for (auto entity : result.entities)
+			glm::mat4 pv;
 			{
-				auto& drawable = ecs.getComponent<components::drawable<sprite_shader>>(entity);
-				frame.add_drawable<sprite_shader>(drawable);
+				auto result = ecs.filterEntities<ecs::filter<Components::Camera2D>>();
+				if (result.entities.size() == 0)
+					return;
+
+				auto& camera = ecs.getComponent<Components::Camera2D>(*result.entities.begin());
+				pv = camera.camera.getMatrices().view_projection;
 			}
 
-			auto scores = ecs.filterEntities<ecs::filter<components::score>>();
-			for (auto e : scores.entities)
+			auto frame = graphics->getFrame();
+
+			{ // We need to put this in its own scope so the component locks are deallocated properly
+				auto sprites = ecs.filterEntities<ecs::filter<
+					components::drawable<sprite_shader>,
+					Components::Position2D,
+					Components::Scale2D
+					>>();
+				for (auto e : sprites.entities)
+				{
+					auto& sprite = ecs.getComponent<components::drawable<sprite_shader>>(e);
+					auto& pos = ecs.getComponent<Components::Position2D>(e);
+					auto& scale2d = ecs.getComponent<Components::Scale2D>(e);
+
+					// Uniform camera matrix
+					auto scale = glm::scale(glm::mat4(), glm::vec3(scale2d.scale, 1.0f));
+					auto translate = glm::translate(glm::mat4(), glm::vec3(pos.pos, 0.0f));
+					auto model = translate * scale;
+					glm::mat4 mvp = pv * model;
+					sprite.shader().uniforms().upload<0>(mvp);
+
+					frame.add_drawable<sprite_shader>(sprite);
+				}
+			}
+
 			{
-				auto& score = ecs.getComponent<components::score>(e);
-				frame.add_drawable(score);
+				auto scores = ecs.filterEntities<ecs::filter<
+					components::drawable<speck::graphics::text>,
+					Components::Position2D,
+					Components::Scale2D
+					>>();
+				for (auto e : scores.entities)
+				{
+					auto& text = ecs.getComponent<components::drawable<speck::graphics::text>>(e);
+					auto& pos = ecs.getComponent<Components::Position2D>(e);
+					auto& scale2d = ecs.getComponent<Components::Scale2D>(e);
+
+					// Uniform camera matrix
+					auto scale = glm::scale(glm::mat4(), glm::vec3(scale2d.scale, 1.0f));
+					auto translate = glm::translate(glm::mat4(), glm::vec3(pos.pos, 0.0f));
+					auto model = translate * scale;
+					glm::mat4 mvp = pv * model;
+					text.shader().uniforms().upload<0>(mvp);
+
+					frame.add_drawable(text);
+				}
 			}
 
 			graphics->submitFrame(&frame);

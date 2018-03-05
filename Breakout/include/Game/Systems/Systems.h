@@ -2,7 +2,6 @@
 #include "Input.h"
 #include "Movement2D.h"
 #include "GraphicsInterface.h"
-#include "SpriteShaderSystem.h"
 #include "CameraSystem.h"
 #include "CollisionSystem.h"
 #include "BrickSystem.h"
@@ -11,3 +10,4 @@
 #include "ScoreSystem.h"
 #include "BallSystem.h"
 #include "PowerupSystem.h"
+#include "MenuSystem.h"

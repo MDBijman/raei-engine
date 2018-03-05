@@ -217,7 +217,9 @@ namespace game
 		{
 			auto score = ecs->createEntity();
 
-			ecs->addComponent(score, components::score(0, graphics.factory.create_text("000", camera.camera)));
+			ecs->addComponent(score, components::score(0));
+			ecs->addComponent(score, components::drawable<speck::graphics::text>(
+				graphics.factory.create_text("000", camera.camera)));
 			ecs->addComponent(score, Components::Position2D(-1.8361, -.99));
 			ecs->addComponent(score, Components::Scale2D(.1, .1));
 		}
@@ -233,8 +235,6 @@ namespace game
 			auto render_thread = ecs->get_system_manager().create_group();
 			ecs->get_system_manager().add_to_group(render_thread,
 				std::make_unique<Systems::GraphicsInterface>(&graphics));
-			ecs->get_system_manager().add_to_group(render_thread,
-				std::make_unique<Systems::SpriteShaderSystem>());
 
 			auto pt = ecs->get_system_manager().create_group();
 			ecs->get_system_manager().add_to_group(pt, std::make_unique<Systems::Movement2D>());

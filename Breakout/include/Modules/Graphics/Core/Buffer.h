@@ -24,8 +24,11 @@ namespace graphics
 			buffer(VulkanContext& ctx, vk::BufferUsageFlagBits usage_flag_bits, std::vector<T> data) :
 				usage_bits_(usage_flag_bits), context(ctx), data_size(item_size * data.size())
 			{
-				allocate();
-				upload(data);
+				if (data_size > 0)
+				{
+					allocate();
+					upload(data);
+				}
 			}
 
 			buffer(buffer&& o) :
@@ -50,6 +53,8 @@ namespace graphics
 
 			void set(const std::vector<T>& data)
 			{
+				assert(data.size() > 0);
+
 				// Reallocate
 				if (data.size() * item_size != data_size)
 				{
@@ -122,9 +127,8 @@ namespace graphics
 
 			void upload(const std::vector<T>& data)
 			{
-				void *mappedMemory;
-				mappedMemory = context.device.mapMemory(memory, 0, memAlloc.allocationSize);
-				memcpy(mappedMemory, data.data(), data_size);
+				void* device_memory = context.device.mapMemory(memory, 0, memAlloc.allocationSize);
+				memcpy(device_memory, data.data(), data_size);
 				context.device.unmapMemory(memory);
 			}
 		};

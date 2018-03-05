@@ -50,12 +50,15 @@ namespace systems
 					pv = camera.camera.getMatrices().view_projection;
 				}
 
-				auto result = ecs.filterEntities<ecs::filter<components::score, Components::Scale2D,
-					Components::Position2D>>();
+				auto result = ecs.filterEntities<ecs::filter<
+					components::score, components::drawable<speck::graphics::text>, 
+					Components::Scale2D, Components::Position2D
+				>>();
 
 				for (auto entity : result.entities)
 				{
 					auto& score = ecs.getComponent<components::score>(entity);
+					auto& drawable = ecs.getComponent<components::drawable<speck::graphics::text>>(entity);
 					auto& scale2d = ecs.getComponent<Components::Scale2D>(entity);
 					auto& pos = ecs.getComponent<Components::Position2D>(entity);
 
@@ -67,7 +70,7 @@ namespace systems
 					score_text.at(1) = '0' + ((score.count / 10) % 10);
 					score_text.at(0) = '0' + ((score.count / 100) % 10);
 
-					score.shader().set_content(std::move(score_text));
+					drawable.shader().set_content(std::move(score_text));
 
 					auto scale = glm::scale(glm::mat4(), glm::vec3(scale2d.scale, 1.0f));
 					auto translate = glm::translate(glm::mat4(), glm::vec3(pos.pos, 0.0f));
@@ -75,7 +78,7 @@ namespace systems
 
 					glm::mat4 mvp = pv * model;
 
-					score.shader().uniforms().upload<0>(mvp);
+					drawable.shader().uniforms().upload<0>(mvp);
 				}
 			}
 		}

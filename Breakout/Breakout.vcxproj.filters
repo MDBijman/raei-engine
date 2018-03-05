@@ -289,9 +289,6 @@
     <ClInclude Include="include\Modules\Graphics\Shaders\Uniforms\Uniforms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\Graphics\Shaders\Shader.h">
-      <Filter>Header Files\Graphics\Data\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\Systems\CameraSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -305,9 +302,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\Movement2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\Systems.h">
@@ -371,6 +365,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Shaders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\Graphics\Shaders\Shader.h">
+      <Filter>Header Files\Graphics\Data\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\MenuSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

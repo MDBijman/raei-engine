@@ -225,6 +225,7 @@
     <ClInclude Include="include\Game\systems\FpsSystem.h" />
     <ClInclude Include="include\Game\systems\GameRuleSystem.h" />
     <ClInclude Include="include\Game\systems\CollisionSystem.h" />
+    <ClInclude Include="include\Game\Systems\MenuSystem.h" />
     <ClInclude Include="include\Game\Systems\PowerupSystem.h" />
     <ClInclude Include="include\Game\systems\ScoreSystem.h" />
     <ClInclude Include="include\Modules\Assets\AssetManager.h" />
@@ -241,7 +242,6 @@
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\Game\Systems\CameraSystem.h" />
     <ClInclude Include="include\Game\Systems\GraphicsInterface.h" />
-    <ClInclude Include="include\Game\Systems\SpriteShaderSystem.h" />
     <ClInclude Include="include\Game\Systems\Movement2D.h" />
     <ClInclude Include="include\Game\Systems\Systems.h" />
     <ClInclude Include="include\Game\Systems\Exit.h" />

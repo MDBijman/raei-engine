@@ -20,7 +20,7 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	camera(-1272.f / 689.f, 1272.f / 689.f, -1.0f, 1.0f, 0.1f, 100.0f),
 	asset_manager("./res/")
 {
-	game::load(ecs, events, camera, graphics);
+	game::load_menu(ecs, events, camera, graphics);
 }
 
 void Game::run()

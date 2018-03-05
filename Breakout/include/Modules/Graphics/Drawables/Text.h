@@ -104,6 +104,9 @@ namespace speck::graphics
 
 	private:
 		text(fnt::file& f, std::string txt, detail::text_shader&& ts) :
-			font(f), content(txt), detail::text_shader(std::move(ts)) {}
+			font(f), content(txt), detail::text_shader(std::move(ts))
+		{
+			this->set_content(content);
+		}
 	};
 }

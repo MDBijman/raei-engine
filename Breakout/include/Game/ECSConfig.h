@@ -52,11 +52,8 @@ using filter_list = std::tuple<
 	ecs::filter<Components::Input, Components::Position2D>,
 
 	// Rendering
-	ecs::filter<components::drawable<sprite_shader>>,
-	ecs::filter<components::score>,
-
-	// Sprite uniform updates
 	ecs::filter<components::drawable<sprite_shader>, Components::Position2D, Components::Scale2D>,
+	ecs::filter<components::drawable<speck::graphics::text>, Components::Position2D, Components::Scale2D>,
 
 	// Camera Finding
 	ecs::filter<Components::Camera2D>,
@@ -68,7 +65,8 @@ using filter_list = std::tuple<
 	ecs::filter<components::collider, Components::Position2D, Components::Scale2D>,
 
 	// Score
-	ecs::filter<components::score, Components::Scale2D, Components::Position2D>,
+	ecs::filter<components::score, components::drawable<speck::graphics::text>, 
+		Components::Scale2D, Components::Position2D>,
 
 	// Tags
 	ecs::filter<components::brick>,
