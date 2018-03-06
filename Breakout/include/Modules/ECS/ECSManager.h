@@ -61,23 +61,60 @@ namespace ecs
 		using ecs = ECS<std::tuple<Components...>, std::tuple<Filters...>>;
 		using system = System<std::tuple<Components...>, std::tuple<Filters...>>;
 
-		struct group_thread
+		class worker_thread
 		{
-			group_thread(std::shared_ptr<std::atomic_bool> keep_running, std::shared_ptr<std::atomic_int> workers_running,
-				std::shared_ptr<memory::safe_queue<10, system*>> queue, ecs* parent_ecs) :
-				parent_ecs(parent_ecs), keep_running(keep_running), workers_running(workers_running), work_queue(queue),
-				thread(&group_thread::run, this) {}
-
-			std::shared_ptr<std::atomic_bool> keep_running;
-			std::shared_ptr<std::atomic_int> workers_running;
-			std::condition_variable wakeup;
-			std::mutex wakeup_mutex;
-			bool should_wake = false;
+			/*
+			* Pointer to the ecs that contains the game world corresponding to the systems that are executed 
+			* by this worker. This pointer must be updated when the ecs is moved. 
+			*/
 			ecs* parent_ecs;
 
+			// Shared between this thread and the parent group, false indicates the thread should shutdown.
+			std::shared_ptr<std::atomic_bool> keep_running;
+
+			/*
+			* When a worker finishes it should decrement this, when workers_running is 0 all workers are done.
+			* Shared between this thread, the parent group, and the other threads in the group.
+			*/
+			std::shared_ptr<std::atomic_int> workers_running;
+
+			/*
+			* The parent group pushes work in the form of a system, which is dequeued by a single worker that calls
+			* update on the system. Shared between this thread, the parent group, and the other threads in the group.
+			*/
 			std::shared_ptr<memory::safe_queue<10, system*>> work_queue;
+
+			// The thread object that runs the 'run' method of this worker_thread
 			std::thread thread;
 
+		public:
+			worker_thread(std::shared_ptr<std::atomic_bool> keep_running, std::shared_ptr<std::atomic_int> workers,
+				std::shared_ptr<memory::safe_queue<10, system*>> queue, ecs* parent_ecs) :
+				parent_ecs(parent_ecs), keep_running(keep_running), workers_running(workers), work_queue(queue),
+				thread(&worker_thread::run, this) {}
+
+			/*
+			* Used for waiting and waking this worker. This worker_thread locks the wakeup_mutex and calls 
+			* wakeup.wait(). The parent group locks wakeup_mutex, sets should_wake to true, and calls 
+			* wakeup.notify_all(). After being woken, this worker sets should_wake to false.
+			*/
+			std::condition_variable wakeup;
+
+			/*
+			* Necessary to coordinate using the 'wakeup' variable between this worker_thread and the parent group.
+			*/
+			std::mutex wakeup_mutex;
+
+			/*
+			* True if this thread should wake. This is used together with 'wakeup' to deal with spurious wakeups while
+			* waiting for the parent group to wake this thread. I.e. when this worker is randomly woken by the OS
+			* instead of by the parent group, should_wake will still be false, and the worker will go to sleep again.
+			*/
+			bool should_wake = false;
+
+			/*
+			* Updates the ecs used by this worker. The ecs is given to a system when its 'update' is called.
+			*/
 			void set_ecs(ecs* ecs)
 			{
 				this->parent_ecs = ecs;
@@ -107,8 +144,19 @@ namespace ecs
 			}
 		};
 
-		struct group
+		class group
 		{
+			std::array<std::unique_ptr<worker_thread>, 4> threads;
+
+			std::shared_ptr<std::atomic_bool> keep_running;
+
+			std::shared_ptr<std::atomic_int> workers_running;
+			std::shared_ptr<group_work_queue> work_queue;
+			ecs* parent_ecs;
+
+			std::vector<std::unique_ptr<system>> systems;
+
+		public:
 			using group_work_queue = memory::safe_queue<10, system*>;
 
 			group(ecs* parent_ecs) : keep_running(std::make_shared<std::atomic_bool>(true)),
@@ -116,7 +164,7 @@ namespace ecs
 				parent_ecs(parent_ecs), work_queue(std::make_shared<group_work_queue>())
 			{
 				for (int i = 0; i < 4; i++)
-					threads.at(i) = std::make_unique<group_thread>(keep_running, workers_running, work_queue, parent_ecs);
+					threads.at(i) = std::make_unique<worker_thread>(keep_running, workers_running, work_queue, parent_ecs);
 			}
 
 			group(group&& o) : parent_ecs(o.parent_ecs),
@@ -125,31 +173,22 @@ namespace ecs
 				threads(std::move(o.threads))
 			{}
 
+			~group()
+			{
+				for (auto& t : threads)
+					t->keep_running.store(false);
+
+				run_workers();
+			}
+
 			void update()
 			{
 				if (systems.size() == 0) return;
 
-				workers_running->store(4);
-
-				// Put work in threads
-				for (std::size_t i = 0; i < systems.size(); i++)
-					work_queue->enqueue(systems.at(i).get());
-
-				// Notify threads to run systems
-				for (auto& t : threads)
-				{
-					t->should_wake = true;
-					t->wakeup.notify_all();
-				}
-
-				// TODO Improve to reduce latency
-				while (workers_running->load() != 0)
-				{
-					std::this_thread::yield();
-				}
+				run_workers();
 			}
 
-			void add_system(std::unique_ptr<system> s)
+			void add_system(std::unique_ptr<system>&& s)
 			{
 				systems.push_back(std::move(s));
 			}
@@ -162,15 +201,30 @@ namespace ecs
 			}
 
 		private:
-			std::array<std::unique_ptr<group_thread>, 4> threads;
+			void run_workers()
+			{
+				workers_running->store(4);
 
-			std::shared_ptr<std::atomic_bool> keep_running;
+				// Put work in threads
+				for (std::size_t i = 0; i < systems.size(); i++)
+					work_queue->enqueue(systems.at(i).get());
 
-			std::shared_ptr<std::atomic_int> workers_running;
-			std::shared_ptr<group_work_queue> work_queue;
-			ecs* parent_ecs;
+				// Notify threads to run systems
+				for (auto& t : threads)
+				{
+					{
+						std::scoped_lock<std::mutex> thread_mutex(t->wakeup_mutex);
+						t->should_wake = true;
+					}
+					t->wakeup.notify_all();
+				}
 
-			std::vector<std::unique_ptr<system>> systems;
+				// TODO Improve to reduce latency
+				while (workers_running->load() != 0)
+				{
+					std::this_thread::yield();
+				}
+			}
 		};
 
 	public:
