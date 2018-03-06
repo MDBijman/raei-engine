@@ -12,15 +12,24 @@
 
 namespace events
 {
-	template<class T>
-	using subscriber = memory::safe_dynamic_queue<std::shared_ptr<const T>>;
+	template<class Event>
+	class subscriber : public memory::safe_dynamic_queue<std::shared_ptr<const Event>>
+	{
+		template<class... Events>
+		friend class base_manager;
+
+		subscriber() {}
+	};
 
 	template<class Event>
 	class publisher
 	{
-	public:
+		template<class... Events>
+		friend class base_manager;
+
 		publisher(std::function<void(Event)> callback) : broadcast(callback) {}
 
+	public:
 		const std::function<void(Event)> broadcast;
 	};
 
@@ -28,23 +37,30 @@ namespace events
 	class base_manager
 	{
 		std::tuple<std::vector<std::shared_ptr<subscriber<Events>>>...> subscribers;
+		std::tuple<publisher<Events>...> publishers;
 
 	public:
 		using subscriber_id = uint32_t;
+
+		base_manager() :
+			publishers(std::make_tuple((publisher<Events>([this](Events event) { this->broadcast(event); }), ...)))
+		{
+
+		}
 
 		template<class Event>
 		subscriber<Event>& new_subscriber()
 		{
 			constexpr auto index = type_index<Event, Events...>::value;
-			std::get<index>(subscribers).push_back(std::make_shared<subscriber<Event>>());
+			std::get<index>(subscribers).push_back(std::make_shared<subscriber<Event>>(subscriber<Event>()));
 			return *std::get<index>(subscribers).back();
 		}
 
 		template<class Event>
-		publisher<Event> new_publisher()
+		publisher<Event>& new_publisher()
 		{
 			constexpr auto index = type_index<Event, Events...>::value;
-			return publisher<Event>([this](Event event) { this->broadcast(event); });
+			return std::get<index>(publishers);
 		}
 
 	private:
