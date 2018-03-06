@@ -102,7 +102,8 @@ namespace game
 			auto render_group = ecs.get_system_manager().create_group();
 			ecs.get_system_manager().add_to_group(render_group, std::make_unique<Systems::CameraSystem>());
 			ecs.get_system_manager().add_to_group(render_group, std::make_unique<Systems::Exit>());
-			ecs.get_system_manager().add_to_group(render_group, std::make_unique<systems::menu_system>());
+			ecs.get_system_manager().add_to_group(render_group, std::make_unique<systems::menu_system>(
+				events.new_publisher<events::switch_world>()));
 			ecs.get_system_manager().add_to_group(render_group, std::make_unique<Systems::GraphicsInterface>(
 				Systems::GraphicsInterface(&graphics)));
 		}

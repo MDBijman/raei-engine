@@ -1,6 +1,8 @@
 #pragma once
 #include <windows.h>
-#include "../ECSConfig.h"
+#include "Game/ECSConfig.h"
+#include "Game/WorldConfig.h"
+#include "Game/Events/WorldEvents.h"
 #include "Modules/IO/Input.h"
 #include "Modules/Time/Timer.h"
 
@@ -9,9 +11,11 @@ namespace systems
 	class menu_system : public MySystem
 	{
 		Time::Timer2 timer;
+		events::publisher<events::switch_world>& switch_publisher;
 
 	public:
-		menu_system()
+		menu_system(events::publisher<events::switch_world>& switch_publisher) :
+			switch_publisher(switch_publisher)
 		{
 			timer.zero();
 		}
@@ -23,26 +27,55 @@ namespace systems
 			auto pointer = pointers.entities.begin();
 			auto& pos = ecs.getComponent<Components::Position2D>(*pointer).pos;
 
-			auto key_status = IO::Keyboard::getKeyStatus(VK_DOWN);
+			auto down_key_status = IO::Keyboard::getKeyStatus(VK_DOWN);
+			auto up_key_status = IO::Keyboard::getKeyStatus(VK_UP);
 
-			if (timer.dt() > 0.2f && key_status == IO::Keyboard::DOWN)
+			if (timer.dt() > 0.2f)
 			{
-				timer.zero();
-				// Play
-				if (pos.y == -0.2f)
+				if (down_key_status == IO::Keyboard::DOWN)
 				{
-					pos.y = 0.0f;
+					timer.zero();
+					// Play
+					if (pos.y == -0.2f)
+					{
+						pos.y = 0.0f;
+					}
+					// Scores
+					else if (pos.y == 0.0f)
+					{
+						pos.y = 0.2f;
+					}
+					// Quit
+					else if (pos.y == 0.2f)
+					{
+						pos.y = -0.2f;
+					}
 				}
-				// Scores
-				else if (pos.y == 0.0f)
+				else if (up_key_status == IO::Keyboard::DOWN)
 				{
-					pos.y = 0.2f;
+					timer.zero();
+					// Play
+					if (pos.y == -0.2f)
+					{
+						pos.y = 0.2f;
+					}
+					// Scores
+					else if (pos.y == 0.0f)
+					{
+						pos.y = -0.2f;
+					}
+					// Quit
+					else if (pos.y == 0.2f)
+					{
+						pos.y = 0.0f;
+					}
 				}
-				// Quit
-				else if (pos.y == 0.2f)
-				{
-					pos.y = -0.2f;
-				}
+			}
+
+			auto enter_key_status = IO::Keyboard::getKeyStatus(VK_RETURN);
+			if (enter_key_status == IO::Keyboard::KeyStatus::DOWN)
+			{
+				switch_publisher.broadcast(events::switch_world(game::worlds::QUIT));
 			}
 		}
 	};

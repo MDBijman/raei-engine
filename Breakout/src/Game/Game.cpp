@@ -30,6 +30,8 @@ void Game::run()
 		while (world_listener.size() > 1)
 		{
 			auto event = world_listener.pop();
+			if (event->to == game::worlds::QUIT)
+				return;
 		}
 	}
 }
