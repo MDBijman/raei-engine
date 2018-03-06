@@ -27,25 +27,44 @@ namespace events
 		template<class... Events>
 		friend class base_manager;
 
-		publisher(std::function<void(Event)> callback) : broadcast(callback) {}
+		std::function<void(Event)> callback;
+
+		publisher(std::function<void(Event)> callback) : callback(callback) {}
+
+		void set_callback(std::function<void(Event)> callback)
+		{
+			this->callback = callback;
+		}
 
 	public:
-		const std::function<void(Event)> broadcast;
+		void broadcast(Event e)
+		{
+			callback(std::move(e));
+		}
 	};
 
 	template<class... Events>
 	class base_manager
 	{
 		std::tuple<std::vector<std::shared_ptr<subscriber<Events>>>...> subscribers;
-		std::tuple<publisher<Events>...> publishers;
+		std::unique_ptr<std::tuple<publisher<Events>...>> publishers;
 
 	public:
 		using subscriber_id = uint32_t;
 
 		base_manager() :
-			publishers(std::make_tuple((publisher<Events>([this](Events event) { this->broadcast(event); }), ...)))
-		{
+			publishers(std::make_unique<std::tuple<publisher<Events>...>>(std::make_tuple(
+				(publisher<Events>([this](Events event) { this->broadcast(event); }), ...)
+			)))
+		{}
 
+		base_manager(base_manager&& o) :
+			subscribers(std::move(o.subscribers)),
+			publishers(std::move(o.publishers))
+		{
+			(std::get<publisher<Events>>(*publishers).set_callback([this](Events x) {
+				this->broadcast(x);
+			}), ...);
 		}
 
 		template<class Event>
@@ -60,7 +79,7 @@ namespace events
 		publisher<Event>& new_publisher()
 		{
 			constexpr auto index = type_index<Event, Events...>::value;
-			return std::get<index>(publishers);
+			return std::get<index>(*publishers);
 		}
 
 	private:
