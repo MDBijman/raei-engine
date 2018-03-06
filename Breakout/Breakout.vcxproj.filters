@@ -322,9 +322,6 @@
     <ClInclude Include="include\Modules\Graphics\Core\DefaultRenderpasses.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Levels\MainLevel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\Components\Drawable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -352,9 +349,6 @@
     <ClInclude Include="include\Game\Components\Tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\Levels\Menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Modules\Assets\AssetManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -371,6 +365,21 @@
       <Filter>Header Files\Graphics\Data\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\MenuSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\World.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Events\WorldEvents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Worlds\MainLevel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Worlds\Menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\WorldConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -395,7 +404,6 @@
     </None>
     <None Include="res\shaders\default-pipeline.json" />
     <None Include="res\shaders\sprite-pipeline.json" />
-    <None Include="res\scripts\startup\TestSystem.lua" />
     <None Include="res\shaders\.gitignore" />
     <None Include="res\shaders\sprite.frag" />
     <None Include="res\shaders\sprite.vert" />

@@ -25,7 +25,7 @@ namespace systems
 
 			auto key_status = IO::Keyboard::getKeyStatus(VK_DOWN);
 
-			if (timer.dt() > 0.1f && key_status == IO::Keyboard::DOWN)
+			if (timer.dt() > 0.2f && key_status == IO::Keyboard::DOWN)
 			{
 				timer.zero();
 				// Play

@@ -1,8 +1,12 @@
 #pragma once
 #include "ECSConfig.h"
+#include "EventConfig.h"
+#include "World.h"
+
+#include "Events/WorldEvents.h"
+
 #include "Modules/Graphics/Core/Renderer.h"
 #include "Modules/Assets/AssetManager.h"
-#include "EventConfig.h"
 
 class Game
 {
@@ -12,18 +16,10 @@ public:
 	void run();
 
 private:
+	graphics::Renderer graphics;
+	graphics::Camera camera;
+	assets::manager	asset_manager;
 
-	std::shared_ptr<ecs_manager> ecs;
-	std::shared_ptr<event_manager> events;
-
-	graphics::Renderer	graphics;
-	graphics::Camera	camera;
-	assets::manager		asset_manager;
-
-	enum GameState
-	{
-		PAUSED,
-		RUNNING,
-		FINISHED
-	} gameState;
+	game::world	world;
+	events::subscriber<events::switch_world>& world_listener;
 };

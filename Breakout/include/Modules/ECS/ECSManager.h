@@ -7,7 +7,6 @@
 #include "Modules/Time/Timer.h"
 #include "Modules/Memory/safe_queue.h"
 
-
 #include <unordered_map>
 #include <unordered_set>
 #include <stdint.h>
@@ -65,7 +64,7 @@ namespace ecs
 		struct group_thread
 		{
 			group_thread(std::shared_ptr<std::atomic_bool> keep_running, std::shared_ptr<std::atomic_int> workers_running,
-				std::shared_ptr<memory::safe_queue<10, system*>> queue, ecs& parent_ecs) :
+				std::shared_ptr<memory::safe_queue<10, system*>> queue, ecs* parent_ecs) :
 				parent_ecs(parent_ecs), keep_running(keep_running), workers_running(workers_running), work_queue(queue),
 				thread(&group_thread::run, this) {}
 
@@ -74,10 +73,15 @@ namespace ecs
 			std::condition_variable wakeup;
 			std::mutex wakeup_mutex;
 			bool should_wake = false;
-			ecs& parent_ecs;
+			ecs* parent_ecs;
 
 			std::shared_ptr<memory::safe_queue<10, system*>> work_queue;
 			std::thread thread;
+
+			void set_ecs(ecs* ecs)
+			{
+				this->parent_ecs = ecs;
+			}
 
 		private:
 			void run()
@@ -95,7 +99,7 @@ namespace ecs
 							break;
 
 						auto sys = work.value();
-						sys->update(parent_ecs);
+						sys->update(*parent_ecs);
 					}
 
 					(*workers_running)--;
@@ -107,7 +111,7 @@ namespace ecs
 		{
 			using group_work_queue = memory::safe_queue<10, system*>;
 
-			group(ecs& parent_ecs) : keep_running(std::make_shared<std::atomic_bool>(true)),
+			group(ecs* parent_ecs) : keep_running(std::make_shared<std::atomic_bool>(true)),
 				workers_running(std::make_shared<std::atomic_int>()),
 				parent_ecs(parent_ecs), work_queue(std::make_shared<group_work_queue>())
 			{
@@ -150,6 +154,13 @@ namespace ecs
 				systems.push_back(std::move(s));
 			}
 
+			void set_ecs(ecs* ecs)
+			{
+				this->parent_ecs = ecs;
+				for (auto& t : threads)
+					t->set_ecs(ecs);
+			}
+
 		private:
 			std::array<std::unique_ptr<group_thread>, 4> threads;
 
@@ -157,7 +168,7 @@ namespace ecs
 
 			std::shared_ptr<std::atomic_int> workers_running;
 			std::shared_ptr<group_work_queue> work_queue;
-			ecs& parent_ecs;
+			ecs* parent_ecs;
 
 			std::vector<std::unique_ptr<system>> systems;
 		};
@@ -165,7 +176,7 @@ namespace ecs
 	public:
 		using group_id = uint32_t;
 
-		base_system_manager(ecs& parent_ecs) : parent_ecs(parent_ecs) {}
+		base_system_manager(ecs* parent_ecs) : parent_ecs(parent_ecs) {}
 
 		group_id create_group()
 		{
@@ -199,8 +210,15 @@ namespace ecs
 			system_groups.at(id).thread.join();
 		}
 
+		void set_ecs(ecs* ecs)
+		{
+			this->parent_ecs = ecs;
+			for (auto& group : system_groups)
+				group.second.set_ecs(ecs);
+		}
+
 	private:
-		ecs & parent_ecs;
+		ecs * parent_ecs;
 
 		// Vector of system groups
 		std::unordered_map<group_id, group> system_groups;
@@ -289,7 +307,7 @@ namespace ecs
 		};
 
 		/*
-		* Filter Result is a helper for controlling component mutexes and filter results. 
+		* Filter Result is a helper for controlling component mutexes and filter results.
 		* The struct contains the result of a filter operation, and the filter components are locked upon creation.
 		* When the destructor is called, the mutexes are unlocked and become available for other threads.
 		*/
@@ -299,8 +317,8 @@ namespace ecs
 		template<class... Components>
 		struct filter_result<filter<Components...>>
 		{
-			filter_result(const std::unordered_set<uint32_t>& es, base_manager<component_tuple, filter_tuple>& ecs) : 
-				entities(es), 
+			filter_result(const std::unordered_set<uint32_t>& es, base_manager<component_tuple, filter_tuple>& ecs) :
+				entities(es),
 				ecs(ecs)
 			{
 				filter_helper<filter<Components...>>::lock(ecs.component_mutexes);
@@ -360,7 +378,18 @@ namespace ecs
 		uint32_t entityCount = 0;
 
 	public: // Methods
-		base_manager() : child_system_manager(*this) { }
+		base_manager() : child_system_manager(this) { }
+
+		base_manager(base_manager&& o) :
+			child_system_manager(std::move(o.child_system_manager)),
+			to_remove_entities(std::move(o.to_remove_entities)),
+			filters(std::move(o.filters)),
+			components(std::move(o.components)),
+			entities(std::move(o.entities)),
+			entityCount(o.entityCount)
+		{
+			child_system_manager.set_ecs(this);
+		}
 
 		/* Entity Methods */
 

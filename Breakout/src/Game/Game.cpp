@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Game/Game.h"
-#include "Game/Levels/MainLevel.h"
-#include "Game/Levels/Menu.h"
+#include "Game/Worlds/MainLevel.h"
+#include "Game/Worlds/Menu.h"
 
 // Modules
 #include "Modules/IO/Input.h"
@@ -13,25 +13,23 @@
 #include <memory>
 
 Game::Game(HINSTANCE hInstance, HWND window) :
-	ecs(std::make_shared<ecs_manager>()),
-	events(std::make_shared<event_manager>()),
 	graphics({ hInstance, window, "triangle", 1280, 720 }),
-	gameState(PAUSED),
 	camera(-1272.f / 689.f, 1272.f / 689.f, -1.0f, 1.0f, 0.1f, 100.0f),
-	asset_manager("./res/")
-{
-	game::load_menu(ecs, events, camera, graphics);
-}
+	asset_manager("./res/"),
+	world(game::load_menu(camera, graphics)),
+	world_listener(world.events.new_subscriber<events::switch_world>())
+{}
 
 void Game::run()
 {
-	gameState = RUNNING;
-
 	while (true)
 	{
 		IO::Polling::update();
-		ecs->update();
-	}
+		world.update();
 
-	gameState = GameState::FINISHED;
+		while (world_listener.size() > 1)
+		{
+			auto event = world_listener.pop();
+		}
+	}
 }
