@@ -76,4 +76,4 @@ using filter_list = std::tuple<
 >;
 
 using ecs_manager = ecs::base_manager<component_list, filter_list>;
-using MySystem = ecs::System<component_list, filter_list>;
+using MySystem = ecs::System<ecs_manager>;

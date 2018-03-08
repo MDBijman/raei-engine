@@ -116,6 +116,51 @@
     <ClCompile Include="src\Modules\Graphics\Core\DefaultRenderpasses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Modules\Graphics\Core\Swapchain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\Movement2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\PowerupSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\ScoreSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\MenuSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\GraphicsInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\GameRuleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\Exit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\CollisionSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\BrickSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\BallSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\CameraSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Worlds\MainLevel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Worlds\Menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h">
@@ -217,9 +262,6 @@
     <ClInclude Include="include\Modules\TemplateUtils\IsDefined.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\ECS\Traits.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -310,9 +352,6 @@
     <ClInclude Include="include\Game\Components\Score.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Game\systems\FpsSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Game\systems\GameRuleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -380,6 +419,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\WorldConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Modules\ECS\SystemManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

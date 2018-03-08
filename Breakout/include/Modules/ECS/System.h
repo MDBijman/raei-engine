@@ -2,7 +2,7 @@
 
 namespace ecs
 {
-	template<class CT, class FT>
+	template<class ECS>
 	class System
 	{
 	public:
@@ -10,6 +10,6 @@ namespace ecs
 		{
 		}
 
-		virtual void update(base_manager<CT, FT>& ecs) = 0;
+		virtual void update(ECS& ecs) = 0;
 	};
 }

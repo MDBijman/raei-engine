@@ -9,6 +9,9 @@
 #include <algorithm>
 #include <array>
 #include <filesystem>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
 
 #include <Windows.h>
 

@@ -112,7 +112,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)external;$(ProjectDir)include</AdditionalIncludeDirectories>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" /std:c++latest /D "VK_USE_PLATFORM_WIN32_KHR" /D "_USE_MATH_DEFINES" /D "NOMINMAX" /D "GLM_FORCE_DEPTH_ZERO_TO_ONE" %(AdditionalOptions)</AdditionalOptions>
       <ObjectFileName>$(IntDir)%(RelativeDir)\</ObjectFileName>
@@ -182,10 +182,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Game\Game.cpp" />
+    <ClCompile Include="src\Game\Systems\BallSystem.cpp" />
+    <ClCompile Include="src\Game\Systems\BrickSystem.cpp" />
+    <ClCompile Include="src\Game\Systems\CameraSystem.cpp" />
+    <ClCompile Include="src\Game\Systems\CollisionSystem.cpp" />
+    <ClCompile Include="src\Game\Systems\Exit.cpp" />
+    <ClCompile Include="src\Game\Systems\GameRuleSystem.cpp" />
+    <ClCompile Include="src\Game\Systems\GraphicsInterface.cpp" />
+    <ClCompile Include="src\Game\Systems\Input.cpp" />
+    <ClCompile Include="src\Game\Systems\MenuSystem.cpp" />
+    <ClCompile Include="src\Game\Systems\Movement2D.cpp" />
+    <ClCompile Include="src\Game\Systems\PowerupSystem.cpp" />
+    <ClCompile Include="src\Game\Systems\ScoreSystem.cpp" />
+    <ClCompile Include="src\Game\Worlds\MainLevel.cpp" />
+    <ClCompile Include="src\Game\Worlds\Menu.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Modules\Graphics\Core\DefaultRenderpasses.cpp" />
     <ClCompile Include="src\Modules\Graphics\Core\Pipeline.cpp" />
     <ClCompile Include="src\Modules\Graphics\Core\Renderer.cpp" />
+    <ClCompile Include="src\Modules\Graphics\Core\Swapchain.cpp" />
     <ClCompile Include="src\Modules\Graphics\Core\VulkanDebug.cpp" />
     <ClCompile Include="src\Modules\Importers\Obj.cpp" />
     <ClCompile Include="src\Modules\Importers\PipelineImporter.cpp" />
@@ -223,7 +238,6 @@
     <ClInclude Include="include\Game\Shaders.h" />
     <ClInclude Include="include\Game\Systems\BallSystem.h" />
     <ClInclude Include="include\Game\Systems\BrickSystem.h" />
-    <ClInclude Include="include\Game\systems\FpsSystem.h" />
     <ClInclude Include="include\Game\systems\GameRuleSystem.h" />
     <ClInclude Include="include\Game\systems\CollisionSystem.h" />
     <ClInclude Include="include\Game\Systems\MenuSystem.h" />
@@ -232,6 +246,7 @@
     <ClInclude Include="include\Game\World.h" />
     <ClInclude Include="include\Game\WorldConfig.h" />
     <ClInclude Include="include\Modules\Assets\AssetManager.h" />
+    <ClInclude Include="include\Modules\ECS\SystemManager.h" />
     <ClInclude Include="include\Modules\Events\EventManager.h" />
     <ClInclude Include="include\Modules\Fonts\FntLoader.h" />
     <ClInclude Include="include\Modules\Graphics\Core\Drawable.h" />
@@ -249,7 +264,6 @@
     <ClInclude Include="include\Game\Systems\Systems.h" />
     <ClInclude Include="include\Game\Systems\Exit.h" />
     <ClInclude Include="include\Game\Systems\Input.h" />
-    <ClInclude Include="include\Modules\ECS\Traits.h" />
     <ClInclude Include="include\Modules\Graphics\Core\Frame.h" />
     <ClInclude Include="include\Modules\Memory\Pool.h" />
     <ClInclude Include="include\Modules\Memory\Queue.h" />
