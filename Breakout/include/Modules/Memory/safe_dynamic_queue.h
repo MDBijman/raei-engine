@@ -13,7 +13,6 @@ namespace memory
 
 		safe_dynamic_queue(safe_dynamic_queue&& o)
 		{
-			std::scoped_lock<std::mutex> sl(lock);
 			this->queue = std::move(o.queue);
 		}
 

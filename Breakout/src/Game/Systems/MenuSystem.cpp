@@ -61,6 +61,17 @@ void systems::menu_system::update(ecs_manager& ecs)
 	auto enter_key_status = IO::Keyboard::getKeyStatus(VK_RETURN);
 	if (enter_key_status == IO::Keyboard::KeyStatus::DOWN)
 	{
-		switch_publisher.broadcast(events::switch_world(game::worlds::QUIT));
+		if (pos.y == -0.2f)
+		{
+			switch_publisher.broadcast(events::switch_world(game::worlds::GAME));
+		}
+		else if (pos.y == 0.0f)
+		{
+			switch_publisher.broadcast(events::switch_world(game::worlds::HIGHSCORES));
+		}
+		else if (pos.y == 0.2f)
+		{
+			switch_publisher.broadcast(events::switch_world(game::worlds::QUIT));
+		}
 	}
 }

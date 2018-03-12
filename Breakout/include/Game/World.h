@@ -19,6 +19,12 @@ namespace game
 			events(std::move(o.events))
 		{}
 
+		void operator=(world&& o)
+		{
+			this->ecs = std::move(o.ecs);
+			this->events = std::move(o.events);
+		}
+
 		void update()
 		{
 			this->ecs.update();

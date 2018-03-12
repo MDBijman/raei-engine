@@ -212,6 +212,17 @@ namespace ecs
 			child_system_manager.set_ecs(this);
 		}
 
+		void operator=(base_manager&& o)
+		{
+			this->child_system_manager = std::move(o.child_system_manager);
+			this->to_remove_entities = std::move(o.to_remove_entities);
+			this->filters = std::move(o.filters);
+			this->components = std::move(o.components);
+			this->entities = std::move(o.entities);
+			this->entityCount = o.entityCount;
+			child_system_manager.set_ecs(this);
+		}
+
 		/* Entity Methods */
 
 		uint32_t createEntity()

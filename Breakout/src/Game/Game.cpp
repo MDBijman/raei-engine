@@ -27,11 +27,23 @@ void Game::run()
 		IO::Polling::update();
 		world.update();
 
-		while (world_listener.size() > 1)
+		while (world_listener.get().size() > 1)
 		{
-			auto event = world_listener.pop();
+			auto event = world_listener.get().pop();
 			if (event->to == game::worlds::QUIT)
+			{
 				return;
+			}
+			else if (event->to == game::worlds::GAME)
+			{
+				world = game::load(camera, graphics);
+				world_listener = world.events.new_subscriber<events::switch_world>();
+			}
+			else if (event->to == game::worlds::MAIN_MENU)
+			{
+				world = game::load_menu(camera, graphics);
+				world_listener = world.events.new_subscriber<events::switch_world>();
+			}
 		}
 	}
 }

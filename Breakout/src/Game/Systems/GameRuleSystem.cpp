@@ -17,5 +17,5 @@ void systems::game_rule_system::update(ecs_manager& ecs)
 		}
 	}
 
-	if (!alive) exit(0);
+	if (!alive) this->publisher.broadcast(events::switch_world(game::worlds::MAIN_MENU));
 }

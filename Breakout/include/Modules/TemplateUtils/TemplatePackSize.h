@@ -1,18 +1,10 @@
 #pragma once
 
-// TODO fix namespace and naming convention
-
-template<class... T>
-struct packSize;
-
-template<>
-struct packSize<>
+namespace utils
 {
-	static const size_t value = 0;
-};
-
-template<class Head, class... T>
-struct packSize<Head, T...>
-{
-	static const size_t value = sizeof(Head) + packSize<T...>::value;
-};
+	template<class Head, class... T>
+	constexpr std::size_t pack_size()
+	{
+		return sizeof(Head) + (sizeof...(T) == 0 ? 0 : pack_size<T...>());
+	}
+}

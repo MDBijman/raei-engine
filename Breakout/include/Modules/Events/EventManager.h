@@ -67,6 +67,18 @@ namespace events
 			}), ...);
 		}
 
+		void operator=(const base_manager&) = delete;
+
+		void operator=(base_manager&& o)
+		{
+			this->subscribers = std::move(o.subscribers);
+			this->publishers = std::move(o.publishers);
+
+			(std::get<publisher<Events>>(*publishers).set_callback([this](Events x) {
+				this->broadcast(x);
+			}), ...);
+		}
+
 		template<class Event>
 		subscriber<Event>& new_subscriber()
 		{

@@ -21,5 +21,5 @@ private:
 	assets::manager	asset_manager;
 
 	game::world	world;
-	events::subscriber<events::switch_world>& world_listener;
+	std::reference_wrapper<events::subscriber<events::switch_world>> world_listener;
 };
