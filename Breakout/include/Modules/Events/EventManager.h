@@ -19,6 +19,12 @@ namespace events
 		friend class base_manager;
 
 		subscriber() {}
+		subscriber(const subscriber&) = delete;
+		subscriber(subscriber&&) = delete;
+		subscriber& operator=(const subscriber&) = delete;
+		subscriber& operator=(subscriber&&) = delete;
+
+
 	};
 
 	template<class Event>
@@ -30,6 +36,10 @@ namespace events
 		std::function<void(Event)> callback;
 
 		publisher(std::function<void(Event)> callback) : callback(callback) {}
+		publisher(const publisher&) = delete;
+		publisher(publisher&&) = default;
+		publisher& operator=(const publisher&) = delete;
+		publisher& operator=(publisher&&) = default;
 
 		void set_callback(std::function<void(Event)> callback)
 		{
@@ -53,9 +63,9 @@ namespace events
 		using subscriber_id = uint32_t;
 
 		base_manager() :
-			publishers(std::make_unique<std::tuple<publisher<Events>...>>(std::make_tuple(
-				(publisher<Events>([this](Events event) { this->broadcast(event); }), ...)
-			)))
+			publishers(new std::tuple<publisher<Events>...>(
+					(publisher<Events>([this](Events event) { this->broadcast(event); }), ...)
+			))
 		{}
 
 		base_manager(base_manager&& o) :
@@ -65,6 +75,9 @@ namespace events
 			(std::get<publisher<Events>>(*publishers).set_callback([this](Events x) {
 				this->broadcast(x);
 			}), ...);
+
+			o.publishers = nullptr;
+			(std::get<std::vector<std::shared_ptr<subscriber<Events>>>>(o.subscribers).clear(), ...);
 		}
 
 		void operator=(const base_manager&) = delete;
@@ -83,7 +96,7 @@ namespace events
 		subscriber<Event>& new_subscriber()
 		{
 			constexpr auto index = type_index<Event, Events...>::value;
-			std::get<index>(subscribers).push_back(std::make_shared<subscriber<Event>>(subscriber<Event>()));
+			std::get<index>(subscribers).push_back(std::shared_ptr<subscriber<Event>>(new subscriber<Event>()));
 			return *std::get<index>(subscribers).back();
 		}
 

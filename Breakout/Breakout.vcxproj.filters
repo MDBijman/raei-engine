@@ -161,6 +161,12 @@
     <ClCompile Include="src\Game\Worlds\Menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Game\Worlds\ScoreList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game\Systems\ScoreListSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h">
@@ -422,6 +428,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Modules\ECS\SystemManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Worlds\ScoreList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Systems\ScoreListSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

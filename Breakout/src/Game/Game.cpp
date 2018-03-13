@@ -2,6 +2,7 @@
 #include "Game/Game.h"
 #include "Game/Worlds/MainLevel.h"
 #include "Game/Worlds/Menu.h"
+#include "Game/Worlds/ScoreList.h"
 
 // Modules
 #include "Modules/IO/Input.h"
@@ -42,6 +43,11 @@ void Game::run()
 			else if (event->to == game::worlds::MAIN_MENU)
 			{
 				world = game::load_menu(camera, graphics);
+				world_listener = world.events.new_subscriber<events::switch_world>();
+			}
+			else if (event->to == game::worlds::HIGHSCORES)
+			{
+				world = game::load_scorelist(camera, graphics);
 				world_listener = world.events.new_subscriber<events::switch_world>();
 			}
 		}
