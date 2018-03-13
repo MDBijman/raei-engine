@@ -6,10 +6,10 @@ namespace systems
 {
 	class collision_system : public MySystem
 	{
-		events::publisher<events::collision>& publisher;
+		const events::publisher<events::collision>& publisher;
 
 	public:
-		collision_system(events::publisher<events::collision>& publisher) : 
+		collision_system(const events::publisher<events::collision>& publisher) : 
 			publisher(publisher) {}
 
 		void update(ecs_manager& ecs) override;

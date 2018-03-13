@@ -6,10 +6,10 @@ namespace systems
 {
 	class game_rule_system : public MySystem
 	{
-		events::publisher<events::switch_world>& publisher;
+		const events::publisher<events::switch_world>& publisher;
 
 	public:
-		game_rule_system(events::publisher<events::switch_world>& pub) : publisher(pub) {}
+		game_rule_system(const events::publisher<events::switch_world>& pub) : publisher(pub) {}
 
 		void update(ecs_manager& ecs) override;
 	};

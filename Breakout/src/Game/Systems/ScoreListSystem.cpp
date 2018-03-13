@@ -5,7 +5,7 @@
 
 namespace systems
 {
-	score_list_system::score_list_system(events::publisher<events::switch_world>& pub) :
+	score_list_system::score_list_system(const events::publisher<events::switch_world>& pub) :
 		publisher(pub)
 	{
 

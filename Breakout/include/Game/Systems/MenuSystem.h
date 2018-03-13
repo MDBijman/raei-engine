@@ -9,10 +9,10 @@ namespace systems
 	class menu_system : public MySystem
 	{
 		Time::Timer2 timer;
-		events::publisher<events::switch_world>& switch_publisher;
+		const events::publisher<events::switch_world>& switch_publisher;
 
 	public:
-		menu_system(events::publisher<events::switch_world>& switch_publisher) :
+		menu_system(const events::publisher<events::switch_world>& switch_publisher) :
 			switch_publisher(switch_publisher)
 		{
 			timer.zero();

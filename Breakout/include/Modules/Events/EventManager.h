@@ -23,8 +23,6 @@ namespace events
 		subscriber(subscriber&&) = delete;
 		subscriber& operator=(const subscriber&) = delete;
 		subscriber& operator=(subscriber&&) = delete;
-
-
 	};
 
 	template<class Event>
@@ -36,10 +34,9 @@ namespace events
 		std::function<void(Event)> callback;
 
 		publisher(std::function<void(Event)> callback) : callback(callback) {}
+
 		publisher(const publisher&) = delete;
-		publisher(publisher&&) = default;
 		publisher& operator=(const publisher&) = delete;
-		publisher& operator=(publisher&&) = default;
 
 		void set_callback(std::function<void(Event)> callback)
 		{
@@ -47,7 +44,14 @@ namespace events
 		}
 
 	public:
-		void broadcast(Event e)
+		publisher(publisher&& o) : callback(std::move(o.callback)) {}
+		publisher& operator=(publisher&& o)
+		{
+			this->callback = std::move(o.callback);
+			return *this;
+		}
+
+		void broadcast(Event e) const
 		{
 			callback(std::move(e));
 		}
@@ -63,8 +67,10 @@ namespace events
 		using subscriber_id = uint32_t;
 
 		base_manager() :
-			publishers(new std::tuple<publisher<Events>...>(
-					(publisher<Events>([this](Events event) { this->broadcast(event); }), ...)
+			publishers(std::unique_ptr<std::tuple<publisher<Events>...>>(
+				new std::tuple<publisher<Events>...>(
+					publisher<Events>([this](Events event) { this->broadcast(event); })...
+					)
 			))
 		{}
 
@@ -101,7 +107,7 @@ namespace events
 		}
 
 		template<class Event>
-		publisher<Event>& new_publisher()
+		const publisher<Event>& new_publisher()
 		{
 			constexpr auto index = type_index<Event, Events...>::value;
 			return std::get<index>(*publishers);
