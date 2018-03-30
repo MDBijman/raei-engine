@@ -2,6 +2,7 @@
 #include "ECSConfig.h"
 #include "EventConfig.h"
 #include "World.h"
+#include "Scores.h"
 
 #include "Events/WorldEvents.h"
 
@@ -19,7 +20,9 @@ private:
 	graphics::Renderer graphics;
 	graphics::Camera camera;
 	assets::manager	asset_manager;
+	game::scores scores;
 
 	game::world	world;
 	std::reference_wrapper<events::subscriber<events::switch_world>> world_listener;
+	std::reference_wrapper<events::subscriber<events::new_score>> score_listener;
 };

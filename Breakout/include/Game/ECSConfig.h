@@ -66,6 +66,8 @@ using filter_list = std::tuple<
 	ecs::filter<components::score, components::drawable<speck::graphics::text>, 
 		Components::Scale2D, Components::Position2D>,
 
+	ecs::filter<components::score>,
+
 	// Tags
 	ecs::filter<components::brick>,
 	ecs::filter<components::paddle>,

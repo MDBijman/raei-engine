@@ -13,7 +13,7 @@ namespace systems
 
 	void score_list_system::update(ecs_manager& ecs)
 	{
-		if (IO::Keyboard::getKeyStatus(VK_RETURN) == IO::Keyboard::DOWN)
+		if (IO::Keyboard::getKeyStatus(VK_ESCAPE) == IO::Keyboard::DOWN)
 		{
 			publisher.broadcast(events::switch_world(game::worlds::MAIN_MENU));
 		}

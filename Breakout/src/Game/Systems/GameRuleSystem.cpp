@@ -17,5 +17,12 @@ void systems::game_rule_system::update(ecs_manager& ecs)
 		}
 	}
 
-	if (!alive) this->publisher.broadcast(events::switch_world(game::worlds::MAIN_MENU));
+	if (!alive)
+	{
+		this->publisher.broadcast(events::switch_world(game::worlds::MAIN_MENU));
+
+		auto score = ecs.filterEntities<ecs::filter<components::score>>();
+		auto score_entity = *score.entities.begin();
+		this->score_publisher.broadcast(events::new_score(ecs.getComponent<components::score>(score_entity).count));
+	}
 }

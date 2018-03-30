@@ -167,6 +167,9 @@
     <ClCompile Include="src\Game\Systems\ScoreListSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Game\Scores.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Graphics\Resources\Textures\Texture.h">
@@ -434,6 +437,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Game\Systems\ScoreListSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Game\Scores.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

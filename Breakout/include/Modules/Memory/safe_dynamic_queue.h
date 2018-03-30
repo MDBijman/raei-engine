@@ -36,6 +36,12 @@ namespace memory
 			return front;
 		}
 
+		void clear()
+		{
+			std::scoped_lock<std::mutex> sl(lock);
+			queue = {};
+		}
+
 		size_t size()
 		{
 			std::scoped_lock<std::mutex> sl(lock);

@@ -5,5 +5,6 @@
 
 using event_manager = events::base_manager<
 	events::collision,
-	events::switch_world
+	events::switch_world,
+	events::new_score
 >;

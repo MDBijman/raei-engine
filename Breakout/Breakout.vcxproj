@@ -182,6 +182,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Game\Game.cpp" />
+    <ClCompile Include="src\Game\Scores.cpp" />
     <ClCompile Include="src\Game\Systems\BallSystem.cpp" />
     <ClCompile Include="src\Game\Systems\BrickSystem.cpp" />
     <ClCompile Include="src\Game\Systems\CameraSystem.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="include\Game\ECSConfig.h" />
     <ClInclude Include="include\Game\Events\BrickEvents.h" />
     <ClInclude Include="include\Game\Events\WorldEvents.h" />
+    <ClInclude Include="include\Game\Scores.h" />
     <ClInclude Include="include\Game\Systems\ScoreListSystem.h" />
     <ClInclude Include="include\Game\Worlds\MainLevel.h" />
     <ClInclude Include="include\Game\Worlds\Menu.h" />

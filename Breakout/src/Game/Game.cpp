@@ -17,8 +17,10 @@ Game::Game(HINSTANCE hInstance, HWND window) :
 	graphics({ hInstance, window, "triangle", 1280, 720 }),
 	camera(-1272.f / 689.f, 1272.f / 689.f, -1.0f, 1.0f, 0.1f, 100.0f),
 	asset_manager("./res/"),
+	scores("./res/saves/scores.txt"),
 	world(game::load_menu(camera, graphics)),
-	world_listener(world.events.new_subscriber<events::switch_world>())
+	world_listener(world.events.new_subscriber<events::switch_world>()),
+	score_listener(world.events.new_subscriber<events::new_score>())
 {}
 
 void Game::run()
@@ -28,7 +30,12 @@ void Game::run()
 		IO::Polling::update();
 		world.update();
 
-		while (world_listener.get().size() > 1)
+		while(score_listener.get().size() > 0)
+		{
+			this->scores.add_score(score_listener.get().pop()->score);
+		}
+
+		while (world_listener.get().size() > 0)
 		{
 			auto event = world_listener.get().pop();
 			if (event->to == game::worlds::QUIT)
@@ -38,18 +45,18 @@ void Game::run()
 			else if (event->to == game::worlds::GAME)
 			{
 				world = game::load(camera, graphics);
-				world_listener = world.events.new_subscriber<events::switch_world>();
 			}
 			else if (event->to == game::worlds::MAIN_MENU)
 			{
 				world = game::load_menu(camera, graphics);
-				world_listener = world.events.new_subscriber<events::switch_world>();
 			}
 			else if (event->to == game::worlds::HIGHSCORES)
 			{
-				world = game::load_scorelist(camera, graphics);
-				world_listener = world.events.new_subscriber<events::switch_world>();
+				world = game::load_scorelist(camera, graphics, scores);
 			}
+
+			world_listener = world.events.new_subscriber<events::switch_world>();
+			score_listener = world.events.new_subscriber<events::new_score>();
 		}
 	}
 }

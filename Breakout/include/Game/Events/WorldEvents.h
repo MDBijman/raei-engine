@@ -8,4 +8,10 @@ namespace events
 		switch_world(game::worlds w) : to(w) {}
 		game::worlds to;
 	};
+
+	struct new_score
+	{
+		new_score(int score) : score(score) {}
+		int score;
+	};
 }
