@@ -119,7 +119,7 @@ void VulkanSwapChain::setup(vk::CommandBuffer cmdBuffer, uint32_t *width, uint32
 		*height = surfCaps.currentExtent.height;
 	}
 
-	// Prefer mailbox mode if present, it's the lowest latency non-tearing present  mode
+	// Prefer mailbox mode if present, it's the lowest latency non-tearing present mode
 	vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eFifo;
 	for (size_t i = 0; i < presentModes.size(); i++)
 	{
@@ -250,7 +250,8 @@ void VulkanSwapChain::queuePresent(vk::Queue queue, uint32_t* currentBuffer, vk:
 	vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
 		.setSwapchainCount(1)
 		.setPSwapchains(&swapChain)
-		.setPImageIndices(currentBuffer);
+		.setPImageIndices(currentBuffer)
+		.setPWaitSemaphores(&waitSemaphore);
 
 	queue.presentKHR(&presentInfo);
 }

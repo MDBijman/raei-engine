@@ -230,7 +230,7 @@ namespace graphics
 					cmdBuffer.copyBufferToImage(stagingBuffer, image, vk::ImageLayout::eTransferDstOptimal, bufferCopyRegions);
 
 					// Change texture image layout to shader read after all mip levels have been copied
-					imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+					imageLayout = vk::ImageLayout::eGeneral;
 
 					// Create an image barrier object
 					vk::ImageMemoryBarrier imageMemoryBarrier2 = {};

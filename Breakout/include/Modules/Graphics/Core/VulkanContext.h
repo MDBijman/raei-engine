@@ -31,13 +31,17 @@ namespace graphics
 			// Layers we want
 			std::vector<const char*> layers = {
 				"VK_LAYER_LUNARG_standard_validation",
+				//"VK_LAYER_RENDERDOC_Capture",
+				"VK_LAYER_LUNARG_api_dump",
+				"VK_LAYER_KHRONOS_validation",
+				"VK_LAYER_LUNARG_monitor"
 			};
 
 			vk::ApplicationInfo applicationInfo = vk::ApplicationInfo()
 				.setPApplicationName(name.c_str())
 				.setPEngineName(name.c_str())
 				.setEngineVersion(1)
-				.setApiVersion(VK_MAKE_VERSION(1, 0, 65));
+				.setApiVersion(VK_MAKE_VERSION(1, 2, 162));
 
 			vk::InstanceCreateInfo instanceCreateInfo = vk::InstanceCreateInfo()
 				.setPApplicationInfo(&applicationInfo)
