@@ -120,9 +120,10 @@ void VulkanSwapChain::setup(vk::CommandBuffer cmdBuffer, uint32_t *width, uint32
 	}
 
 	// Prefer mailbox mode if present, it's the lowest latency non-tearing present mode
-	vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eFifo;
+	vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eImmediate;
 	for (size_t i = 0; i < presentModes.size(); i++)
 	{
+		break;
 		if (presentModes[i] == vk::PresentModeKHR::eMailbox)
 		{
 			swapchainPresentMode = vk::PresentModeKHR::eMailbox;
@@ -231,9 +232,9 @@ void VulkanSwapChain::setup(vk::CommandBuffer cmdBuffer, uint32_t *width, uint32
 	}
 }
 
-void VulkanSwapChain::acquireNextImage(VkSemaphore presentCompleteSemaphore, VkFence fence, uint32_t *currentBuffer)
+void VulkanSwapChain::acquireNextImage(VkSemaphore imageAvailable, VkFence fence, uint32_t *currentBuffer)
 {
-	context.device.acquireNextImageKHR(swapChain, UINT64_MAX, presentCompleteSemaphore, fence, currentBuffer);
+	context.device.acquireNextImageKHR(swapChain, UINT64_MAX, imageAvailable, fence, currentBuffer);
 }
 
 void VulkanSwapChain::queuePresent(vk::Queue queue, uint32_t* currentBuffer)
@@ -241,8 +242,11 @@ void VulkanSwapChain::queuePresent(vk::Queue queue, uint32_t* currentBuffer)
 	vk::PresentInfoKHR presentInfo = vk::PresentInfoKHR()
 		.setSwapchainCount(1)
 		.setPSwapchains(&swapChain)
+		.setWaitSemaphoreCount(0)
 		.setPImageIndices(currentBuffer);
-	queue.presentKHR(presentInfo);
+	vk::Result r = queue.presentKHR(&presentInfo);
+	static int i = 0;
+	std::cout << i++ << " " << r << std::endl;
 }
 
 void VulkanSwapChain::queuePresent(vk::Queue queue, uint32_t* currentBuffer, vk::Semaphore waitSemaphore)
@@ -251,9 +255,12 @@ void VulkanSwapChain::queuePresent(vk::Queue queue, uint32_t* currentBuffer, vk:
 		.setSwapchainCount(1)
 		.setPSwapchains(&swapChain)
 		.setPImageIndices(currentBuffer)
-		.setPWaitSemaphores(&waitSemaphore);
+		.setPWaitSemaphores(&waitSemaphore)
+		.setWaitSemaphoreCount(1);
 
-	queue.presentKHR(&presentInfo);
+	vk::Result r = queue.presentKHR(&presentInfo);
+	static int i = 0;
+	std::cout << i++ << " " << r << std::endl;
 }
 
 void VulkanSwapChain::cleanup()

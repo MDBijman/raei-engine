@@ -67,13 +67,15 @@ namespace graphics
 
 		vk::SemaphoreCreateInfo semaphoreCreateInfo;
 
-		// This semaphore ensures that the image is complete
-		// before starting to submit again
-		presentComplete = context->device.createSemaphore(semaphoreCreateInfo);
+		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			// This semaphore ensures that the image is complete
+			// before starting to submit again
+			presentComplete[i] = context->device.createSemaphore(semaphoreCreateInfo);
 
-		// This semaphore ensures that all commands submitted
-		// have been finished before submitting the image to the queue
-		renderComplete = context->device.createSemaphore(semaphoreCreateInfo);
+			// This semaphore ensures that all commands submitted
+			// have been finished before submitting the image to the queue
+			renderComplete[i] = context->device.createSemaphore(semaphoreCreateInfo);
+		}
 
 		vk::FenceCreateInfo fenceCreateInfo = {};
 		waitImage = context->device.createFence(fenceCreateInfo);
@@ -179,7 +181,7 @@ namespace graphics
 		// This needs to be done before the frame is returned since otherwise the wrong buffers (from the previous frame) will be added
 		// to the frame. TODO possibly change this so that this call can be done in the submit method. For this, the 'currentBuffer' of this frame must
 		// be known before it is retrieved with acquireNextImage.
-		swapchain->acquireNextImage(nullptr, waitImage, &currentBuffer);
+		swapchain->acquireNextImage(presentComplete[current_frame], waitImage, &currentBuffer);
 		context->device.waitForFences(waitImage, VK_TRUE, 1000000000000);
 		context->device.resetFences(1, &waitImage);
 		return Frame(getCurrentBuffer());
@@ -195,6 +197,23 @@ namespace graphics
 		context->queue->submit(1, &submitInfo, nullptr);
 	}
 
+	void Renderer::submit(vk::CommandBuffer* buffer, vk::Semaphore waitFor, vk::Semaphore signal) const
+	{
+		vk::PipelineStageFlags waitBits = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+		vk::SubmitInfo submitInfo;
+		submitInfo
+			.setCommandBufferCount(1)
+			.setPCommandBuffers(buffer)
+			.setWaitSemaphoreCount(1)
+			.setPWaitSemaphores(&waitFor)
+			.setSignalSemaphoreCount(1)
+			.setPSignalSemaphores(&signal)
+			.setPWaitDstStageMask(&waitBits);
+
+		context->queue->submit(1, &submitInfo, nullptr);
+	}
+
+
 	void Renderer::prepare()
 	{
 		submitPostPresentBarrier(swapchain->images[currentBuffer]);
@@ -204,21 +223,25 @@ namespace graphics
 	{
 		prepare();
 
-		for (auto buffer : frame->buffers)
+		for (int i = 0; i < frame->buffers.size() - 1; i++)
 		{
-			submit(buffer);
+			submit(frame->buffers[i]);
 		}
+
+		submit(frame->buffers.back(), presentComplete[current_frame], renderComplete[current_frame]);
 
 		context->queue->waitIdle();
 
 		present();
+
+		current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
 	void Renderer::present()
 	{
 		submitPrePresentBarrier(swapchain->images[currentBuffer]);
 
-		swapchain->queuePresent(*context->queue, &currentBuffer, renderComplete);
+		swapchain->queuePresent(*context->queue, &currentBuffer, renderComplete[current_frame]);
 
 		context->queue->waitIdle();
 	}

@@ -42,6 +42,7 @@ namespace graphics
 	private:
 		void prepare();
 		void submit(vk::CommandBuffer* buffer) const;
+		void submit(vk::CommandBuffer* buffer, vk::Semaphore waitFor, vk::Semaphore signal) const;
 		void present();
 
 		vk::RenderPass drawPass;
@@ -68,8 +69,11 @@ namespace graphics
 
 		uint32_t currentBuffer = 0;
 
-		vk::Semaphore          presentComplete;
-		vk::Semaphore          renderComplete;
+		static const uint32_t MAX_FRAMES_IN_FLIGHT = 2;
+		uint32_t current_frame = 0;
+
+		vk::Semaphore presentComplete[MAX_FRAMES_IN_FLIGHT];
+		vk::Semaphore renderComplete[MAX_FRAMES_IN_FLIGHT];
 		vk::Fence waitImage;
 
 		vk::CommandBuffer      postPresentCmdBuffer;
